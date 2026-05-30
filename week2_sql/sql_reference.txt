@@ -1,0 +1,33 @@
+=============================================================================
+SQL & RELATIONAL DATABASE CHEAT SHEET
+=============================================================================
+
+Relational Database: data stored in tables
+Primary Key (PK): column(s) that uniquely identify each row in a table (e.g. ids)
+Foreign Key (FK): a column in one table that POINTS to PK of another table, creates relation b/w tables
+
+SQL (Structured Query Language): language used to interact w/ database
+CRUD Operations: Create, Read, Update, Delete 
+    -> INSERT, SELECT, UPDATE, DELETE
+
+CREATE Table:
+    CREATE TABLE table_name (
+        column1_name data_type constraints,
+        column2_name data_type constraints,
+        ...
+    );  # ALWAYS end w/ ;
+
+Data types e.g.: SERIAL, VARCHAR(max_char), DATE, TIMESTAMP, etc.
+Constraints e.g.: PRIMARY KEY, NOT NULL, DEFAULT 'default_value', etc.
+
+INSERT into Table:
+    INSERT INTO table_name (column1_name, column2_name)
+    VALUES 
+        ("item1a", "item1b"),  # first row
+        ("item2a", "item2b"),  # second row
+        ("item3a", "item3b");  # third row
+
+
+
+
+    

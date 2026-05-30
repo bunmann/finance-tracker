@@ -1,0 +1,165 @@
+=============================================================================
+PYTHON LOOPING & DATA STRUCTURE CHEAT SHEET
+=============================================================================
+
+LESSON 1 and 2:
+
+   1. Type Hint: Guides variable type, not enforced
+      height: float = 175
+   
+   2. f-strings: sub variables into strings 
+      message = f"Hello, {name}! You are {age} years old."
+
+   3. LOOPS
+   # List loop:
+   for x in ["A", "B"]
+
+   # Range loop (0 to 4):
+   for i in range(5)
+
+   # Range loop with custom (start, stop, step):
+   for i in range(2, 10, 2)  # 2, 4, 6, 8
+
+   # Loop with index (enumerate):         //enumerate gives index and value (enumerate(iterable, start=0))
+   for idx, val in enumerate(["A", "B"]): 
+      print(idx, val)
+   For dicts: .items() combines key&values into list of tuples to be looped through
+
+   4. ZIP (Parallel Iteration)
+   # Merges iterables element-wise into tuples:
+   names = ["A", "B"]
+   scores = [90, 80]
+   for name, score in zip(names, scores):
+      print(name, score)  # "A 90", "B 80"
+
+   # Convert two lists to dict:
+   d = dict(zip(names, scores))  # {'A': 90, 'B': 80}
+
+   # Unzip list of tuples back into tuples:
+   pairs = [("A", 90), ("B", 80)]
+   names, scores = zip(*pairs)  # ('A', 'B'), (90, 80)
+
+   5. DATA STRUCTURE SUMMARY
+   | Type  | C++ Equivalent | Mutable | Order | Unique | Syntax |
+   |-------|----------------|---------|-------|--------|--------|
+   | list  | vector         | Yes     | Yes   | No     | [1, 2] |
+   | dict  | unordered_map  | Yes     | Yes   | Keys   | {k: v} | k must be unmutable
+   | set   | unordered_set  | Yes     | No    | Yes    | {1, 2} |
+   | tuple | tuple / pair   | No      | Yes   | No     | (1, 2) |
+
+   Can combine with conds: even_squares = [x**2 for x in range(10) if x % 2 == 0]
+   Or do double loops inside: flat = [num for row in matrix for num in row]
+   -> Can do lazy eval: total_income = sum(t.amount for t in transactions if not t.is_expense())
+
+   6. BOOLS: not, any, all (for conditions)
+      any(n > 5 for n in numbers)
+
+
+
+LESSON 3: Functions and Classes
+
+   Functions go: def func_name(param: type, param: type = deafult) -> return type(s): define
+      CAN DO MULTIPLE RETURNS (just return a tuple)
+
+   For variable arguments:
+      def func(*args)  -> args groups vars into tuple, for changing # of variables
+      def func(**kwargs) -> kwargs groups vars into dict, for changing # of key&pair variables
+         -> unpacks dict when being sent as parameter
+
+   Lambda functions: Anonymous functions
+      syntax: lambda arguments: returns
+      Example: add = lambda x, y: x + y
+      # add is name of VARIABLE, NOT func
+      # add is variable that can be reassigned elsewhere
+
+   Docstringing: triple quotes after func def, used for integrated description
+
+   Classes: HAS OBJECT TO BEGIN WITH (class object), gets instances later when called (insatance object)
+      class Transaction:
+         _init_ is prototype function -> declare w/ Transaction("Food", -10.5, "Lunch")
+         self is EXPLICITLY called at all times, basically this
+         Never need to pass self, but is needed in func definition
+
+   Class object vs Instance object:
+      -> declaring w/o self. member variables = class object: shared by all instances (refers to class object) until later specified
+      -> declaring w/ self. member variables = instance object (holds unique vars)
+
+   Operator Overloading:
+      __str__ (self): called when print() happens
+      __repr__ (self): called when object is in a list (debugging)
+      __eq__(self,other): overloads ==
+      __add__(self,other): overloads +
+      __lt_(self,other): overloads <
+      __gt_(self,other): overloads >
+
+   Inheritance: super() gives access to parent elements
+      class Child(Parent):
+         _init_(vars):
+            super().__init__(vars)  -> calls parent's _init_
+            _init_(vars) -> init own vars
+   
+   Dataclasses: from dataclasses import dataclass
+   include @dataclass to convert classes into dataclasses 
+      -> autocompletes _init_, __repr__, __eq__
+      -> must state member types
+
+
+
+LESSON 4: File I/O, JSON, CSV, and Error Handling
+
+   0. Import OS: import OS
+      os.makedirs("file_location", exist_ok=True) // makes a folder if doesn't exist (like mkdir)
+
+   1. Reading and writing text files: with open("file_location", "type") as var_name: 
+      -> with safely closes file automatically
+      -> type = "w" = overwrite, "r" = read, "a" = append
+      -> following :, indent and can write using f.write(), f.read() -> return 1 string, f.readlines() -> return list of strings, or for line in f: print(line)
+ 
+
+   2. CSV Files (Comma-Seperated Values): import csv
+      -> organized as 1D strings w/ values separated by commas & \n in between each row 
+      -> csv is module (like namespace)
+      -> has classes DictWriter and DictReader
+
+      DictWriter(file_name, fieldnames = [key_names])
+      -> maps dicts into CSV rows
+      -> fieldnames is just the first row (header)
+      -> e.g. writer = csv.DictWriter(f, fieldnames=["date", "description", "amount", "category"])
+      -> writer is object variable to edit now
+
+      DictWriter methods:
+      .writeheader(): adds field names to first row
+      .writerows(list of dicts): organizes dicts into rows of commas
+
+      DictReader(file_name)
+      -> parses 1D array -> 2D table array, always strings
+      -> is iterable
+      -> e.g. reader = csv.DictReader(file_name)
+
+
+   3. JSON Files: import json 
+      -> is module used for converting python dict into JSON
+
+      JSON Functions:
+         -> json.dumps(dict, indent=2): converts dict -> json string var
+         -> json.loads(json_string): converts json string var -> dict var
+         -> json.dump(dict, file_name, indent): writes dict -> json string into file
+         -> json.load(file_name): loads json from file -> dict var
+
+   
+   4. Error Handling: try, except, else, finally blocks
+      -> try {code} except {error type(s)} (as e // Put error inside variable): {code}
+      -> can do else & finally block following the except block
+
+      Error types: ZeroDivisionError, KeyError, TypeError, ValueError, AttributeError, FileNotFoundError
+      -> ValueError: correct type, but doesnt make sense (e.g. converting "hello" to float or sqrt (-5))
+      -> AttributeError: accessing unexisting methods
+
+      Raising Errors: e.g. raise CustomError("Error message here") // like consturctor defining e
+      -> except CustomError as e: # catches error
+
+      
+
+      
+      
+
