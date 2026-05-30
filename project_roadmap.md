@@ -32,6 +32,27 @@ Sep 1 ──── Sep 28    Final polish, README, deploy, record demo
 Oct 1 ─────────────  PEY APPLICATIONS OPEN 🚀
 ```
 
+## Multi-Device Git Workflow & Data Plan
+
+Since you are coding on both your Macbook and PC, keep this workflow in mind to stay synced:
+
+### Git Checklist (When switching devices)
+* **On the device you are leaving:**
+  ```bash
+  git add .
+  git commit -m "brief description of work"
+  git push
+  ```
+* **On the device you are starting on:**
+  ```bash
+  git pull
+  ```
+
+### Local Environment & Data Policy
+* **`venv/` (Virtual Environment):** Excluded from Git. You will run `python3 -m venv venv` once on your PC to set up local dependencies there.
+* **`data/` (Transaction logs):** Excluded from Git to keep your financial logs private. You will generate separate local test data on each machine.
+* **Cloud Sync Plan:** When we transition to databases (Week 3+), we'll connect both devices to a **free cloud database** (like Neon or Supabase). This will sync your transactions automatically across devices over the internet without needing Git to track data files.
+
 ---
 
 ## Phase 1: Learn the Tools (Weeks 1–2)
