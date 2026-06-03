@@ -89,6 +89,14 @@ LESSON 2: Queries and Joins & Aggregations
     Left Joins (most common): returns all rows from left + any right matching rows
     -> if no match from right, columns return as NULL
     -> useful to see all transactions even if no category exist
+    e.g.    SELECT * FROM transactions
+            LEFT JOIN categories ON transactions.category_id = categories.id; 
+            // condition join rows if ID found    
+    
+    Shorten into aliases:
+    e.g.    SELECT * FROM transactions t
+            LEFT JOIN categories ON t.category_id = c.id;
+
 
     Aggregate: group calculations around columns using GROUP BY and aggregate functions
     Common aggregate functions: SUM(col_name), COUNT(col_name), AVG(col_name), MIN/MAX(col_name)
@@ -110,6 +118,10 @@ LESSON 2: Queries and Joins & Aggregations
     GROUP BY category_id                              
     HAVING SUM(amount) > 500.00;                      // only show sum > 500
 
+    Can combine all these to: 
+    e.g.    SELECT SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END) AS net_balance
+            FROM transactions;
+
 LESSON 3: Postgres Setup
 
 Start Service: brew services start postgresql
@@ -129,4 +141,4 @@ SQL Slash Commands (not ; needed):
 | **`\dt`** | **Display Tables** in the current database |
 | **`\d table_name`** | Describe the schema (columns, types, keys) of a specific table |
 | **`\q`** | **Quit** the psql shell and return to your terminal |
-
+| **'\pset pager off`** | removes the ability to scroll up and down results in terminal |
