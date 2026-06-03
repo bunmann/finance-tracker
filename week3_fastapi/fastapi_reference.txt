@@ -2,32 +2,25 @@
 WEEK 3: FASTAPI & ORM CHEAT SHEET (YOUR NOTES)
 =============================================================================
 
-HTTP METHODS (CRUD):
-    GET    -> Read data
-    POST   -> Create data
-    PUT    -> Update data
-    DELETE -> Delete data
+LESSON 1: FastAPI Basics
+    REST API (Representational State Transfer Application Programming Interface):
+    -> allows two systems to communicate over the web using HTTP
 
-FASTAPI BASIC ROUTE:
-    from fastapi import FastAPI
-    app = FastAPI()
-    
-    @app.get("/")
-    def read_root():
-        return {"hello": "world"}
+    HTTPS Methods (CRUD of WEB): GET = SELECT, POST = INSERT, PUT/PATCH = UPDATE, DELETE = DELETE
 
-RUNNING UVICORN:
-    uvicorn main:app --reload
+    RUNNING THE SERVER (Uvicorn):
+    Type in terminal: uvicorn main:app --reload   
+    -> main = filename (main.py)
+    -> app = FastAPI variable instance inside main.py
+    -> --reload = hot-reload server on code edits
 
-PATH VS QUERY PARAMETERS:
-    Path Parameter: part of the URL path itself
-    e.g. @app.get("/items/{item_id}")
-    
-    Query Parameter: key-value pairs appended after '?' in the URL
-    e.g. @app.get("/items/")  -> /items/?skip=0&limit=10
+    INTERACTIVE DOCUMENTATION:
+        URL: http://127.0.0.1:8000/docs (FastAPI Swagger UI)
+        -> Auto-generated documentation for all routes
+        -> Use the "Try it out" button to execute requests directly in browser
 
-PYDANTIC SCHEMAS (Data Validation & Serialization):
-    # TODO: Add notes on declaring schemas using BaseModel
+    BASIC ROUTE SYNTAX:
+        @app.get("/")                    // Decorator: routes HTTP GET requests on path "/" to function
+        def read_root():                 // Function: executes when route is hit
+            return {"message": "hello"}  // Response: Python dicts are auto-serialized to JSON
 
-SQLALCHEMY ORM (Object Relational Mapping):
-    # TODO: Add notes on setting up engine, SessionLocal, Base, and Models
