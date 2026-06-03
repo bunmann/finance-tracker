@@ -115,10 +115,10 @@ You don't need a full course. You already know OOP, loops, conditionals, data st
 3. Write queries for: total by category, monthly spending, top 5 expenses
 
 **Milestone:** By end of Week 2, you can:
-- Design a normalized schema (no redundant data)
-- Write JOIN queries across multiple tables
-- Use GROUP BY with aggregate functions
-- Explain what a foreign key is and why it matters
+- [x] Design a normalized schema (no redundant data)
+- [x] Write JOIN queries across multiple tables
+- [x] Use GROUP BY with aggregate functions
+- [x] Explain what a foreign key is and why it matters
 
 ---
 
