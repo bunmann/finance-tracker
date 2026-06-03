@@ -1,34 +1,55 @@
 # LESSON 3: Installing & Setting Up PostgreSQL
 
-To write and test SQL queries, we need to install PostgreSQL on your Mac and learn how to run the interactive command-line interface.
+To write and test SQL queries, you need to install PostgreSQL on both of your devices and learn how to run the interactive command-line interface.
 
 ---
 
-## 1. Installation via Homebrew
+## macOS Setup (Homebrew)
+
+### 1. Installation via Homebrew
 
 Homebrew is the standard package manager for macOS. 
 
 Open your Mac terminal (not the Python shell) and run the following command to install PostgreSQL:
 
 ```bash
-brew install postgresql@14
+brew install postgresql
 ```
-*(Note: If you already have it installed, or want to install a different version, that's fine. Version 14+ is recommended).*
+*(Note: If you already have it installed, version 14+ is fine, but the latest stable version is recommended).*
 
 ### Start the PostgreSQL Service:
 To start the database server running in the background as a background daemon:
 ```bash
-brew services start postgresql@14
+brew services start postgresql
 ```
 
 To stop the service when you aren't using it:
 ```bash
-brew services stop postgresql@14
+brew services stop postgresql
 ```
 
 ---
 
-## 2. Connecting to your Database (`psql`)
+## Windows 10 Setup
+
+### 1. Installation
+1. Download the official installer from [PostgreSQL downloads](https://www.postgresql.org/download/windows/) (version 16 or 17).
+2. Run the installer and click through the default options. 
+3. **Important:** It will ask you to set a password for the default database user (`postgres`). **Do not forget this password!**
+4. Keep the default port (`5432`).
+5. Once installed, PostgreSQL runs automatically in the background as a Windows Service. You do not need to manually start it.
+
+### 2. Connecting to psql on Windows
+The easiest way is to search your Start Menu for **"SQL Shell (psql)"**:
+1. Open **SQL Shell (psql)** from your Start Menu.
+2. It will ask for Server, Database, Port, and Username. Press **Enter** to accept the default values for each.
+3. When it asks for **Password**, type the password you created during installation and press **Enter** (no characters will show as you type).
+
+*(Alternatively, if you want to run `psql` in PowerShell/CMD, add `C:\Program Files\PostgreSQL\<version>\bin` to your Windows Environment Variables).*
+
+---
+
+## 2. Connecting to your Database (`psql`) (macOS)
 
 `psql` is the interactive terminal client for PostgreSQL. 
 

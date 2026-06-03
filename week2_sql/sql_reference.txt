@@ -2,32 +2,131 @@
 SQL & RELATIONAL DATABASE CHEAT SHEET
 =============================================================================
 
-Relational Database: data stored in tables
-Primary Key (PK): column(s) that uniquely identify each row in a table (e.g. ids)
-Foreign Key (FK): a column in one table that POINTS to PK of another table, creates relation b/w tables
+LESSON 1: Database Basics
 
-SQL (Structured Query Language): language used to interact w/ database
-CRUD Operations: Create, Read, Update, Delete 
-    -> INSERT, SELECT, UPDATE, DELETE
+    Relational Database: data stored in tables
+    Primary Key (PK): column(s) that uniquely identify each row in a table (e.g. ids)
+    Foreign Key (FK): a column in one table that POINTS to PK of another table, creates relation b/w tables
 
-CREATE Table:
-    CREATE TABLE table_name (
-        column1_name data_type constraints,
-        column2_name data_type constraints,
-        ...
-    );  # ALWAYS end w/ ;
+    SQL (Structured Query Language): language used to interact w/ database
+    CRUD Operations: Create, Read, Update, Delete 
+        -> INSERT, SELECT, UPDATE, DELETE
 
-Data types e.g.: SERIAL, VARCHAR(max_char), DATE, TIMESTAMP, etc.
-Constraints e.g.: PRIMARY KEY, NOT NULL, DEFAULT 'default_value', etc.
+    A. CREATE Table:
+        CREATE TABLE table_name (
+            col1_name data_type constraints,
+            col2_name data_type constraints,
+            ...
+        );  # ALWAYS end w/ ;
 
-INSERT into Table:
-    INSERT INTO table_name (column1_name, column2_name)
-    VALUES 
-        ("item1a", "item1b"),  # first row
-        ("item2a", "item2b"),  # second row
-        ("item3a", "item3b");  # third row
+    For each column: name data_type [optional: reference] [optional: constraint(s)]
+
+    Data types e.g.: SERIAL, VARCHAR(max_char), DATE, TIMESTAMP, etc.
+    Constraints e.g.: PRIMARY KEY (unique and not null), NOT NULL, DEFAULT 'default_value', CHECK, etc.
+
+    Adding Foreign keys: FOREIGN KEY (name) REFERENCES table_name(col_name)
+        e.g. user_id INTEGER NOT NULL, FOREIGN KEY (user_id) REFERENCES users(id)
+        -> can combine easily into: user_id INTEGER NOT NULL REFERENCES users(id)
+        
+        
+
+    B. INSERT (Creating Records):
+        INSERT INTO table_name (col1_name, col2_name)
+        VALUES 
+            ("item1a", "item1b"),  # first row
+            ("item2a", "item2b"),  # second row
+            ("item3a", "item3b");  # third row
+
+    C. SELECT (Reading Records, selecting the columns to read and output):
+        Reading all columns: SELECT * FROM table_name
+        Reading from specific cols: SELECT col1_name AS alias_name, col2_name FROM table_name
+
+    D. UPDATE (Modify Records): MUST always use WHERE clause (or else modifies every row)
+        UPDATE table_name
+        SET col1_name = "new_value"
+        WHERE col2_name = "value"; // only updates on rows with this condition
+
+    E. DELETE (Remove records): MUST always use WHERE (or else deletes table)
+        DELETE FROM table_name
+        WHERE condition_is_true; // only deletes on rows with this condition
+
+
+    Sorting & Limiting: just like sort() and slicing, you can sort and limit results
+    Examples:
+
+        SELECT * FROM table_name
+        ORDER BY name ASC; // ASC = ascending, DESC = descending
+
+        ELECT * FROM table_name
+        LIMIT 5 OFFSET 2; // gets first 5 rows offset by 2 (i.e. rows 3-7)
 
 
 
+LESSON 2: Queries and Joins & Aggregations
+    Joins: Combining tables
+    Aggregates: Grouping data types
 
+    Advanced Filtering with WHERE:
+    | Operator | Meaning | Example |
+    | `=` | Equals | `WHERE category = 'Food'` |
+    | `!=` or `<>` | Not equals | `WHERE category != 'Income'` |
+    | `<`, `>`, `<=`, `>=` | Numeric bounds | `WHERE amount > 50.00` |
+    | `BETWEEN x AND y` | Inclusive range | `WHERE date BETWEEN '2026-05-01' AND '2026-05-31'` |
+    | `IN (a, b, c)` | Matches any in list | `WHERE category IN ('Food', 'Transport')` |
+    | `LIKE` | Wildcard text match | `WHERE description LIKE '%Timmies%'` (matches any description containing "Timmies") |
+    | `IS NULL` | Checks for null | `WHERE description IS NULL` |
+
+    Logical Operations: AND, OR, NOT (these can be combined)
+    e.g. SELECT * FROM transactions
+         WHERE amount > 50.00 
+            AND category = 'Food' 
+            AND NOT description LIKE '%Refund%';
+
+    Joins (Combining Tables):
+    Inner Joins (default): returns rows when there is a match in BOTH tables
+    -> excludes results that dont match
+
+    Left Joins (most common): returns all rows from left + any right matching rows
+    -> if no match from right, columns return as NULL
+    -> useful to see all transactions even if no category exist
+
+    Aggregate: group calculations around columns using GROUP BY and aggregate functions
+    Common aggregate functions: SUM(col_name), COUNT(col_name), AVG(col_name), MIN/MAX(col_name)
+
+    GROUP BY Clause: 
+    e.g. Summing spending grouped by category_id
+    SELECT category_id, SUM(amount) AS total_spent    // total_spent = alias, select those 2 to put into table
+    FROM transactions                                 // FROM = which table to pull from
+    WHERE type = 'expense'                            // WHERE = filter rows BEFORE grouping
+    GROUP BY category_id;                             // GROUP BY = column to group by
     
+    HAVING condition: filter groups AFTER Grouping
+    -> vs WHERE filters rows BEFORE grouping
+
+    e.g. Same as above, but only show sum > 500
+    SELECT category_id, SUM(amount) AS total_spent    
+    FROM transactions                                 
+    WHERE type = 'expense'                            
+    GROUP BY category_id                              
+    HAVING SUM(amount) > 500.00;                      // only show sum > 500
+
+LESSON 3: Postgres Setup
+
+Start Service: brew services start postgresql
+Stop Service:  brew services stop postgresql
+
+Connecting to database server: psql postgres
+-> Creates postgres database SERVER and connects to it, allowing SQL language
+-> Can put more databases in it (just like folders in a computer)
+
+
+SQL Slash Commands (not ; needed):
+
+| Command | Action |
+| :--- | :--- |
+| **`\l`** | **List** all databases on this server |
+| **`\c database_name`** | **Connect** to a different database |
+| **`\dt`** | **Display Tables** in the current database |
+| **`\d table_name`** | Describe the schema (columns, types, keys) of a specific table |
+| **`\q`** | **Quit** the psql shell and return to your terminal |
+
