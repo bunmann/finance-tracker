@@ -1,6 +1,5 @@
 from fastapi import FastAPI
-from schemas import TransactionCreate
-from schemas import UserCreate
+from schemas import TransactionCreate, UserCreate
 
 app = FastAPI()
 

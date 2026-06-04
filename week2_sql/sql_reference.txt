@@ -6,7 +6,7 @@ LESSON 1: Database Basics
 
     Relational Database: data stored in tables
     Primary Key (PK): column(s) that uniquely identify each row in a table (e.g. ids)
-    Foreign Key (FK): a column in one table that POINTS to PK of another table, creates relation b/w tables
+    Foreign Key (FK): a column in one table that POINTS to PK of another table, creates relation b/w tables (ensures proper data is added)
 
     SQL (Structured Query Language): language used to interact w/ database
     CRUD Operations: Create, Read, Update, Delete 
