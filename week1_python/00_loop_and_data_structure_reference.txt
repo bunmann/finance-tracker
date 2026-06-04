@@ -60,6 +60,9 @@ LESSON 3: Functions and Classes
 
    Functions go: def func_name(param: type, param: type = deafult) -> return type(s): define
       CAN DO MULTIPLE RETURNS (just return a tuple)
+   
+   -> func_name is a variable that can be passed as parameter
+   -> func_name() actually executes it
 
    For variable arguments:
       def func(*args)  -> args groups vars into tuple, for changing # of variables

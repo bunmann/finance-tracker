@@ -58,7 +58,17 @@ LESSON 3 ORM & SQLALCHEMY:
 
 Object Relational Mapper (ORM): SQLAlchemy connects .py and .sql files
 -> translates database tables into Python classes, and database rows into Python objects
+-> SQLAlchemy SAVES and fetches data from DB
 
 Pydantic Schema vs SQLAlchemy Model: 
 -> Pydantic gatekeeps front to back end, is user input Validation
 -> SQLAlchemy translates between python and SQL database
+User sends JSON -> Pydantic Check -> SQL Database -> Python Backend
+
+
+LESSON 4: Crud Endpoints:
+
+User sends JSON  →  Pydantic validates  →  SQLAlchemy model created  →  Saved to PostgreSQL
+                     (schemas.py)            (models.py)                 (database.py)
+
+Depends(get_db): auto opens and closes DB sessions
