@@ -9,10 +9,13 @@ LESSON 1: FastAPI Basics
     HTTPS Methods (CRUD of WEB): GET = SELECT, POST = INSERT, PUT/PATCH = UPDATE, DELETE = DELETE
 
     RUNNING THE SERVER (Uvicorn):
-    Type in terminal: uvicorn main:app --reload   
+    1. Navigate to folder
+    2. Type in terminal:    source ../venv/bin/activate
+                            uvicorn main:app --reload   
     -> main = filename (main.py)
     -> app = FastAPI variable instance inside main.py
     -> --reload = hot-reload server on code edits
+    *** ALL APIS are in this venv: source ../venv/bin/activate
 
     INTERACTIVE DOCUMENTATION:
         URL: http://127.0.0.1:8000/docs (FastAPI Swagger UI)
@@ -24,3 +27,28 @@ LESSON 1: FastAPI Basics
         def read_root():                 // Function: executes when route is hit
             return {"message": "hello"}  // Response: Python dicts are auto-serialized to JSON
 
+
+LESSON 2: Pydantic Validation
+
+    Pydantic: checks valid data type from user
+    Errors: 422 - Wrong type
+            200 - Good
+
+    Path vs. Query Parameters:
+    Path: Can send variable thru URL Path
+    e.g. User types: /transactions/42
+            @app.get("/transactions/{transaction_id}") 
+            // transaction_id is sent variable we can use
+
+    Query (After ? in URL): Used for filtering, sorting
+    -> NOT appear in route decorator path 
+    e.g. User types in address bar: /transactions?limit=10&type=expense
+            @app.get("/transactions") 
+            def list_transactions(limit: int = 10, type: str | None = None): // Takes user input 
+            return {"limit": limit, "type": type} 
+
+    Pydantic Schemas: Define JSON request/response templates using BaseModel
+
+    @app.get(/path): reads and caches info
+    @app.post(/path): receives and saves user data
+    
