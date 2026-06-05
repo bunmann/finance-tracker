@@ -56,14 +56,14 @@ LESSON 2: Pydantic Validation
 
 LESSON 3 ORM & SQLALCHEMY:
 
-Object Relational Mapper (ORM): SQLAlchemy connects .py and .sql files
--> translates database tables into Python classes, and database rows into Python objects
--> SQLAlchemy SAVES and fetches data from DB
+    Object Relational Mapper (ORM): SQLAlchemy connects .py and .sql files
+    -> translates database tables into Python classes, and database rows into Python objects
+    -> SQLAlchemy SAVES and fetches data from DB
 
-Pydantic Schema vs SQLAlchemy Model: 
--> Pydantic gatekeeps front to back end, is user input Validation
--> SQLAlchemy translates between python and SQL database
-User sends JSON -> Pydantic Check -> SQL Database -> Python Backend
+    Pydantic Schema vs SQLAlchemy Model: 
+    -> Pydantic gatekeeps front to back end, is user input Validation
+    -> SQLAlchemy translates between python and SQL database
+    User sends JSON -> Pydantic Check -> SQL Database -> Python Backend
 
 
 LESSON 4: Crud Endpoints:
@@ -71,4 +71,29 @@ LESSON 4: Crud Endpoints:
 User sends JSON  →  Pydantic validates  →  SQLAlchemy model created  →  Saved to PostgreSQL
                      (schemas.py)            (models.py)                 (database.py)
 
-Depends(get_db): auto opens and closes DB sessions
+    Depends(get_db): auto opens and closes DB sessions
+
+    DATABASE SESSION COMMANDS (SQLAlchemy `db`):
+    * Write Operations (like git commiting):
+      -> db.add(obj)     : Stages a new Python object/row to be inserted (like 'git add')
+      -> db.delete(obj)  : Marks an existing database record to be deleted
+      -> db.commit()     : Saves all staged changes permanently to PostgreSQL (like 'git commit')
+      -> db.refresh(obj) : Reloads the object from the DB to fetch auto-generated fields (like IDs)
+
+LESSON 5: Filtering and Pagination
+
+  * Query/Read Operations:
+      -> db.query(table_name) : SELECT * FROM table_name
+      -> .filter(...)    : WHERE
+      -> .limit(N)       : LIMIT
+      -> .offset(M)      : OFFSET
+      -> .first()        : Returns first result as python object
+      -> .all()          : Returns all results as a python list
+
+    Codes: 
+    -> 2xx: Success
+    -> 4xx: Client Error (e.g. bad data/type)
+    -> 5xx: Server Error (e.g. Backend crashed/DB error)
+
+
+LESSON 6: Dashboard Summary

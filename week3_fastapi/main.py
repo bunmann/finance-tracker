@@ -1,9 +1,10 @@
-from fastapi import FastAPI
-from schemas import TransactionCreate, UserCreate
+from fastapi import FastAPI, Depends, HTTPException
+from schemas import TransactionCreate, UserCreate, CategoryCreate
 from database import engine, get_db, Base
 from sqlalchemy.orm import Session
-from fastapi import Depends
 import models
+from datetime import date
+from typing import Optional, Literal
 
 # Create all tables in the database (if they don't exist yet)
 Base.metadata.create_all(bind=engine)
@@ -16,8 +17,22 @@ def read_root():       # execute this function
 
 # =====================USER ENDPOINTS====================
 
+@app.get("/users")
+def get_users(db: Session = Depends(get_db)):
+    users = db.query(models.User).all() # Gets all rows of User from models.py
+    return users
+
+
 @app.post("/users")
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    # Check if a user with this email already exists
+    existing_user = db.query(models.User).filter(models.User.email == user.email).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=400,
+            detail="A user with this email already exists."
+        )
+
     # 1. Create a SQLAlchemy model instance from the validated Pydantic data
     db_user = models.User(  # db_user is object instance, models.User is class from models.py
         email=user.email,
@@ -33,12 +48,37 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     return {"id": db_user.id, "email": db_user.email}
 
 
-@app.get("/users")
-def get_users(db: Session = Depends(get_db)):
-    users = db.query(models.User).all() # Gets all rows of User from models.py
-    return users
 
 # =====================TRANSACTION ENDPOINTS====================
+
+@app.get("/transactions")
+def get_transactions(
+    limit: int = 10,
+    offset: int = 0,
+    type: Optional[Literal["income", "expense"]] = None,
+    category_id: Optional[int] = None,
+    start_date: Optional[date] = None,
+    end_date: Optional[date] = None,
+    db: Session = Depends(get_db)
+):
+    # Start building the base query
+    query = db.query(models.Transaction)
+    
+    # Apply filters dynamically
+    if type:
+        query = query.filter(models.Transaction.type == type)
+    if category_id:
+        query = query.filter(models.Transaction.category_id == category_id)
+    if start_date:
+        query = query.filter(models.Transaction.date >= start_date)
+    if end_date:
+        query = query.filter(models.Transaction.date <= end_date)
+        
+    # Apply pagination and execute query
+    transactions = query.offset(offset).limit(limit).all()
+    
+    return transactions
+
 
 @app.post("/transactions")
 def create_transaction(transaction: TransactionCreate, db: Session = Depends(get_db)):
@@ -58,12 +98,6 @@ def create_transaction(transaction: TransactionCreate, db: Session = Depends(get
     return db_transaction
 
 
-@app.get("/transactions")
-def get_transactions(db: Session = Depends(get_db)):
-    transactions = db.query(models.Transaction).all()
-    return transactions
-
-
 @app.delete("/transactions/{transaction_id}")
 def delete_transaction(transaction_id: int, db: Session = Depends(get_db)):
     # Find the transaction
@@ -79,3 +113,56 @@ def delete_transaction(transaction_id: int, db: Session = Depends(get_db)):
     db.delete(transaction)
     db.commit()
     return {"message": f"Transaction {transaction_id} deleted"}
+
+
+    # =====================CATEGORY ENDPOINTS====================
+
+@app.get("/categories")
+def get_categories(db: Session = Depends(get_db)):
+    return db.query(models.Category).all()
+
+
+@app.post("/categories")
+def create_category(category: CategoryCreate, db: Session = Depends(get_db)):
+    # Check if a category with this name already exists for the user
+    existing_category = db.query(models.Category).filter(
+        models.Category.name == category.name,
+        models.Category.user_id == 1  # Hardcoded to user 1 for now
+    ).first()
+    
+    if existing_category:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Category '{category.name}' already exists."
+        )
+
+    db_category = models.Category(
+        name=category.name,
+        icon=category.icon,
+        monthly_budget=category.monthly_budget,
+        user_id=1  # Hardcoded to user 1 for now
+    )
+    db.add(db_category)
+    db.commit()
+    db.refresh(db_category)
+    return db_category
+
+
+@app.delete("/categories/{category_id}")
+def delete_category(category_id: int, db: Session = Depends(get_db)):
+    category = db.query(models.Category).filter(models.Category.id == category_id).first()
+    if not category:
+        raise HTTPException(status_code=404, detail="Category not found")
+        
+    db.delete(category)
+    db.commit()
+    return {"message": f"Category {category_id} deleted"}
+
+
+@app.post("/debug/reset-db")
+def reset_db():
+    # Drop all existing tables
+    Base.metadata.drop_all(bind=engine)
+    # Recreate all tables with new schema/constraints
+    Base.metadata.create_all(bind=engine)
+    return {"message": "Database reset successfully! All tables recreated with new schemas."}

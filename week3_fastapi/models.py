@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Numeric, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Numeric, Date, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -18,6 +18,9 @@ class Category(Base):
     icon = Column(String(255), default="📁")
     monthly_budget = Column(Numeric(10, 2), default=0.0)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    # Ensure name is unique per user
+    __table_args__ = (UniqueConstraint('user_id', 'name', name='_user_category_uc'),)
 
 
 class Transaction(Base):
