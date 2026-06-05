@@ -124,27 +124,53 @@ You don't need a full course. You already know OOP, loops, conditionals, data st
 
 ## Phase 2: Build the MVP (Weeks 3–5)
 
-### Week 3 — FastAPI Backend
+### Week 3 — FastAPI Backend ✅ (Completed Jun 5, 2026)
 **Goal:** Build a working REST API for transactions and categories.
 
-**What to learn & build:**
+**What was learned & built:**
 
-| Day | Task |
-|---|---|
-| **Mon** | Learn FastAPI basics — routes, request/response models, Pydantic schemas. Follow the [FastAPI tutorial](https://fastapi.tiangolo.com/tutorial/) (first 5 sections). |
-| **Tue** | Set up project structure. Install FastAPI, uvicorn, SQLAlchemy, psycopg2. Connect to your PostgreSQL database. |
-| **Wed** | Build SQLAlchemy models for `users`, `categories`, `transactions`. Learn what an ORM is (it maps Python classes to database tables). |
-| **Thu** | Build CRUD endpoints: `POST /transactions`, `GET /transactions`, `DELETE /transactions/{id}` |
-| **Fri** | Build filter/search endpoints: filter by category, date range, type. Add pagination. |
-| **Sat-Sun** | Build summary endpoint: `GET /dashboard` returns monthly totals by category. Write tests with pytest. |
+| Day | Task | Status |
+|---|---|---|
+| **Lesson 1** | FastAPI basics — routes, request/response, Pydantic schemas, uvicorn setup | ✅ |
+| **Lesson 2** | Pydantic validation — schemas, path vs query params, `BaseModel` | ✅ |
+| **Lesson 3** | SQLAlchemy ORM — models for `users`, `categories`, `transactions`, database connection | ✅ |
+| **Lesson 4** | CRUD endpoints: `POST /users`, `GET /users`, `POST /transactions`, `GET /transactions`, `DELETE /transactions/{id}` | ✅ |
+| **Lesson 5** | Filtering & pagination — dynamic query building with `.filter()`, `.limit()`, `.offset()` | ✅ |
+| **Lesson 6** | Dashboard summary endpoint — `GET /dashboard` with SQL aggregations (`SUM`, `GROUP BY`, `JOIN`, `EXTRACT`) | ✅ |
+| **Pytest** | Deferred to Week 10 (CI/CD pipeline) — manual testing via Swagger `/docs` for now | ⏳ |
 
-**Key concepts you'll learn:**
-- What a REST API is (GET = read, POST = create, PUT = update, DELETE = delete)
-- What an ORM is (SQLAlchemy — write Python classes instead of raw SQL, but SQL runs under the hood)
-- Request validation with Pydantic (like type checking, but for API inputs)
-- Project structure (routers, models, schemas, database config)
+**Bonus features built (beyond original plan):**
+- ✅ Category CRUD endpoints (`POST /categories`, `GET /categories`, `DELETE /categories/{id}`)
+- ✅ Duplicate prevention — API-level checks (`HTTPException`) + database-level constraints (`UniqueConstraint`)
+- ✅ Input validation with `Literal["income", "expense"]` (restricts transaction types to dropdown in Swagger)
+- ✅ Debug endpoint (`POST /debug/reset-db`) for easy schema resets during development
 
-**Milestone:** You can use Postman or curl to hit your API and get real data back from PostgreSQL.
+**Key concepts learned:**
+- REST API design (GET = read, POST = create, DELETE = delete)
+- ORM pattern (SQLAlchemy — Python classes ↔ database tables)
+- Request validation with Pydantic (`BaseModel`, `Field`, `Literal`)
+- Dependency injection (`Depends(get_db)` for database sessions)
+- Dynamic query building (chaining `.filter()`, `.join()`, `.group_by()`)
+- SQL aggregation functions via SQLAlchemy (`func.sum`, `func.extract`)
+- HTTP status codes (200, 400, 422, 500)
+- Defense in depth (API checks + DB constraints for data integrity)
+
+**Current API endpoints:**
+| Method | Path | Description |
+|---|---|---|
+| GET | `/` | Health check / welcome |
+| GET | `/users` | List all users |
+| POST | `/users` | Create user (with duplicate email check) |
+| GET | `/transactions` | List transactions (with filtering & pagination) |
+| POST | `/transactions` | Create transaction |
+| DELETE | `/transactions/{id}` | Delete transaction |
+| GET | `/categories` | List all categories |
+| POST | `/categories` | Create category (with duplicate name check) |
+| DELETE | `/categories/{id}` | Delete category |
+| GET | `/dashboard` | Monthly summary (income, expenses, by-category breakdown) |
+| POST | `/debug/reset-db` | Reset database tables (dev only) |
+
+**Milestone:** ✅ Can use Swagger UI to hit all API endpoints and get real data back from PostgreSQL.
 
 ---
 

@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from schemas import TransactionCreate, UserCreate, CategoryCreate
 from database import engine, get_db, Base
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 import models
 from datetime import date
@@ -166,3 +167,48 @@ def reset_db():
     # Recreate all tables with new schema/constraints
     Base.metadata.create_all(bind=engine)
     return {"message": "Database reset successfully! All tables recreated with new schemas."}
+
+
+
+# =====================DASHBOARD ENDPOINT====================
+
+@app.get("/dashboard")
+def get_dashboard_summary(month: int, year: int, db: Session = Depends(get_db)):
+    # 1. Fetch total income for this month & year
+    total_income = db.query(func.sum(models.Transaction.amount)).filter(
+        models.Transaction.type == "income",
+        func.extract('month', models.Transaction.date) == month,
+        func.extract('year', models.Transaction.date) == year
+    ).scalar() or 0.0
+    
+    # 2. Fetch total expenses for this month & year
+    total_expense = db.query(func.sum(models.Transaction.amount)).filter(
+        models.Transaction.type == "expense",
+        func.extract('month', models.Transaction.date) == month,
+        func.extract('year', models.Transaction.date) == year
+    ).scalar() or 0.0
+    
+    # 3. Fetch breakdown of expenses by category for this month & year
+    category_data = db.query(
+        models.Category.name,
+        func.sum(models.Transaction.amount)
+    ).join(
+        models.Transaction, models.Transaction.category_id == models.Category.id
+    ).filter(
+        models.Transaction.type == "expense",
+        func.extract('month', models.Transaction.date) == month,
+        func.extract('year', models.Transaction.date) == year
+    ).group_by(
+        models.Category.name
+    ).all()
+    
+    # 4. Format the category data into a list of dicts
+    by_category = [{"category_name": name, "amount": float(amount)} for name, amount in category_data]
+    
+    # 5. Return the full dashboard summary
+    return {
+      "total_income": float(total_income),
+      "total_expense": float(total_expense),
+      "net_savings": float(total_income - total_expense),
+      "by_category": by_category
+    }
