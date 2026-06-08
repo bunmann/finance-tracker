@@ -59,7 +59,8 @@ LESSON 1 and 2:
 LESSON 3: Functions and Classes
 
    Functions go: def func_name(param: type, param: type = deafult) -> return type(s): define
-      CAN DO MULTIPLE RETURNS (just return a tuple)
+   -> CAN DO MULTIPLE RETURNS (just return a tuple)
+   -> parameters are pass by SHARING (modifies original parameter)
    
    -> func_name is a variable that can be passed as parameter
    -> func_name() actually executes it

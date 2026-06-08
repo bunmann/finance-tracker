@@ -75,7 +75,7 @@ LESSON 1: Web Foundations (HTML, CSS, JS)
     let var2 = value; // reassignable
     ** Use const by default 
 
-    Functions: First class citizens, can be treated as variables
+    Functions: First class citizens, can be treated as variables, PASS BY SHARING
     Normal function:
     function add(a, b) {
     return a + b;
@@ -151,9 +151,51 @@ LESSON 1: Web Foundations (HTML, CSS, JS)
 
 LESSON 2: React Basics
 
-    React: Biggest JS library used to make UI in components
+    React: Biggest JS library used to make UI in components 
     -> Syntax: JSX: JS XML, like HTML
 
+    React Component (Building block): JS function that returns JSX 
+    -> can be nested in each other to pass props
+
+    Key JSX rules:
+        | Rule | Example |
+        |------|---------|
+        | Must return **one** parent element | Wrap everything in a `<div>` or `<>...</>` (fragment) |
+        | Use `className` instead of `class` | `<div className="box">` (because `class` is reserved in JS) |
+        | Use `{}` to embed JavaScript expressions | `<p>Total: {2 + 2}</p>` renders as "Total: 4" | ** IMPORTANT FOR PASSING FUNCTIONS
+        | Self-closing tags need `/` | `<img src="..." />` not `<img src="...">` |
+
+    Props (properties): like parameters, Read-only, flows DOWN from parent to children
+
+    State (Dynamic component): data that can change over time inside a component, auto re-renders
+    -> import { useState } from 'react';
+    e.g. const [count, setCount] = useState(0);
+    -> current value, setter function, initial value
+    -> call setter function w/ setCount(newCount);, executes entire parent function again
+
+    * Pure vs Side Effect Functions: 
+    -> Pure: Same input always = same output, no side effects, doesnt interact w/ outside world
+    -> Side Effect: Output depends on external factors (API, time, etc), modifies state/DOM/etc
+    ** useEffect only used for side effects **
+
+    useEffect (Side effects): used for fetching data from APIs, setting timers, updating titles
+    -> import { useEffect } from 'react';
+    -> useEffect accepts two arguments: a function and a dependency array
+    -> The function runs after the component renders
+    -> The dependency array controls when the function runs (empty array = once on mount (added to screen), [var] = when var changes, nothing = after every re-rendeer (usually bad))
+    
+    e.g. useEffect(() => {  
+        console.log("Component mounted");
+    }, []);
+
+    | Concept | C++ Equivalent | Python/FastAPI Equivalent | React |
+    |---|---|---|---|
+    | Code organization | Classes | Modules/Routes | **Components** |
+    | Passing data | Constructor params | Function params | **Props** |
+    | Mutable data | Member variables | Instance variables | **State (`useState`)** |
+    | Initialization | Constructor | `__init__` | **`useEffect(() => {}, [])`** |
+    | Rendering | `cout <<` / `print()` | `return {...}` in endpoint | **`return <JSX />`** |
+    
 
 LESSON 3: Project Setup & API Connection
 
