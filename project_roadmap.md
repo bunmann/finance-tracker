@@ -179,12 +179,13 @@ You don't need a full course. You already know OOP, loops, conditionals, data st
 
 | Day | Task |
 |---|---|
-| **Mon** | Learn React basics — components, JSX, props, useState, useEffect. Follow [React's official tutorial](https://react.dev/learn). |
-| **Tue** | Set up project with Vite (`npm create vite@latest`). Install axios for API calls. |
-| **Wed** | Build transaction list page — fetch from your API, display in a table. |
-| **Thu** | Build "add transaction" form — POST to your API, refresh list. |
-| **Fri** | Build dashboard page — charts showing spending by category (use [Recharts](https://recharts.org/) or [Chart.js](https://www.chartjs.org/)). |
-| **Sat-Sun** | Styling and layout. Navigation bar, responsive design. Make it look good. |
+| **Mon** | Learn Web Foundations — HTML structure, CSS styling, and JavaScript basics. |
+| **Tue** | Learn React basics — components, JSX, props, useState, useEffect. Follow [React's official tutorial](https://react.dev/learn). |
+| **Wed** | Set up project with Vite (`npm create vite@latest`). Install axios for API calls. |
+| **Thu** | Build transaction list page — fetch from your API, display in a table. |
+| **Fri** | Build "add transaction" form — POST to your API, refresh list. |
+| **Sat** | Build dashboard page — charts showing spending by category (use [Recharts](https://recharts.org/)). |
+| **Sun** | Styling and layout — navigation bar, React Router, CSS styling, responsive design. |
 
 **Milestone:** A working web app where you can add transactions and see charts. It won't be pretty yet — that's fine.
 
