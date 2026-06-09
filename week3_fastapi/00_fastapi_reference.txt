@@ -90,7 +90,7 @@ LESSON 5: Filtering and Pagination
       -> .group_by()     : GROUP BY
       -> .join()         : INNER JOIN
       -> .first()        : Returns first result as python object 
-      -> .all()          : Returns all results as a python list (of classes/models, or tuples of aggregates)
+      -> .all()          : Returns all results as a python list (of SQLALCHEMY classes/models, or tuples of aggregates)
       -> .scalar()       : Returns the first column of the first row as scalar value
       -> .extract()      : Extracts a specific date part from a timestamp (e.g., month or year) inside .filter()
 

@@ -6,11 +6,23 @@ from sqlalchemy.orm import Session
 import models
 from datetime import date
 from typing import Optional, Literal
+from fastapi.middleware.cors import CORSMiddleware
 
 # Create all tables in the database (if they don't exist yet)
 Base.metadata.create_all(bind=engine)
 
+
 app = FastAPI()
+
+# Allow the React frontend to talk to the backend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # React dev server
+    allow_credentials=True,
+    allow_methods=["*"],       # Allow all HTTP methods (GET, POST, DELETE, etc.)
+    allow_headers=["*"],       # Allow all headers
+)
+
 
 @app.get("/")       # Whenever HTTPS request is made at path "/"
 def read_root():       # execute this function

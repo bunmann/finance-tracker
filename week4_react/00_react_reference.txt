@@ -107,6 +107,7 @@ LESSON 1: Web Foundations (HTML, CSS, JS)
     numbers.filter(x => x > 2);             // [3]
 
     ** .map is EXTREMELY important in React for rendering lists **
+    -> .map and .filter as bascially just for loops
 
     Objects (Python Dicts):
     // Python:  person = {"name": "David", "age": 20}
@@ -171,7 +172,7 @@ LESSON 2: React Basics
     -> import { useState } from 'react';
     e.g. const [count, setCount] = useState(0);
     -> current value, setter function, initial value
-    -> call setter function w/ setCount(newCount);, executes entire parent function again
+    -> call setter function w/ setCount(newCount);, executes entire parent function again AFTER initial execute is finished (doesn't interrupt midway)
 
     * Pure vs Side Effect Functions: 
     -> Pure: Same input always = same output, no side effects, doesnt interact w/ outside world
@@ -195,13 +196,76 @@ LESSON 2: React Basics
     | Mutable data | Member variables | Instance variables | **State (`useState`)** |
     | Initialization | Constructor | `__init__` | **`useEffect(() => {}, [])`** |
     | Rendering | `cout <<` / `print()` | `return {...}` in endpoint | **`return <JSX />`** |
+
+    Promise Objects: for async data, JS equivalent of waiting for API response 
+    -> States: pending, fulfilled, rejected
+    -> .then() = success, .catch() = error, .finally() = always
+    -> .then() gets data into var, .catch() gets error into var
+    -> .then(function(data){...}) or .then(data => {...})
+    -> These are exectuted and saved as callback functions for when promise is finished
+
+    ** PUT FUNCTIONS IN THEN/CATCH **
+    -> doing ; will execute before API fetch is complete, crashing program
+    
     
 
 LESSON 3: Project Setup & API Connection
 
+    User's Browser (React on :5173)
+            │
+            │  HTTP request (via Axios)
+            ▼
+    FastAPI Backend (:8000)
+            │
+            │  SQLAlchemy ORM query
+            ▼
+    PostgreSQL Database
+            │
+            │  Returns rows
+            ▼
+    FastAPI formats JSON response
+            │
+            │  HTTP response
+            ▼
+    React receives data → updates state → re-renders UI
 
 LESSON 4: Transaction List Page
 
+    Backend to Frontend Data Communication & Flow:
+    
+    | Stage | Where | What format is the data in? | Access method |
+    |---|---|---|---|
+    | 1. DB Store | PostgreSQL | Relational Database Rows | SQL Queries |
+    | 2. ORM Fetch | FastAPI (Python) | SQLAlchemy Model instances (`models.Transaction`) | `transactions[0].description` |
+    | 3. API Send | Network (HTTP) | JSON formatted text string | Raw stream (JSON string) |
+    | 4. Frontend | Browser (JS/Axios) | Native JavaScript Object / Array | `response.data[0].description` |
+
+    Flowchart of the Data Lifecycle:
+    
+    [PostgreSQL Database]
+              │
+              │  (SQL Query returns Relational Rows)
+              ▼
+    [FastAPI & SQLAlchemy]  <── (Converts rows into Python Class Instances)
+              │
+              │  (FastAPI serializes objects into JSON text string)
+              ▼
+    [HTTP Network Connection]  <── (Transmits raw JSON string over network)
+              │
+              │  (Axios receives and parses JSON into JavaScript Object)
+              ▼
+    [React & Axios]  <── (Stores JavaScript Object/Array in component State)
+              │
+              │  (State change triggers re-render of JSX)
+              ▼
+    [Browser HTML DOM]  <── (Renders actual visual table on screen)
+
+    Differences between @app.get and api.get:
+    - @app.get() (FastAPI / Backend): Listens on server, fetches from DB, returns JSON.
+    - api.get() (React / Frontend): Sends request from browser (to run @app.get() in backend), receives JSON, updates state.
+
+    Key Prop: React requires unique key on each element of a list to efficiently update/re-render the DOM
+    ** NEVER USE ARRAY INDEX AS A KEY IF ITEMS CAN BE REORDERED OR DELETED **
 
 LESSON 5: Add Transaction Form
 
