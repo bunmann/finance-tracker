@@ -1,46 +1,15 @@
-import { useState, useEffect } from 'react';
 import api from '../api';
 
-function TransactionList() {
-    // State: holds the list of transactions
-    const [transactions, setTransactions] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    // Fetch transactions from the API when the component loads
-    useEffect(() => {
-        api.get('/transactions')
-            .then(response => {
-                setTransactions(response.data);
-                setLoading(false);
-            })
-            .catch(error => {
-                console.error('Error fetching transactions:', error);
-                setLoading(false);
-            });
-    }, []);
-
-    // Show loading message while waiting for API response
-    if (loading) {
-        return <p>Loading transactions...</p>;
-    }
-
-    // Show message if no transactions exist
-    if (transactions.length === 0) {
-        return <p>No transactions yet. Add one!</p>;
-    }
-
-    // Deleting row Function
+function TransactionList({ transactions, loading, onDelete }) {
     const handleDelete = (id) => {
-    api.delete(`/transactions/${id}`)
-        .then(() => {
-            // Remove the deleted transaction from state (no need to refetch)
-            setTransactions(transactions.filter(t => t.id !== id));
-        })
-        .catch(error => console.error('Error deleting transaction:', error));
+        api.delete(`/transactions/${id}`)
+            .then(() => onDelete(id))
+            .catch(error => console.error('Error deleting:', error));
     };
 
-    
-    // Render the table
+    if (loading) return <p>Loading transactions...</p>;
+    if (transactions.length === 0) return <p>No transactions yet. Add one!</p>;
+
     return (
         <div>
             <h2>Transactions</h2>
@@ -52,6 +21,7 @@ function TransactionList() {
                         <th>Description</th>
                         <th>Type</th>
                         <th>Amount</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>

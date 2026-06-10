@@ -157,6 +157,10 @@ LESSON 2: React Basics
 
     React Component (Building block): JS function that returns JSX 
     -> can be nested in each other to pass props
+    -> can only pass 1 parameter, HAS TO BE PROP 
+    -> can find specific values w/ destructuring (props.name -> name) 
+    -> e.g. function MyComponent({name}) <- finds .name from the prop, else puts None
+        
 
     Key JSX rules:
         | Rule | Example |
@@ -170,7 +174,7 @@ LESSON 2: React Basics
 
     State (Dynamic component): data that can change over time inside a component, auto re-renders
     -> import { useState } from 'react';
-    e.g. const [count, setCount] = useState(0);
+    e.g. const [count, setCount] = useState(0); // Only sets default on mount
     -> current value, setter function, initial value
     -> call setter function w/ setCount(newCount);, executes entire parent function again AFTER initial execute is finished (doesn't interrupt midway)
 
@@ -183,7 +187,7 @@ LESSON 2: React Basics
     -> import { useEffect } from 'react';
     -> useEffect accepts two arguments: a function and a dependency array
     -> The function runs after the component renders
-    -> The dependency array controls when the function runs (empty array = once on mount (added to screen), [var] = when var changes, nothing = after every re-rendeer (usually bad))
+    -> The dependency array controls when the function runs (empty array = once on mount (first added to screen), [var] = when var changes, nothing = after every re-rendeer (usually bad))
     
     e.g. useEffect(() => {  
         console.log("Component mounted");
@@ -268,6 +272,47 @@ LESSON 4: Transaction List Page
     ** NEVER USE ARRAY INDEX AS A KEY IF ITEMS CAN BE REORDERED OR DELETED **
 
 LESSON 5: Add Transaction Form
+
+    Controlled Form Lifecycle:
+    In React, form inputs are "controlled" — meaning input values are bound to React state,
+    making state the single source of truth.
+
+    Event Object: e (passed into event handler functions)
+    - e.preventDefault(): stops the default browser behavior (e.g. prevents page refresh on form submission)
+    - e.target: the HTML element that triggered the event (e.g. the input field that was typed in)
+    - e.target.value: the current value of the element (e.g. the text typed in the input field)
+
+    Execution Flow Diagram:
+
+    [1. RENDER PHASE]
+    Component returns JSX (the Form) ──► Drawn on user's screen
+             │
+             ▼
+    [2. INTERACTION PHASE]
+    User types in inputs ──► onChange callbacks (embedded in return form) fire ──► React State updates ──► Screen updates with text
+             │   (the callback functions are defined in the same return statement)
+             ▼
+    [3. SUBMISSION PHASE]
+    User clicks submit ──► onSubmit triggers handleSubmit(e)
+                               │
+                               ├──► e.preventDefault() blocks browser refresh
+                               ├──► transactionData object is built from current React State
+                               └──► api.post() sends the data to your FastAPI backend
+                                       │
+                                       ▼
+                               [4. RESPONSE / SUCCESS]
+                               api.post() Promise resolves with response.data (new item JSON from DB)
+                                       │
+                                       ├──► clear state variables (resets inputs on screen to blank)
+                                       └──► execute callback: onTransactionAdded(response.data) to update parent (App.jsx) state
+
+    Folder organization rn: Moved local transactions to nearest parent file (App.jsx)
+    -> Sibling files need to talk to each other
+    
+        App.jsx (owns transactions state)
+        /                                \
+    TransactionForm                   TransactionList
+    (calls onTransactionAdded)        (reads transactions prop)
 
 
 LESSON 6: Dashboard & Charts
