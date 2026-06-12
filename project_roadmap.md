@@ -190,16 +190,18 @@ All tasks for Week 4 are completed:
 
 ---
 
-### Week 5 — Auth, Budgets, Polish → MVP DONE ✅
-**Goal:** Add user accounts, budget tracking, and polish the UI.
+### Week 5 — Auth, CSV Import, Budgets, Polish → MVP DONE ✅
+**Goal:** Add user accounts, CSV import, budget tracking, and polish the UI.
 
-| Day | Task |
+| Lesson | Task |
 |---|---|
-| **Mon-Tue** | Add user authentication (JWT tokens). Signup/login pages. Protect API routes. |
-| **Wed** | Build budget feature — set monthly limits per category, show progress bars. |
-| **Thu** | Budget alerts — warning when approaching/exceeding limits. |
-| **Fri** | UI polish — consistent styling, loading states, error handling, empty states. |
-| **Sat-Sun** | Write a proper README. Record a demo GIF/video. Push to GitHub. |
+| **Lesson 1** | JWT Authentication — Backend: password hashing (bcrypt), JWT tokens, login endpoint, protect all API routes |
+| **Lesson 2** | JWT Authentication — Frontend: login/signup pages, token storage (localStorage), Axios interceptors, protected routes |
+| **Lesson 3** | CSV Import — Backend: file upload endpoint, CSV parsing, duplicate detection (SHA256 fingerprint), batch inserts |
+| **Lesson 4** | CSV Import — Frontend: file input component, FormData upload, import results display |
+| **Lesson 5** | Budget Tracking: PUT endpoint for categories, enhanced dashboard with budget data, progress bars, dashboard budget alerts |
+| **Lesson 6** | UI Polish: loading spinners, empty states, toast notifications, error boundaries |
+| **Lesson 7** | README & Demo: professional README, screenshots, demo video, final commit |
 
 ### 🏁 MVP Checkpoint
 
@@ -207,10 +209,12 @@ At this point you have a **fully functional personal finance tracker** with:
 - ✅ Transaction logging (CRUD)
 - ✅ Categories (default + custom)
 - ✅ Dashboard with charts
-- ✅ Budget setting + alerts
-- ✅ User accounts (signup/login)
+- ✅ CSV import from bank statements (with duplicate detection)
+- ✅ Budget setting + alerts (on the dashboard)
+- ✅ User accounts (signup/login with JWT)
 - ✅ Search, filter, pagination
-- ✅ Clean UI
+- ✅ Clean, polished UI
+- ✅ Professional README
 
 **This alone is already resume-worthy.** If you stopped here and spent the rest of the summer on the job tracker, you'd have two solid projects.
 
