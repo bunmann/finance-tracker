@@ -48,7 +48,15 @@ function TransactionForm({ onTransactionAdded }) {
             .catch(err => {
                 // Display the error message from the API
                 if (err.response && err.response.data && err.response.data.detail) {
-                    setError(err.response.data.detail);
+                    const detail = err.response.data.detail;
+                    if (typeof detail === 'string') {
+                        setError(detail);
+                    } else if (Array.isArray(detail)) {
+                        const msg = detail.map(d => `${d.loc.join('.')}: ${d.msg}`).join(', ');
+                        setError(msg);
+                    } else {
+                        setError(JSON.stringify(detail));
+                    }
                 } else {
                     setError('Failed to create transaction.');
                 }

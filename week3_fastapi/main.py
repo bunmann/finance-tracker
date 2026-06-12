@@ -187,18 +187,20 @@ def reset_db():
 @app.get("/dashboard")
 def get_dashboard_summary(month: int, year: int, db: Session = Depends(get_db)):
     # 1. Fetch total income for this month & year
-    total_income = db.query(func.sum(models.Transaction.amount)).filter(
+    income_val = db.query(func.sum(models.Transaction.amount)).filter(
         models.Transaction.type == "income",
         func.extract('month', models.Transaction.date) == month,
         func.extract('year', models.Transaction.date) == year
-    ).scalar() or 0.0
+    ).scalar()
+    total_income = float(income_val) if income_val is not None else 0.0
     
     # 2. Fetch total expenses for this month & year
-    total_expense = db.query(func.sum(models.Transaction.amount)).filter(
+    expense_val = db.query(func.sum(models.Transaction.amount)).filter(
         models.Transaction.type == "expense",
         func.extract('month', models.Transaction.date) == month,
         func.extract('year', models.Transaction.date) == year
-    ).scalar() or 0.0
+    ).scalar()
+    total_expense = float(expense_val) if expense_val is not None else 0.0
     
     # 3. Fetch breakdown of expenses by category for this month & year
     category_data = db.query(
@@ -219,8 +221,8 @@ def get_dashboard_summary(month: int, year: int, db: Session = Depends(get_db)):
     
     # 5. Return the full dashboard summary
     return {
-      "total_income": float(total_income),
-      "total_expense": float(total_expense),
-      "net_savings": float(total_income - total_expense),
+      "total_income": total_income,
+      "total_expense": total_expense,
+      "net_savings": total_income - total_expense,
       "by_category": by_category
     }

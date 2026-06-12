@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from './api';
 import TransactionList from './components/TransactionList';
 import TransactionForm from './components/TransactionForm';
+import Dashboard from './components/Dashboard';
 import './App.css';
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
     return (
         <div className="App">
             <h1>Finance Tracker</h1>
+            <Dashboard transactions={transactions} />
             <TransactionForm onTransactionAdded={handleTransactionAdded} />
             <TransactionList
                 transactions={transactions}

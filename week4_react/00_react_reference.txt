@@ -150,6 +150,7 @@ LESSON 1: Web Foundations (HTML, CSS, JS)
     -> import { add, subtract } from './math';
 
 
+
 LESSON 2: React Basics
 
     React: Biggest JS library used to make UI in components 
@@ -187,7 +188,7 @@ LESSON 2: React Basics
     -> import { useEffect } from 'react';
     -> useEffect accepts two arguments: a function and a dependency array
     -> The function runs after the component renders
-    -> The dependency array controls when the function runs (empty array = once on mount (first added to screen), [var] = when var changes, nothing = after every re-rendeer (usually bad))
+    -> The dependency array controls when the function runs (empty array = once on mount (first added to screen), [var] = once on first mount, then when var changes, nothing = after every re-rendeer (usually bad))
     
     e.g. useEffect(() => {  
         console.log("Component mounted");
@@ -233,6 +234,8 @@ LESSON 3: Project Setup & API Connection
             ▼
     React receives data → updates state → re-renders UI
 
+
+
 LESSON 4: Transaction List Page
 
     Backend to Frontend Data Communication & Flow:
@@ -270,6 +273,8 @@ LESSON 4: Transaction List Page
 
     Key Prop: React requires unique key on each element of a list to efficiently update/re-render the DOM
     ** NEVER USE ARRAY INDEX AS A KEY IF ITEMS CAN BE REORDERED OR DELETED **
+
+
 
 LESSON 5: Add Transaction Form
 
@@ -315,7 +320,10 @@ LESSON 5: Add Transaction Form
     (calls onTransactionAdded)        (reads transactions prop)
 
 
+
 LESSON 6: Dashboard & Charts
+-> Added a chart and summary feature
+
 
 
 LESSON 7: Styling & Layout

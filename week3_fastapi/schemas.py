@@ -4,7 +4,7 @@ from datetime import date as DateType
 
 class TransactionCreate(BaseModel):
     amount: float = Field(gt=0, description="Amount must be positive")
-    category_id: int
+    category_id: Optional[int] = None
     description: str
     type: Literal["income", "expense"]  
     date: Optional[DateType] = None  # Optional field, defaults to None
