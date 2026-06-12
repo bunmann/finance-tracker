@@ -327,3 +327,13 @@ LESSON 6: Dashboard & Charts
 
 
 LESSON 7: Styling & Layout
+
+| `<a href="...">` | `<Link to="...">` |
+| Reloads the entire page | Only updates the React component (no reload) |
+| Slow — re-fetches all JS, CSS, data | Fast — instant page switch |
+| Standard HTML | React Router component |
+
+How Routing Works Now:
+| URL Path | What Renders |
+| `localhost:5173/` | `<Dashboard />` |
+| `localhost:5173/transactions` | `<TransactionForm />` + `<TransactionList />` |

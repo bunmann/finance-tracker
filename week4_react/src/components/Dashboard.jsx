@@ -61,22 +61,22 @@ function Dashboard({ transactions }) {
             </div>
 
             {/* Summary Cards */}
-            <div style={{ display: 'flex', gap: '20px', margin: '20px 0' }}>
-                <div style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '8px', flex: 1, textAlign: 'center' }}>
+            <div className="summary-cards">
+                <div className="summary-card">
                     <h3>Income</h3>
-                    <p style={{ fontSize: '24px', color: 'green' }}>
+                    <p className="amount income">
                         ${dashboardData.total_income.toFixed(2)}
                     </p>
                 </div>
-                <div style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '8px', flex: 1, textAlign: 'center' }}>
+                <div className="summary-card">
                     <h3>Expenses</h3>
-                    <p style={{ fontSize: '24px', color: 'red' }}>
+                    <p className="amount expense">
                         ${dashboardData.total_expense.toFixed(2)}
                     </p>
                 </div>
-                <div style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '8px', flex: 1, textAlign: 'center' }}>
+                <div className="summary-card">
                     <h3>Net Savings</h3>
-                    <p style={{ fontSize: '24px', color: dashboardData.net_savings >= 0 ? 'green' : 'red' }}>
+                    <p className={`amount ${dashboardData.net_savings >= 0 ? 'savings-positive' : 'savings-negative'}`}>
                         ${dashboardData.net_savings.toFixed(2)}
                     </p>
                 </div>

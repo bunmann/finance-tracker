@@ -1,15 +1,16 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import api from './api';
+import Navbar from './components/Navbar';
+import Dashboard from './components/Dashboard';
 import TransactionList from './components/TransactionList';
 import TransactionForm from './components/TransactionForm';
-import Dashboard from './components/Dashboard';
 import './App.css';
 
 function App() {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // Fetch transactions when App loads
     useEffect(() => {
         api.get('/transactions')
             .then(response => {
@@ -17,32 +18,40 @@ function App() {
                 setLoading(false);
             })
             .catch(error => {
-                console.error('Error fetching transactions:', error);
+                console.error('Error:', error);
                 setLoading(false);
             });
     }, []);
 
-    // Called when a new transaction is created via the form
     const handleTransactionAdded = (newTransaction) => {
         setTransactions([...transactions, newTransaction]);
     };
 
-    // Called when a transaction is deleted
     const handleTransactionDeleted = (id) => {
         setTransactions(transactions.filter(t => t.id !== id));
     };
 
     return (
-        <div className="App">
-            <h1>Finance Tracker</h1>
-            <Dashboard transactions={transactions} />
-            <TransactionForm onTransactionAdded={handleTransactionAdded} />
-            <TransactionList
-                transactions={transactions}
-                loading={loading}
-                onDelete={handleTransactionDeleted}
-            />
-        </div>
+        <Router>
+            <div className="App">
+                <Navbar />
+                <main className="main-content">
+                    <Routes>
+                        <Route path="/" element={<Dashboard transactions={transactions} />} />
+                        <Route path="/transactions" element={
+                            <div>
+                                <TransactionForm onTransactionAdded={handleTransactionAdded} />
+                                <TransactionList
+                                    transactions={transactions}
+                                    loading={loading}
+                                    onDelete={handleTransactionDeleted}
+                                />
+                            </div>
+                        } />
+                    </Routes>
+                </main>
+            </div>
+        </Router>
     );
 }
 
