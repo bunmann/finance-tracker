@@ -16,7 +16,7 @@ You have ~18 weeks before PEY apps open. That's plenty of time for a polished, i
 May 26 ─── Jun 1     Week 1: Python Fundamentals
 Jun 2 ──── Jun 8     Week 2: SQL + PostgreSQL
 Jun 9 ──── Jun 15    Week 3: FastAPI Backend (transactions + categories)
-Jun 16 ─── Jun 22    Week 4: React Frontend (forms + dashboard)
+Jun 16 ─── Jun 22    Week 4: React Frontend ✅ (Completed Jun 12, 2026)
 Jun 23 ─── Jun 29    Week 5: Auth, Budgets, Polish → MVP DONE ✅
                      
                      ── DECISION POINT: Expand or pivot? ──
@@ -174,20 +174,19 @@ You don't need a full course. You already know OOP, loops, conditionals, data st
 
 ---
 
-### Week 4 — React Frontend
+### Week 4 — React Frontend ✅ (Completed Jun 12, 2026)
 **Goal:** Build a working UI connected to your API.
 
-| Day | Task |
-|---|---|
-| **Mon** | Learn Web Foundations — HTML structure, CSS styling, and JavaScript basics. |
-| **Tue** | Learn React basics — components, JSX, props, useState, useEffect. Follow [React's official tutorial](https://react.dev/learn). |
-| **Wed** | Set up project with Vite (`npm create vite@latest`). Install axios for API calls. |
-| **Thu** | Build transaction list page — fetch from your API, display in a table. |
-| **Fri** | Build "add transaction" form — POST to your API, refresh list. |
-| **Sat** | Build dashboard page — charts showing spending by category (use [Recharts](https://recharts.org/)). |
-| **Sun** | Styling and layout — navigation bar, React Router, CSS styling, responsive design. |
+All tasks for Week 4 are completed:
+- ✅ Learn Web Foundations — HTML structure, CSS styling, and JavaScript basics.
+- ✅ Learn React basics — components, JSX, props, useState, useEffect.
+- ✅ Set up project with Vite (`npm create vite@latest`) and install Axios.
+- ✅ Build transaction list page — fetch from your API, display in a table.
+- ✅ Build "add transaction" form — POST to your API, refresh list.
+- ✅ Build dashboard page — charts showing spending by category (using Recharts).
+- ✅ Styling and layout — navigation bar, React Router, CSS styling, responsive design.
 
-**Milestone:** A working web app where you can add transactions and see charts. It won't be pretty yet — that's fine.
+**Milestone:** ✅ A working web app where you can add transactions, see category breakdown charts, navigate between views via React Router, and view styled pages.
 
 ---
 
