@@ -1,75 +1,29 @@
-======================================
-WEEK 5 — AUTH, CSV IMPORT, BUDGETS & POLISH
-Quick Reference Notes
-======================================
-
+============================================================================
+WEEK 5 — AUTH, CSV IMPORT, BUDGETS & POLISH Quick Reference Notes
+============================================================================
 
 LESSON 1: JWT Authentication — Backend
--> Password hashing with bcrypt (never store plain passwords)
--> JWT tokens: self-contained, signed, expirable
--> auth.py: hash_password(), verify_password(), create_access_token(), get_current_user()
--> Depends(get_current_user) replaces all hardcoded user_id=1
--> POST /login returns { access_token, token_type: "bearer" }
--> 401 Unauthorized = bad/missing token
+
 
 
 LESSON 2: JWT Authentication — Frontend
--> localStorage stores token across refreshes
--> Axios interceptor auto-attaches Authorization: Bearer <token> to every request
--> LoginPage.jsx, SignupPage.jsx — controlled forms with error handling
--> useNavigate() for programmatic redirects after login
--> <Navigate to="/login" /> for route protection
--> isLoggedIn state controls what routes/navbar links are visible
--> !! converts any value to boolean (!!null = false, !!"string" = true)
--> <></> React Fragments = invisible wrapper for multiple sibling elements
+
 
 
 LESSON 3: CSV Import — Backend
--> Banks export transactions as CSV (Date, Description, Amount)
--> Negative amount = expense, positive = income
--> UploadFile + File(...) for file uploads in FastAPI
--> csv.DictReader parses CSV using header row as keys
--> io.StringIO wraps string as file-like object
--> SHA256 fingerprint = date|description|amount hash for duplicate detection
--> Batch insert: db.add() many, db.commit() once
--> parse_date() tries multiple date formats (strptime)
+
 
 
 LESSON 4: CSV Import — Frontend
--> <input type="file" accept=".csv"> for file selection
--> e.target.files[0] gets the selected File object
--> FormData API packages files for multipart/form-data upload
--> disabled={!file || uploading} prevents double-submit
--> .finally() runs after both .then() and .catch()
--> Import results: imported count, skipped duplicates, errors
+
 
 
 LESSON 5: Budget Tracking
--> PUT method = update existing resource (vs POST = create)
--> monthly_budget column already exists on categories table
--> Enhanced /dashboard endpoint returns budget + amount per category
--> Promise.all([...]) runs multiple API calls in parallel
--> onBlur fires when user leaves an input (better than onChange for saves)
--> defaultValue vs value: uncontrolled vs controlled input
--> Progress bar: CSS div with dynamic width percentage
--> Math.min(percentage, 100) caps bar at 100%
--> Color coding: green (<75%), yellow (75-100%), red (>100%)
--> Dashboard budget alerts: .filter() categories at ≥75% budget usage
+
 
 
 LESSON 6: UI Polish & Error Handling
--> CSS spinner: @keyframes spin { rotate 0→360deg }, animation: spin 0.8s linear infinite
--> Empty states: helpful message + icon when no data exists
--> Toast notifications: position: fixed, z-index: 1000, auto-dismiss via setTimeout
--> useEffect cleanup function: return () => clearTimeout(timer)
--> Error boundaries: class components that catch render crashes
--> getDerivedStateFromError + componentDidCatch (class-only lifecycle methods)
--> this.props.children = whatever is nested inside the component
+
 
 
 LESSON 7: README & Demo
--> README is the first thing recruiters see — treat it like a cover letter
--> Structure: description, features, tech stack, architecture, setup, API docs, screenshots
--> docs/screenshots/ folder for organized media
--> Demo video: 2-3 min walkthrough showing full user flow
--> Tools: QuickTime (Mac), Kap (GIF), OBS Studio (cross-platform)

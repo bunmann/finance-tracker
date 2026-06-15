@@ -55,6 +55,14 @@ Since you are coding on both your Macbook and PC, keep this workflow in mind to 
 
 ---
 
+## Lesson Time Tracking Protocol
+
+Starting from Week 5, we track the time spent on each lesson using the following protocol:
+1. **Starting a Lesson**: When the user says something like *"Let's start Lesson X"*, the assistant must start tracking the elapsed time and respond with **"Welcome back David"** to confirm receipt.
+2. **Completing a Lesson**: When the user says something like *"Lesson X is done, let's wrap up"*, the assistant calculates the duration, updates the `Status`, `Time Spent`, and `Date Completed` in the roadmap table, and commits the change.
+
+---
+
 ## Phase 1: Learn the Tools (Weeks 1–2)
 
 ### Week 1 — Python Fundamentals
