@@ -4,7 +4,31 @@ WEEK 5 — AUTH, CSV IMPORT, BUDGETS & POLISH Quick Reference Notes
 
 LESSON 1: JWT Authentication — Backend
 
+    Authentication: checking WHO you are
+    Authorization: checking WHAT you can do
 
+    JWT (JSON Web Token): industry standard for api authentication
+    -> Flow: User sends email + pw -> Server verifies pw and forgets pw immediately -> Server creates and gives user Token (contains userID)
+    -> User stores token -> User sends token with EVERY future request -> Server reads to know which user it is 
+    ** Tokens are created using user ID (i.e. {"sub": "user_id"} is passed, sub for subject)
+    ** Tokens can be reversed to only see User ID 
+
+    Token looks like: header.payload.signature
+    Header: algo + token type
+    Payload: claims (data) + exp time
+    Signature: signed with secret key -> proves token hasn't been tampered with
+    e.g. eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzE5...
+
+    Tokens are prefered over cookies:
+    -> Self-contained, server doesn't need to store session data
+    -> Works with any client, not only browser (mobile apps, Postman, etc.)
+    -> Scales much better, since servers don't need to share session data
+
+    To hash: use CryptoContext on bcrypt (slow on purpose, hard to decode)
+
+
+    
+        
 
 LESSON 2: JWT Authentication — Frontend
 

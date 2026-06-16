@@ -1,3 +1,9 @@
+# ============================================================================
+# NETWORK SCHEMAS (schemas.py)
+# - Speaks to the User / React Frontend.
+# - Handles JSON parsing, validation (e.g. amount > 0), and response formatting.
+# - Represents how data travels over the network (API requests & responses).
+# ============================================================================
 from pydantic import BaseModel, Field
 from typing import Optional, Literal
 from datetime import date as DateType
@@ -17,3 +23,7 @@ class CategoryCreate(BaseModel):
     name: str
     icon: Optional[str] = "📁"
     monthly_budget: Optional[float] = 0.0
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
