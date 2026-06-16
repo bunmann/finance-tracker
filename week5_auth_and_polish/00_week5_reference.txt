@@ -70,6 +70,18 @@ LESSON 2: JWT Authentication — Frontend
 
 LESSON 3: CSV Import — Backend
 
+    To avoid duplicate transactions we use SHA256 fingerprint hashing:
+    -> Like pw hashing, but much faster and produces same unqie hash for each input
+    -> For duplicaiton & identity purposes
+    -> Takes in date + description + amount + # of occurrence (Needs EXACT description)
+    -> Batch insert all non-duplicates at the end (accesses db only once, much faster than constant inserts)
+
+    defaultdict(int): dict where any key defaults to 0, for counting occurance
+    file: UploadFile = File(...): Way to get ANY file, from FastAPI
+    -> file.filename.endswith(".csv"): to check file name
+    -> io.StringIO: Wrap string to behave like file
+    -> csv.DictReader: Parses csv into dict
+    -> strptime to parse dates into date objects
 
 
 LESSON 4: CSV Import — Frontend

@@ -37,3 +37,4 @@ class Transaction(Base):
     type = Column(String(10), nullable=False)  # 'income' or 'expense'
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=True)
+    fingerprint = Column(String(64), nullable=True, index=True)  # SHA256 hash for dedup

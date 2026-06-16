@@ -366,7 +366,7 @@ Add to **`src/App.css`**:
    - Navigate to `/import`
    - Upload `sample_transactions.csv` → verify import results show correctly
    - Check `/transactions` → verify the imported transactions appear in the list
-   - Upload the same file again → verify it shows "0 imported, 10 skipped"
+   - Upload the same file again → verify it shows "0 imported, 11 skipped"
    - Check the dashboard → verify the charts update with the imported data
 
 ---

@@ -22,7 +22,7 @@ This document outlines the rules, guidelines, and interactive protocols that the
      - **Number of Prompts** (count of messages sent by the user during this session)
      - **Key Concepts Learned**
   5. Print a clear, formatted summary of the logged time, prompts, and modified files in the chat.
-  6. Automatically stage and commit all workspace changes to git with a descriptive message.
+  6. Let David run git commit himself (do NOT commit automatically).
 
 ## 3. Execution Boundaries
 - **DO NOT RUN INSTALL/DOWNLOAD COMMANDS**: The assistant must NEVER run commands that perform installations (e.g., `pip install`, `npm install`) or network downloads. These actions are David's responsibility to run in his local environment as part of the lesson task.

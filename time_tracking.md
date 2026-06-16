@@ -10,6 +10,7 @@ This file contains detailed metrics and time-tracking logs for each lesson compl
 |---|---|---|---|---|---|
 | Jun 15, 2026 | Week 5 — Lesson 1 | 07:49 PM | 09:18 PM | 1h 28m | 27 |
 | Jun 16, 2026 | Week 5 — Lesson 2 | 11:47 AM | 01:27 PM | 1h 40m | 26 |
+| Jun 16, 2026 | Week 5 — Lesson 3 | 06:19 PM | 07:29 PM | 1h 10m | 12 |
 
 ---
 
@@ -41,3 +42,16 @@ This file contains detailed metrics and time-tracking logs for each lesson compl
   - Seeding database tables upon entity creation triggers on the database server.
   - Chaining outer joins to group uncategorized time-series database records.
   - Documenting consistent styling rules across multiple code ecosystems.
+
+### 📅 Week 5 — Lesson 3: CSV Import (Backend)
+- **Date Completed**: Jun 16, 2026
+- **Time Window**: 06:19 PM – 07:29 PM EDT
+- **Total Duration**: 1 hour, 10 minutes
+- **Number of Prompts**: 12
+- **Key Concepts Learned**:
+  - Designing deduplication logic via occurrence-based SHA256 fingerprinting (using `defaultdict` to track sequential matches on the same day).
+  - FastAPI file upload streaming using `UploadFile` and `File(...)`.
+  - Parsing uploaded text streams with standard Python `io.StringIO` and `csv.DictReader`.
+  - Batch database inserts via SQLAlchemy to perform bulk creation efficiently in a single transaction commit.
+  - Adding defensive validation guards against incorrect file types and Unicode decoding failures.
+  - Resolving python-multipart dependency missing errors for FastAPI form parsing.
