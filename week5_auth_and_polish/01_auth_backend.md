@@ -392,4 +392,4 @@ After restarting uvicorn, go to `http://localhost:8000/docs`.
 | **SECRET_KEY** | Server-side key used to sign/verify tokens |
 | **`Depends(get_current_user)`** | FastAPI dependency that extracts the user from the token |
 | **401 Unauthorized** | HTTP status code for "you're not logged in" or "bad token" |
-| **OAuth2PasswordBearer** | FastAPI helper that reads `Authorization: Bearer <token>` headers |
+| **HTTPBearer** | FastAPI helper that extracts `Authorization: Bearer <token>` headers |
