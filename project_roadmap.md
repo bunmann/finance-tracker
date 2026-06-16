@@ -195,7 +195,7 @@ All tasks for Week 4 are completed:
 
 | Lesson | Task | Status | Time Spent | Date Completed |
 |---|---|---|---|---|
-| **Lesson 1** | JWT Authentication — Backend: password hashing (bcrypt), JWT tokens, login endpoint, protect all API routes | ⏳ | - | - |
+| **Lesson 1** | JWT Authentication — Backend: password hashing (bcrypt), JWT tokens, login endpoint, protect all API routes | ✅ | 1h 28m | Jun 15, 2026 |
 | **Lesson 2** | JWT Authentication — Frontend: login/signup pages, token storage (localStorage), Axios interceptors, protected routes | ⏳ | - | - |
 | **Lesson 3** | CSV Import — Backend: file upload endpoint, CSV parsing, duplicate detection (SHA256 fingerprint), batch inserts | ⏳ | - | - |
 | **Lesson 4** | CSV Import — Frontend: file input component, FormData upload, import results display | ⏳ | - | - |
