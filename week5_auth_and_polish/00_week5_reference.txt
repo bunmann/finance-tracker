@@ -38,7 +38,15 @@ LESSON 1: JWT Authentication — Backend
 
 LESSON 2: JWT Authentication — Frontend
 
+    Interceptor: middleware for HTTP requests, runs before every request
+    -> For us: checks if localStorage has token and adds Authorization: Bearer <token> header if it does
 
+    localStorage: Browser-provided key-value store that persists across page refreshes and browser restarts
+    ->setItem(key, value) -> stores value
+    ->getItem(key) -> reads value
+    ->removeItem(key) -> deletes value
+
+    useNavigate: React Router hook, lets you auto change pages in JS
 
 LESSON 3: CSV Import — Backend
 

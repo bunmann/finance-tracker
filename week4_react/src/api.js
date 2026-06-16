@@ -1,7 +1,21 @@
+# ============================================================================
+# API CLIENT (api.js)
+# - Configures Axios instance with baseURL.
+# - Attaches the JWT authorization token automatically to all outgoing requests.
+# ============================================================================
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://127.0.0.1:8000',  // Your FastAPI backend URL
+    baseURL: 'http://127.0.0.1:8000',
+});
+
+// Automatically attach the JWT token to every request
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
 });
 
 export default api;
