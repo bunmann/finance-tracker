@@ -57,11 +57,11 @@ JWT is the standard for modern APIs, especially when the frontend and backend ar
 We need two new libraries:
 
 ```bash
-pip install python-jose[cryptography] passlib[bcrypt]
+pip install "python-jose[cryptography]" bcrypt
 ```
 
 - **`python-jose`**: Creates and verifies JWT tokens
-- **`passlib`**: Hashes passwords securely using bcrypt
+- **`bcrypt`**: Hashes passwords securely
 
 ### Why Hash Passwords?
 
@@ -83,12 +83,12 @@ Create a new file: **`week3_fastapi/auth.py`**
 ```python
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from fastapi import Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from database import get_db
 import models
+import bcrypt
 
 # ====== Configuration ======
 SECRET_KEY = "your-secret-key-change-this-in-production"
@@ -96,15 +96,18 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 # ====== Password Hashing ======
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 def hash_password(password: str) -> str:
     """Convert a plain password into a bcrypt hash."""
-    return pwd_context.hash(password)
+    pwd_bytes = password.encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed_pwd = bcrypt.hashpw(pwd_bytes, salt)
+    return hashed_pwd.decode('utf-8')
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Check if a plain password matches a stored hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    pwd_bytes = plain_password.encode('utf-8')
+    hashed_bytes = hashed_password.encode('utf-8')
+    return bcrypt.checkpw(pwd_bytes, hashed_bytes)
 
 # ====== JWT Token Creation ======
 def create_access_token(data: dict) -> str:
@@ -115,10 +118,10 @@ def create_access_token(data: dict) -> str:
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 # ====== Token Verification (Dependency) ======
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+security = HTTPBearer()
 
 def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ):
     """Extract the user from a JWT token. Use as a FastAPI dependency."""
@@ -127,6 +130,7 @@ def get_current_user(
         detail="Invalid or expired token",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    token = credentials.credentials
     try:
         # Decode the token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -149,15 +153,14 @@ That's a lot of code, so let's break it down piece by piece.
 ### Password Hashing Functions
 
 ```python
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-```
-
-`CryptContext` is from `passlib`. It manages password hashing. We tell it to use **bcrypt**, which is the industry standard for password hashing (it's intentionally slow, making brute-force attacks impractical).
-
-```python
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    pwd_bytes = password.encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed_pwd = bcrypt.hashpw(pwd_bytes, salt)
+    return hashed_pwd.decode('utf-8')
 ```
+
+We import the `bcrypt` library directly to hash passwords securely using a random salt. Because bcrypt works with binary byte arrays, we encode the string to utf-8 bytes before hashing, and decode the hashed bytes back into a string for storage in PostgreSQL.
 
 Takes `"mypassword123"` and returns something like `"$2b$12$LJ3m4ks92j..."`. Each call produces a different hash (due to random salt), but `verify_password` can still match them.
 
@@ -176,18 +179,21 @@ We pass in `{"sub": "1"}` (the user's ID), add an expiration timestamp, and sign
 ### Token Verification Dependency
 
 ```python
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+security = HTTPBearer()
 ```
 
-This tells FastAPI: "When an endpoint requires authentication, look for a `Bearer` token in the `Authorization` header." It also configures Swagger UI to show a login button.
+This tells FastAPI: "When an endpoint requires authentication, look for a `Bearer` token in the `Authorization` header." It also configures Swagger UI to show an Authorize dialog with a token text field.
 
 ```python
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db)
+):
 ```
 
 This is a **FastAPI dependency** — just like `get_db`. When you add `user = Depends(get_current_user)` to any endpoint, FastAPI will:
-1. Extract the token from the `Authorization: Bearer <token>` header
-2. Decode and verify the JWT
+1. Extract the credentials from the `Authorization: Bearer <token>` header
+2. Decode and verify the JWT token
 3. Look up the user in the database
 4. Return the user object (or raise a 401 error if anything fails)
 
@@ -369,7 +375,7 @@ After restarting uvicorn, go to `http://localhost:8000/docs`.
 
 ## 8. Your Task
 
-1. Install the new dependencies: `pip install python-jose[cryptography] passlib[bcrypt]`
+1. Install the new dependencies: `pip install "python-jose[cryptography]" bcrypt`
 2. Create `week3_fastapi/auth.py` with the code from Section 4.
 3. Add `LoginRequest` to `schemas.py`.
 4. Update `main.py`:

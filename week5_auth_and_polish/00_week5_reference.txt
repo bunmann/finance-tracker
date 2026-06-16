@@ -26,8 +26,14 @@ LESSON 1: JWT Authentication — Backend
 
     To hash: use CryptoContext on bcrypt (slow on purpose, hard to decode)
 
+    Concept | What It Does 
+    **bcrypt** | Hashes passwords so they can't be reversed 
+    **JWT** | Self-contained token carrying user identity
+    **SECRET_KEY** | Server-side key used to sign/verify tokens
+    **`Depends(get_current_user)`** | FastAPI dependency that extracts the user from the token
+    **401 Unauthorized** | HTTP status code for "you're not logged in" or "bad token" 
+    **HTTPBearer** | FastAPI helper that extracts `Authorization: Bearer <token>` headers 
 
-    
         
 
 LESSON 2: JWT Authentication — Frontend
