@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
-from schemas import TransactionCreate, UserCreate, CategoryCreate
+from auth import hash_password, verify_password, create_access_token, get_current_user
+from schemas import TransactionCreate, UserCreate, CategoryCreate, LoginRequest
 from database import engine, get_db, Base
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -49,7 +50,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     # 1. Create a SQLAlchemy model instance from the validated Pydantic data
     db_user = models.User(  # db_user is object instance, models.User is class from models.py
         email=user.email,
-        password_hash=user.password   # In real life, you'd hash this first!
+        password_hash=hash_password(user.password)  # Hash the password!
     )
     # 2. Stage it (like git add)
     db.add(db_user)
@@ -59,6 +60,22 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(db_user)
     # 5. Return the created user
     return {"id": db_user.id, "email": db_user.email}
+
+
+@app.post("/login")
+def login(login_data: LoginRequest, db: Session = Depends(get_db)):
+    # 1. Find the user by email
+    user = db.query(models.User).filter(models.User.email == login_data.email).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    # 2. Verify the password against the stored hash
+    if not verify_password(login_data.password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    # 3. Create and return a JWT token
+    token = create_access_token({"sub": str(user.id)})
+    return {"access_token": token, "token_type": "bearer"}
 
 
 
@@ -72,10 +89,12 @@ def get_transactions(
     category_id: Optional[int] = None,
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
 ):
     # Start building the base query
-    query = db.query(models.Transaction)
+    query = db.query(models.Transaction).filter(
+        models.Transaction.user_id == current_user.id)  # Only this user's transactions
     
     # Apply filters dynamically
     if type:
@@ -94,7 +113,7 @@ def get_transactions(
 
 
 @app.post("/transactions")
-def create_transaction(transaction: TransactionCreate, db: Session = Depends(get_db)):
+def create_transaction(transaction: TransactionCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     # Create python instance object for transaction.
     db_transaction = models.Transaction(
         amount=transaction.amount,
@@ -102,7 +121,7 @@ def create_transaction(transaction: TransactionCreate, db: Session = Depends(get
         type=transaction.type,
         date=transaction.date,
         category_id=transaction.category_id,
-        user_id=1  # Hardcoded for now — we'll fix this when we add authentication
+        user_id=current_user.id
     )
 
     db.add(db_transaction)
@@ -112,11 +131,12 @@ def create_transaction(transaction: TransactionCreate, db: Session = Depends(get
 
 
 @app.delete("/transactions/{transaction_id}")
-def delete_transaction(transaction_id: int, db: Session = Depends(get_db)):
+def delete_transaction(transaction_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     # Find the transaction
     transaction = db.query(models.Transaction).filter(
+        models.Transaction.user_id == current_user.id,
         models.Transaction.id == transaction_id
-    ).first()
+        ).first()
     
     # If not found, return an error
     if not transaction:
@@ -131,16 +151,23 @@ def delete_transaction(transaction_id: int, db: Session = Depends(get_db)):
     # =====================CATEGORY ENDPOINTS====================
 
 @app.get("/categories")
-def get_categories(db: Session = Depends(get_db)):
-    return db.query(models.Category).all()
+def get_categories(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    return db.query(models.Category).filter(models.Category.user_id == current_user.id).all()
 
 
 @app.post("/categories")
-def create_category(category: CategoryCreate, db: Session = Depends(get_db)):
+def create_category(
+    category: CategoryCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
     # Check if a category with this name already exists for the user
     existing_category = db.query(models.Category).filter(
-        models.Category.name == category.name,
-        models.Category.user_id == 1  # Hardcoded to user 1 for now
+        models.Category.user_id == current_user.id,
+        models.Category.name == category.name
     ).first()
     
     if existing_category:
@@ -153,7 +180,7 @@ def create_category(category: CategoryCreate, db: Session = Depends(get_db)):
         name=category.name,
         icon=category.icon,
         monthly_budget=category.monthly_budget,
-        user_id=1  # Hardcoded to user 1 for now
+        user_id=current_user.id
     )
     db.add(db_category)
     db.commit()
@@ -162,8 +189,16 @@ def create_category(category: CategoryCreate, db: Session = Depends(get_db)):
 
 
 @app.delete("/categories/{category_id}")
-def delete_category(category_id: int, db: Session = Depends(get_db)):
-    category = db.query(models.Category).filter(models.Category.id == category_id).first()
+def delete_category(
+    category_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    category = db.query(models.Category).filter(
+        models.Category.user_id == current_user.id,
+        models.Category.id == category_id
+    ).first()
+    
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
         
@@ -181,13 +216,18 @@ def reset_db():
     return {"message": "Database reset successfully! All tables recreated with new schemas."}
 
 
-
 # =====================DASHBOARD ENDPOINT====================
 
 @app.get("/dashboard")
-def get_dashboard_summary(month: int, year: int, db: Session = Depends(get_db)):
+def get_dashboard_summary(
+    month: int,
+    year: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
     # 1. Fetch total income for this month & year
     income_val = db.query(func.sum(models.Transaction.amount)).filter(
+        models.Transaction.user_id == current_user.id,
         models.Transaction.type == "income",
         func.extract('month', models.Transaction.date) == month,
         func.extract('year', models.Transaction.date) == year
@@ -196,6 +236,7 @@ def get_dashboard_summary(month: int, year: int, db: Session = Depends(get_db)):
     
     # 2. Fetch total expenses for this month & year
     expense_val = db.query(func.sum(models.Transaction.amount)).filter(
+        models.Transaction.user_id == current_user.id,
         models.Transaction.type == "expense",
         func.extract('month', models.Transaction.date) == month,
         func.extract('year', models.Transaction.date) == year
@@ -209,6 +250,7 @@ def get_dashboard_summary(month: int, year: int, db: Session = Depends(get_db)):
     ).join(
         models.Transaction, models.Transaction.category_id == models.Category.id
     ).filter(
+        models.Transaction.user_id == current_user.id,
         models.Transaction.type == "expense",
         func.extract('month', models.Transaction.date) == month,
         func.extract('year', models.Transaction.date) == year

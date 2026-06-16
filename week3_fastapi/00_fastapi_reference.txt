@@ -72,6 +72,7 @@ User sends JSON  →  Pydantic validates  →  SQLAlchemy model created  →  Sa
                      (schemas.py)            (models.py)                 (database.py)
 
     Depends(get_db): auto opens and closes DB sessions
+    -> Depends: exectues the function inside and returns parameter before running the actual function
 
     DATABASE SESSION COMMANDS (SQLAlchemy `db`):
     * Write Operations (like git commiting):
