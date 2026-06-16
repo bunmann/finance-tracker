@@ -201,3 +201,72 @@ tbody button:hover {
         width: 100%;
     }
 }
+
+/* ========== Auth Pages ========== */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+}
+
+.auth-card {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-card h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #1a1a2e;
+}
+
+.auth-switch {
+    text-align: center;
+    margin-top: 15px;
+    color: #666;
+}
+
+.auth-switch a {
+    color: #1a1a2e;
+    font-weight: 600;
+}
+
+.error-message {
+    color: #ff4757;
+    background: #ffe0e3;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.success-message {
+    color: #2ed573;
+    background: #e0ffe8;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* ========== Logout Button ========== */
+.logout-btn {
+    background: transparent;
+    color: #e0e0e0;
+    border: 1px solid #e0e0e0;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}

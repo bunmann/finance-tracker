@@ -38,6 +38,10 @@ LESSON 1: JWT Authentication — Backend
 
 LESSON 2: JWT Authentication — Frontend
 
+    Flow: User opens app -> no token? -> Redirect to login -> Enters credentials 
+          -> API validates -> Server returns token -> Store token in localStorage 
+          -> Redirect to dashboard -> All future API calls have token auto sent
+
     Interceptor: middleware for HTTP requests, runs before every request
     -> For us: checks if localStorage has token and adds Authorization: Bearer <token> header if it does
 
@@ -47,6 +51,22 @@ LESSON 2: JWT Authentication — Frontend
     ->removeItem(key) -> deletes value
 
     useNavigate: React Router hook, lets you auto change pages in JS
+
+    useState(!!var): converts var into a boolean (true if truthy, false if falsy)
+
+    Routing now:
+    -> If logged in: Gives between 3 choices of routes
+    -> Not logged on: Swaps the choices out for other routes
+    -> If user doesn't match any route: <Route path="*" element={<Navigate to="/login" />} /> redirects user to /login
+    ** These are PROTECTED ROUTES **
+
+    DOM (Document Object Model): Browser's internal map (tree) of all HTML elements on screen. JS/React updates this tree to refresh the screen.
+
+    React Fragments (<> and </>): 
+    -> Why: React requires every component to return only ONE parent element.
+    -> Fix: Wrapping elements in `<>` and `</>` satisfies this rule.
+    -> Key: They act as "ghost wrappers" — they bundle elements to satisfy React, but are NOT added to the DOM (so they won't mess up CSS layouts).
+
 
 LESSON 3: CSV Import — Backend
 

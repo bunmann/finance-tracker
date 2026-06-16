@@ -1,3 +1,9 @@
+# ============================================================================
+# File: auth.py
+# Description: Performs password hashing/verification using raw bcrypt.
+#              Generates JWT access tokens for authenticated sessions and
+#              implements the get_current_user FastAPI dependency.
+# ============================================================================
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException

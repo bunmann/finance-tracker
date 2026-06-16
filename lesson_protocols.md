@@ -20,7 +20,6 @@ This document outlines the rules, guidelines, and interactive protocols that the
      - **Duration**
      - **Date Completed**
      - **Number of Prompts** (count of messages sent by the user during this session)
-     - **Files Modified**
      - **Key Concepts Learned**
   5. Print a clear, formatted summary of the logged time, prompts, and modified files in the chat.
   6. Automatically stage and commit all workspace changes to git with a descriptive message.
@@ -29,7 +28,21 @@ This document outlines the rules, guidelines, and interactive protocols that the
 - **DO NOT RUN INSTALL/DOWNLOAD COMMANDS**: The assistant must NEVER run commands that perform installations (e.g., `pip install`, `npm install`) or network downloads. These actions are David's responsibility to run in his local environment as part of the lesson task.
 
 ## 4. Teaching Style & Technical Guidelines
-- **EXPLANATIONS**: Explain *why* a pattern is used, not just *what* the code does.
-- **C++ ANALOGIES**: When introducing new concepts (e.g., FastAPI dependencies, ORMs, JWTs, list comprehensions), compare them to C++ equivalents where helpful, since David has a C++ background.
+- **EXPLANATIONS**: Explain *why* a pattern is used, not just *what* the code does. Focus on clear, step-by-step logic, using real-world analogies or web/JavaScript/Python contexts rather than system programming or C++ analogies.
 - **CODE QUALITY**: Provide clean, production-grade, and copy-pasteable code blocks without placeholder code.
+- **FILE HEADER COMMENTS**: Every new code file added (or existing file modified significantly) must include a unified visual header block at the top. The comments must match:
+  - Python files (using `#`):
+    ```python
+    # ============================================================================
+    # File: filename.py
+    # Description: brief explanation of what the code does
+    # ============================================================================
+    ```
+  - JS/React files (using `//`):
+    ```javascript
+    // ============================================================================
+    // File: filename.ext
+    // Description: brief explanation of what the code does
+    // ============================================================================
+    ```
 - **ROBUSTNESS**: Avoid insecure practices (like hardcoded keys, plain text passwords, or SQL injection vectors) and explicitly teach defensive coding habits.

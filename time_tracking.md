@@ -9,6 +9,7 @@ This file contains detailed metrics and time-tracking logs for each lesson compl
 | Date | Week / Lesson | Start Time | End Time | Duration | Prompts |
 |---|---|---|---|---|---|
 | Jun 15, 2026 | Week 5 — Lesson 1 | 07:49 PM | 09:18 PM | 1h 28m | 27 |
+| Jun 16, 2026 | Week 5 — Lesson 2 | 11:47 AM | 01:27 PM | 1h 40m | 26 |
 
 ---
 
@@ -19,15 +20,24 @@ This file contains detailed metrics and time-tracking logs for each lesson compl
 - **Time Window**: 07:49 PM – 09:18 PM EDT
 - **Total Duration**: 1 hour, 28 minutes
 - **Number of Prompts**: 27
-- **Files Modified**:
-  - [auth.py](file:///Users/david/Documents/PG/Finance%20Project/week3_fastapi/auth.py) (Created)
-  - [main.py](file:///Users/david/Documents/PG/Finance%20Project/week3_fastapi/main.py)
-  - [schemas.py](file:///Users/david/Documents/PG/Finance%20Project/week3_fastapi/schemas.py)
-  - [01_auth_backend.md](file:///Users/david/Documents/PG/Finance%20Project/week5_auth_and_polish/01_auth_backend.md)
-  - [00_week5_reference.txt](file:///Users/david/Documents/PG/Finance%20Project/week5_auth_and_polish/00_week5_reference.txt)
 - **Key Concepts Learned**:
   - Hashing user passwords securely using direct `bcrypt` library (managing python bytes/strings encoding).
   - Generating signed JWT access tokens containing user ID subject claims (`"sub"`) and expiration metadata (`"exp"`).
   - FastAPI dependency injection using `Depends` and `HTTPBearer` for request authentication header parsing.
   - Swapping out insecure/deprecated `passlib` context in modern Python.
   - Designing separate database entities (`models.py`) and network entities (`schemas.py`).
+
+### 📅 Week 5 — Lesson 2: JWT Authentication (Frontend)
+- **Date Completed**: Jun 16, 2026
+- **Time Window**: 11:47 AM – 01:27 PM EDT
+- **Total Duration**: 1 hour, 40 minutes
+- **Number of Prompts**: 26
+- **Key Concepts Learned**:
+  - Persisting authentication tokens across sessions via browser's `localStorage` client storage mechanism.
+  - Intercepting Axios outbound network calls to attach HTTP Bearer token headers.
+  - Designing a conditional component routing strategy using React Router to guard access to authenticated paths.
+  - Utilizing React Fragments `<>...</>` to group DOM sibling nodes without introducing wrapper container noise.
+  - Creating interactive forms with client validation and programmatic router redirects.
+  - Seeding database tables upon entity creation triggers on the database server.
+  - Chaining outer joins to group uncategorized time-series database records.
+  - Documenting consistent styling rules across multiple code ecosystems.

@@ -1,8 +1,6 @@
 # ============================================================================
-# NETWORK SCHEMAS (schemas.py)
-# - Speaks to the User / React Frontend.
-# - Handles JSON parsing, validation (e.g. amount > 0), and response formatting.
-# - Represents how data travels over the network (API requests & responses).
+# File: schemas.py
+# Description: Defines Pydantic schemas for request validation and serialization.
 # ============================================================================
 from pydantic import BaseModel, Field
 from typing import Optional, Literal

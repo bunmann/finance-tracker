@@ -1,8 +1,7 @@
-# ============================================================================
-# API CLIENT (api.js)
-# - Configures Axios instance with baseURL.
-# - Attaches the JWT authorization token automatically to all outgoing requests.
-# ============================================================================
+// ============================================================================
+// File: api.js
+// Description: Configures Axios instance and attaches JWT token automatically to outgoing requests.
+// ============================================================================
 import axios from 'axios';
 
 const api = axios.create({

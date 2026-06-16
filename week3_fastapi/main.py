@@ -1,3 +1,9 @@
+# ============================================================================
+# File: main.py
+# Description: Main entry point & routing for the FastAPI application.
+#              Registers CORS middleware and declares all REST API routes.
+# ============================================================================
+
 from fastapi import FastAPI, Depends, HTTPException
 from auth import hash_password, verify_password, create_access_token, get_current_user
 from schemas import TransactionCreate, UserCreate, CategoryCreate, LoginRequest
@@ -42,10 +48,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     # Check if a user with this email already exists
     existing_user = db.query(models.User).filter(models.User.email == user.email).first()
     if existing_user:
-        raise HTTPException(
-            status_code=400,
-            detail="A user with this email already exists."
-        )
+        raise HTTPException(status_code=400, detail="A user with this email already exists.")
 
     # 1. Create a SQLAlchemy model instance from the validated Pydantic data
     db_user = models.User(  # db_user is object instance, models.User is class from models.py
@@ -58,7 +61,25 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     # 4. Refresh to get the auto-generated id from the database
     db.refresh(db_user)
-    # 5. Return the created user
+
+    # Seed default categories for the new user
+    default_categories = [
+        {"name": "Food & Dining", "icon": "🍔"},
+        {"name": "Transportation", "icon": "🚗"},
+        {"name": "Entertainment", "icon": "🎬"},
+        {"name": "Utilities", "icon": "💡"},
+        {"name": "Rent & Housing", "icon": "🏠"},
+    ]
+    for cat in default_categories:
+        db_cat = models.Category(
+            name=cat["name"],
+            icon=cat["icon"],
+            monthly_budget=0.0,
+            user_id=db_user.id
+        )
+        db.add(db_cat)
+    db.commit()
+
     return {"id": db_user.id, "email": db_user.email}
 
 
@@ -243,12 +264,12 @@ def get_dashboard_summary(
     ).scalar()
     total_expense = float(expense_val) if expense_val is not None else 0.0
     
-    # 3. Fetch breakdown of expenses by category for this month & year
+    # 3. Fetch breakdown of expenses by category for this month & year (including uncategorized)
     category_data = db.query(
         models.Category.name,
         func.sum(models.Transaction.amount)
-    ).join(
-        models.Transaction, models.Transaction.category_id == models.Category.id
+    ).select_from(models.Transaction).outerjoin(
+        models.Category, models.Transaction.category_id == models.Category.id
     ).filter(
         models.Transaction.user_id == current_user.id,
         models.Transaction.type == "expense",
@@ -259,7 +280,10 @@ def get_dashboard_summary(
     ).all()
     
     # 4. Format the category data into a list of dicts
-    by_category = [{"category_name": name, "amount": float(amount)} for name, amount in category_data]
+    by_category = [
+        {"category_name": name if name is not None else "Uncategorized", "amount": float(amount)}
+        for name, amount in category_data
+    ]
     
     # 5. Return the full dashboard summary
     return {

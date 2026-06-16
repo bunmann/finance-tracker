@@ -1,3 +1,7 @@
+// ============================================================================
+// File: Dashboard.jsx
+// Description: Displays monthly financial summaries and spending breakdown charts.
+// ============================================================================
 import { useState, useEffect } from 'react';
 import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import api from '../api';

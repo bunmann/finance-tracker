@@ -1,3 +1,7 @@
+// ============================================================================
+// File: TransactionList.jsx
+// Description: Displays a tabular record of transactions and handles deletions.
+// ============================================================================
 import api from '../api';
 
 function TransactionList({ transactions, loading, onDelete }) {

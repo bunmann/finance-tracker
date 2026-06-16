@@ -1,8 +1,6 @@
 # ============================================================================
-# DATABASE MODELS (models.py)
-# - Speaks to PostgreSQL.
-# - Defines database tables, columns, constraints, and relationships.
-# - Represents how data is persistently stored on disk.
+# File: models.py
+# Description: Defines SQLAlchemy database tables, columns, constraints, and relationships.
 # ============================================================================
 from sqlalchemy import Column, Integer, String, Numeric, Date, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship

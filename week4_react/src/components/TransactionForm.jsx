@@ -1,3 +1,7 @@
+// ============================================================================
+// File: TransactionForm.jsx
+// Description: Renders the input form for recording new transactions.
+// ============================================================================
 import { useState, useEffect } from 'react';
 import api from '../api';
 
