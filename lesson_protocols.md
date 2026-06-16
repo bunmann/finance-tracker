@@ -13,7 +13,17 @@ This document outlines the rules, guidelines, and interactive protocols that the
   1. Note the completion timestamp from the metadata.
   2. Calculate the exact elapsed time (in hours/minutes).
   3. Update the corresponding lesson row in [project_roadmap.md](file:///Users/david/Documents/PG/Finance%20Project/project_roadmap.md) with `Status = ✅`, `Time Spent = <elapsed_time>`, and `Date Completed = <current_date>`.
-  4. Commit the changes to git.
+  4. Create or update the detailed log in [time_tracking.md](file:///Users/david/Documents/PG/Finance%20Project/time_tracking.md) with detailed metrics:
+     - **Lesson Name / Week**
+     - **Start Time** (local timezone)
+     - **End Time** (local timezone)
+     - **Duration**
+     - **Date Completed**
+     - **Number of Prompts** (count of messages sent by the user during this session)
+     - **Files Modified**
+     - **Key Concepts Learned**
+  5. Print a clear, formatted summary of the logged time, prompts, and modified files in the chat.
+  6. Automatically stage and commit all workspace changes to git with a descriptive message.
 
 ## 3. Execution Boundaries
 - **DO NOT RUN INSTALL/DOWNLOAD COMMANDS**: The assistant must NEVER run commands that perform installations (e.g., `pip install`, `npm install`) or network downloads. These actions are David's responsibility to run in his local environment as part of the lesson task.
