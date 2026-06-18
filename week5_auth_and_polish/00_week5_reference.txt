@@ -86,7 +86,19 @@ LESSON 3: CSV Import — Backend
 
 LESSON 4: CSV Import — Frontend
 
+    Getting file:
+    -> accept=".csv": input attribute that restricts file selection in browser file picker
+    -> e.g. <input type="file" accept=".csv" />
+    
+    Converting file to browser object:
+    -> FormData: Browser object used to pack binary files (like CSVs) for HTTP uploads
+    -> Acts like a container/box for raw file bytes
 
+    Sending file to API:
+    -> Content-Type: multipart/form-data: HTTP header that tells the backend how to parse the payload
+    -> Tells FastAPI to use its file parser rather than its default JSON parser
+
+    
 
 LESSON 5: Budget Tracking
 

@@ -68,61 +68,59 @@ function TransactionForm({ onTransactionAdded }) {
     };
 
     return (
-        <div>
+        <form onSubmit={handleSubmit}>
             <h2>Add Transaction</h2>
             {error && <p style={{ color: 'red' }}>{error}</p>}
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Amount: </label>
-                    <input
-                        type="number"
-                        step="0.01"
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                        required
-                    />
-                </div>
+            <div>
+                <label>Amount: </label>
+                <input
+                    type="number"
+                    step="0.01"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    required
+                />
+            </div>
 
-                <div>
-                    <label>Description: </label>
-                    <input
-                        type="text"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        required
-                    />
-                </div>
+            <div>
+                <label>Description: </label>
+                <input
+                    type="text"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    required
+                />
+            </div>
 
-                <div>
-                    <label>Type: </label>
-                    <select value={type} onChange={(e) => setType(e.target.value)}>
-                        <option value="expense">Expense</option>
-                        <option value="income">Income</option>
-                    </select>
-                </div>
+            <div>
+                <label>Type: </label>
+                <select value={type} onChange={(e) => setType(e.target.value)}>
+                    <option value="expense">Expense</option>
+                    <option value="income">Income</option>
+                </select>
+            </div>
 
-                <div>
-                    <label>Date: </label>
-                    <input
-                        type="date"
-                        value={date}
-                        onChange={(e) => setDate(e.target.value)}
-                    />
-                </div>
+            <div>
+                <label>Date: </label>
+                <input
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                />
+            </div>
 
-                <div>
-                    <label>Category: </label>
-                    <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-                        <option value="">-- None --</option>
-                        {categories.map(cat => (
-                            <option key={cat.id} value={cat.id}>{cat.name}</option>
-                        ))}
-                    </select>
-                </div>
+            <div>
+                <label>Category: </label>
+                <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
+                    <option value="">-- None --</option>
+                    {categories.map(cat => (
+                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                </select>
+            </div>
 
-                <button type="submit">Add Transaction</button>
-            </form>
-        </div>
+            <button type="submit">Add Transaction</button>
+        </form>
     );
 }
 

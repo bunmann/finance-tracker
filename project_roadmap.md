@@ -198,7 +198,7 @@ All tasks for Week 4 are completed:
 | **Lesson 1** | JWT Authentication — Backend: password hashing (bcrypt), JWT tokens, login endpoint, protect all API routes | ✅ | 1h 28m | Jun 15, 2026 |
 | **Lesson 2** | JWT Authentication — Frontend: login/signup pages, token storage (localStorage), Axios interceptors, protected routes | ✅ | 1h 40m | Jun 16, 2026 |
 | **Lesson 3** | CSV Import — Backend: file upload endpoint, CSV parsing, duplicate detection (SHA256 fingerprint), batch inserts | ✅ | 1h 10m | Jun 16, 2026 |
-| **Lesson 4** | CSV Import — Frontend: file input component, FormData upload, import results display | ⏳ | - | - |
+| **Lesson 4** | CSV Import — Frontend: file input component, FormData upload, import results display | ✅ | 52m | Jun 18, 2026 |
 | **Lesson 5** | Budget Tracking: PUT endpoint for categories, enhanced dashboard with budget data, progress bars, dashboard budget alerts | ⏳ | - | - |
 | **Lesson 6** | UI Polish: loading spinners, empty states, toast notifications, error boundaries | ⏳ | - | - |
 | **Lesson 7** | README & Demo: professional README, screenshots, demo video, final commit | ⏳ | - | - |
@@ -240,6 +240,38 @@ At this point you have a **fully functional personal finance tracker** with:
 | Calculate unrealized gain/loss per holding | Financial math in code |
 | Cache price data to avoid rate limits | Caching strategy, `price_cache` table |
 
+#### 🧠 Smart Auto-Categorization (Tiers 1 & 2)
+
+When CSV transactions are imported, they all come in as "Uncategorized" because bank exports only include date, description, and amount — no category. To fix this, we build a **cascading classification pipeline** that automatically assigns categories during import.
+
+**Tier 1 — Global Keyword Matching** (built into the CSV import endpoint)
+
+A hardcoded Python dictionary maps known merchant keywords to category names. During the CSV import loop, before saving each transaction, we scan the description against these keywords and auto-set the `category_id`.
+
+| Step | What You Do | What You Learn |
+|---|---|---|
+| Create `categorization.py` helper module | Write a `auto_categorize(description, user_categories)` function | Modular code organization, separating concerns from route handlers |
+| Build the keyword dictionary | Map strings like `"starbucks"`, `"uber"`, `"netflix"` to category names like `"Food & Dining"`, `"Transportation"`, `"Entertainment"` | Designing lookup tables, Python dict patterns |
+| Integrate into the CSV import loop | Call the helper before each `db.add()` — if a match is found, set `category_id` on the transaction | Plugging helper functions into existing endpoints |
+| Case-insensitive matching | Use `.lower()` on descriptions so `"STARBUCKS"` and `"Starbucks"` both match | String normalization for robust matching |
+
+**Tier 2 — User-Trained Rules** (learns from manual corrections)
+
+When a user manually categorizes a transaction (e.g., assigns "JOE'S PIZZA" → Food & Dining), the app **remembers** that mapping in a new database table. Next time a CSV contains "JOE'S PIZZA", it auto-categorizes without the user doing anything.
+
+| Step | What You Do | What You Learn |
+|---|---|---|
+| Create a `category_rules` table | Columns: `id`, `user_id`, `keyword`, `category_id` — stores per-user learned mappings | Schema design for user-specific preferences |
+| Save rules on manual categorization | When a user changes a transaction's category via `PUT`, extract the description and save it as a new rule | Event-driven data capture (side effects of user actions) |
+| Check user rules first in the pipeline | During CSV import: check user's personal rules → then fall back to global keywords → then leave uncategorized | Cascading/fallback pattern (used everywhere in production systems) |
+| Avoid duplicate rules | Use `UNIQUE(user_id, keyword)` constraint, upsert logic if the user re-categorizes | Upsert patterns, database constraints |
+
+**Classification order during import:**
+1. ✅ User's personal rules (Tier 2) — most accurate, personalized
+2. ✅ Global keyword dict (Tier 1) — catches common merchants
+3. ❌ No match → left as Uncategorized (user fixes manually, which feeds back into Tier 2)
+
+
 ### Week 7 — Stock Portfolio Frontend
 | Task | What You Learn |
 |---|---|
@@ -257,12 +289,37 @@ This is the **differentiator** — most student projects don't have this.
 | **Income Statement** | Revenue vs. expenses over a period (month/quarter/year) | Date-range GROUP BY, category rollups |
 | **Cash Flow Statement** | Where money came from, where it went | Transaction categorization, period comparison |
 
-### Week 9 — PDF Export + Net Worth
+### Week 9 — PDF Export, Net Worth, & AI Categorization
 | Task | What You Learn |
 |---|---|
 | Generate PDF reports of financial statements (ReportLab or WeasyPrint) | PDF generation, templating |
 | Net worth tracking over time (periodic snapshots) | Scheduled tasks, trend data |
 | Historical charts (net worth, portfolio value, spending trends) | More data visualization |
+| 🤖 AI-powered transaction categorization (Tier 3 of the classification pipeline) | External LLM API integration, prompt engineering, async processing |
+
+#### 🤖 Tier 3 — AI/LLM Auto-Categorization
+
+The final tier of the classification pipeline. When Tiers 1 and 2 can't match a transaction (e.g., a weird bank description like `"POS DEBIT VISA - 7832 SHOPPERS DRUG"`), we send it to an LLM API (Google Gemini — free tier) to intelligently classify it.
+
+| Step | What You Do | What You Learn |
+|---|---|---|
+| Get a Gemini API key | Sign up at [Google AI Studio](https://aistudio.google.com/) (free tier: 15 requests/min) | Working with API keys, environment variables (`.env` files) |
+| Install the `google-genai` Python SDK | Add the official Google AI client library to your backend | Managing new dependencies, SDK patterns |
+| Write the classification prompt | Send the transaction description + the user's category list to Gemini, ask it to return just the category name | **Prompt engineering** — crafting instructions for an LLM to get structured output |
+| Parse and validate the response | Extract the category name from the LLM response, match it to a real `category_id` in the database, handle edge cases (hallucinated categories, empty responses) | Defensive programming with AI outputs, never trusting external data blindly |
+| Integrate as Tier 3 fallback | In the CSV import loop: check user rules (Tier 2) → keyword dict (Tier 1) → **LLM call (Tier 3)** → uncategorized | Completing the cascading pipeline architecture |
+| Batch for efficiency | Instead of calling the API once per transaction, group unmatched transactions and send them in a single prompt ("classify these 15 transactions") | Batching API calls to reduce latency and stay within rate limits |
+| Cache AI results as user rules | After the LLM categorizes a transaction, automatically save the mapping as a Tier 2 user rule so it never needs the API again for that merchant | Self-improving systems — the AI teaches the rule engine |
+
+**The complete classification pipeline (all 3 tiers):**
+1. ✅ User's personal rules (Tier 2) — instant, personalized, learned from corrections
+2. ✅ Global keyword dict (Tier 1) — instant, catches common merchants
+3. 🤖 Gemini LLM API (Tier 3) — smart fallback, handles anything
+4. ❌ No match → left as Uncategorized (extremely rare once Tier 3 is active)
+
+> **Resume line:** *"Designed a cascading transaction classification pipeline with keyword matching, user-trained rules, and Google Gemini LLM integration for intelligent auto-categorization of bank statement imports"*
+
+> **Why this is impressive:** This is exactly how production fintech apps (Copilot, Monarch, Plaid) work — a multi-tier system where fast/cheap methods run first and expensive AI is the fallback. Interviewers will love hearing you explain the tradeoffs.
 
 ### Week 10 — Docker + Deployment
 | Task | What You Learn |

@@ -337,3 +337,5 @@ How Routing Works Now:
 | URL Path | What Renders |
 | `localhost:5173/` | `<Dashboard />` |
 | `localhost:5173/transactions` | `<TransactionForm />` + `<TransactionList />` |
+
+** Routes are like if statements **

@@ -11,6 +11,8 @@ This file contains detailed metrics and time-tracking logs for each lesson compl
 | Jun 15, 2026 | Week 5 — Lesson 1 | 07:49 PM | 09:18 PM | 1h 28m | 27 |
 | Jun 16, 2026 | Week 5 — Lesson 2 | 11:47 AM | 01:27 PM | 1h 40m | 26 |
 | Jun 16, 2026 | Week 5 — Lesson 3 | 06:19 PM | 07:29 PM | 1h 10m | 12 |
+| Jun 18, 2026 | Week 5 — Lesson 4 | 12:23 AM | 01:15 AM | 52m | 10 |
+
 
 ---
 
@@ -55,3 +57,16 @@ This file contains detailed metrics and time-tracking logs for each lesson compl
   - Batch database inserts via SQLAlchemy to perform bulk creation efficiently in a single transaction commit.
   - Adding defensive validation guards against incorrect file types and Unicode decoding failures.
   - Resolving python-multipart dependency missing errors for FastAPI form parsing.
+
+### 📅 Week 5 — Lesson 4: CSV Import (Frontend)
+- **Date Completed**: Jun 18, 2026
+- **Time Window**: 12:23 AM – 01:15 AM EDT
+- **Total Duration**: 52 minutes
+- **Number of Prompts**: 10
+- **Key Concepts Learned**:
+  - Packaging files and key-value parameters inside a browser-native standard `FormData` container.
+  - Making HTTP requests with `multipart/form-data` payload encoding over Axios.
+  - Restricting browser file pickers via HTML input `accept=".csv"` validation rules.
+  - Resolving HTTP parameter payload structures (e.g. how Axios post signatures map parameters).
+  - Building side-by-side modular page layouts for forms and file import controls.
+  - Integrating dashboard state refresh handlers to reload time-series transaction statistics automatically upon import success.

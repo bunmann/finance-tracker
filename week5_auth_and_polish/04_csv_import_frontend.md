@@ -213,56 +213,77 @@ Disabled buttons are greyed out and unclickable, preventing double-submissions.
 
 ---
 
-## 3. Adding the Route to App.jsx
+## 3. Integrating CsvUpload into the Transactions View
 
-Add the import route to your `App.jsx`. Add the import at the top:
+To create a seamless user experience, we will integrate `CsvUpload` directly inside our existing `/transactions` view. This keeps manual entry and bulk-import in one single location.
+
+Add the component import at the top of **`App.jsx`**:
 
 ```jsx
 import CsvUpload from './components/CsvUpload';
 ```
 
-Then add a new route inside the logged-in routes (next to the Dashboard and Transactions routes):
+Next, add a callback function `handleImportComplete` inside the `App` component definition (below your existing handlers) to refresh the transaction state after importing:
+
+```javascript
+const handleImportComplete = () => {
+    api.get('/transactions')
+        .then(response => setTransactions(response.data))
+        .catch(error => console.error('Error fetching transactions after import:', error));
+};
+```
+
+Finally, update your `/transactions` route inside **`App.jsx`** to nest the uploader alongside the form:
 
 ```jsx
-<Route path="/import" element={
-    <CsvUpload onImportComplete={() => {
-        // Re-fetch transactions after import
-        api.get('/transactions')
-            .then(response => setTransactions(response.data));
-    }} />
+<Route path="/transactions" element={
+    <div className="transactions-page">
+        <div className="transactions-forms">
+            <TransactionForm onTransactionAdded={handleTransactionAdded} />
+            <CsvUpload onImportComplete={handleImportComplete} />
+        </div>
+        <TransactionList
+            transactions={transactions}
+            loading={loading}
+            onDelete={handleTransactionDeleted}
+        />
+    </div>
 } />
 ```
 
-### Refreshing After Import
-
-The `onImportComplete` callback re-fetches all transactions from the API after a CSV import. This ensures the transaction list and dashboard reflect the newly imported data.
-
 ---
 
-## 4. Adding an Import Link to the Navbar
+## 4. Styling the Forms Layout
 
-Update the logged-in links in **`Navbar.jsx`**:
+To display the manual transaction form and the CSV uploader side-by-side, we add a flexible layout grid along with the CSV upload element styles.
 
-```jsx
-{isLoggedIn ? (
-    <>
-        <Link to="/">Dashboard</Link>
-        <Link to="/transactions">Transactions</Link>
-        <Link to="/import">Import CSV</Link>
-        <button onClick={onLogout} className="logout-btn">Logout</button>
-    </>
-) : (
-    // ...login/signup links
-)}
-```
-
----
-
-## 5. Adding Styles for the Upload Component
-
-Add to **`src/App.css`**:
+Add the following to the bottom of **`src/App.css`**:
 
 ```css
+/* ========== Layout Grid ========== */
+.transactions-page {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.transactions-forms {
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+}
+
+.transactions-forms > * {
+    flex: 1;
+    margin-bottom: 0 !important; /* Overwrite standard bottom margin */
+}
+
+@media (max-width: 768px) {
+    .transactions-forms {
+        flex-direction: column;
+    }
+}
+
 /* ========== CSV Upload ========== */
 .csv-upload {
     background: white;
@@ -356,18 +377,17 @@ Add to **`src/App.css`**:
 
 ---
 
-## 6. Your Task
+## 5. Your Task
 
-1. Create `src/components/CsvUpload.jsx` with the upload component.
-2. Add the `/import` route to `App.jsx`.
-3. Add the "Import CSV" link to `Navbar.jsx`.
-4. Add the CSV upload styles to `App.css`.
+1. Create `src/components/CsvUpload.jsx` with the file upload form.
+2. Import `CsvUpload` and wire up the `handleImportComplete` listener inside `App.jsx`.
+3. Update the `/transactions` Route container and elements in `App.jsx`.
+4. Append layout styles and uploader styles to `App.css`.
 5. Test the full flow:
-   - Navigate to `/import`
-   - Upload `sample_transactions.csv` → verify import results show correctly
-   - Check `/transactions` → verify the imported transactions appear in the list
-   - Upload the same file again → verify it shows "0 imported, 11 skipped"
-   - Check the dashboard → verify the charts update with the imported data
+   - Navigate to `/transactions`
+   - Upload `sample_transactions.csv` → verify it imports 11 transactions and updates the list instantly.
+   - Upload the same file again → verify it shows "0 imported, 11 skipped" as duplicates.
+   - Navigate to the Dashboard → verify charts update with the imported transaction amounts.
 
 ---
 

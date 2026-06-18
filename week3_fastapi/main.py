@@ -131,6 +131,9 @@ def get_transactions(
     if end_date:
         query = query.filter(models.Transaction.date <= end_date)
         
+    # Apply sorting (newest date first, then highest ID first to break ties)
+    query = query.order_by(models.Transaction.date.asc(), models.Transaction.id.asc())
+        
     # Apply pagination and execute query
     transactions = query.offset(offset).limit(limit).all()
     
@@ -165,7 +168,7 @@ def delete_transaction(transaction_id: int, db: Session = Depends(get_db), curre
     
     # If not found, return an error
     if not transaction:
-        return {"error": "Transaction not found"}
+        raise HTTPException(status_code=404, detail="Transaction not found")
     
     # Delete it
     db.delete(transaction)

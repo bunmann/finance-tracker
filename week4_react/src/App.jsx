@@ -12,6 +12,7 @@ import TransactionList from './components/TransactionList';
 import TransactionForm from './components/TransactionForm';
 import LoginPage from './components/LoginPage';
 import SignupPage from './components/SignupPage';
+import CsvUpload from './components/CsvUpload';
 import './App.css';
 
 function App() {
@@ -59,6 +60,12 @@ function App() {
         setTransactions(transactions.filter(t => t.id !== id));
     };
 
+    const handleImportComplete = () => {
+        api.get('/transactions')
+            .then(response => setTransactions(response.data))
+            .catch(error => console.error('Error fetching transactions after import:', error));
+    };
+
     return (
         <Router>
             <div className="App">
@@ -69,8 +76,11 @@ function App() {
                             <>
                                 <Route path="/" element={<Dashboard transactions={transactions} />} />
                                 <Route path="/transactions" element={
-                                    <div>
-                                        <TransactionForm onTransactionAdded={handleTransactionAdded} />
+                                    <div className="transactions-page">
+                                        <div className="transactions-forms">
+                                            <TransactionForm onTransactionAdded={handleTransactionAdded} />
+                                            <CsvUpload onImportComplete={handleImportComplete} />
+                                        </div>
                                         <TransactionList
                                             transactions={transactions}
                                             loading={loading}
