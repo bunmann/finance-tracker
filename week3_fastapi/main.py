@@ -4,6 +4,7 @@
 #              Registers CORS middleware and declares all REST API routes.
 # ============================================================================
 
+from uuid import RESERVED_FUTURE
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
 from auth import hash_password, verify_password, create_access_token, get_current_user
 from schemas import TransactionCreate, UserCreate, CategoryCreate, LoginRequest
@@ -299,6 +300,28 @@ def get_categories(
     return db.query(models.Category).filter(models.Category.user_id == current_user.id).all()
 
 
+@app.put("/categories/{category_id}")
+def update_category(
+    category_id: int,
+    category: CategoryCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    db_category = db.query(models.Category).filter(
+        models.Category.id == category_id,
+        models.Category.user_id == current_user.id
+    ).first()
+
+    if not db_category:
+        raise HTTPException(status_code=404, detail="Category not found")
+
+    db_category.name = category.name
+    db_category.icon = category.icon
+    db_category.monthly_budget = category.monthly_budget
+    db.commit()
+    db.refresh(db_category)
+    return db_category
+
 @app.post("/categories")
 def create_category(
     category: CategoryCreate,
@@ -348,14 +371,6 @@ def delete_category(
     return {"message": f"Category {category_id} deleted"}
 
 
-@app.post("/debug/reset-db")
-def reset_db():
-    # Drop all existing tables
-    Base.metadata.drop_all(bind=engine)
-    # Recreate all tables with new schema/constraints
-    Base.metadata.create_all(bind=engine)
-    return {"message": "Database reset successfully! All tables recreated with new schemas."}
-
 
 # =====================DASHBOARD ENDPOINT====================
 
@@ -366,49 +381,64 @@ def get_dashboard_summary(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    # 1. Fetch total income for this month & year
+    # 1. Total income
     income_val = db.query(func.sum(models.Transaction.amount)).filter(
-        models.Transaction.user_id == current_user.id,
         models.Transaction.type == "income",
+        models.Transaction.user_id == current_user.id,
         func.extract('month', models.Transaction.date) == month,
         func.extract('year', models.Transaction.date) == year
     ).scalar()
     total_income = float(income_val) if income_val is not None else 0.0
-    
-    # 2. Fetch total expenses for this month & year
+
+    # 2. Total expenses
     expense_val = db.query(func.sum(models.Transaction.amount)).filter(
-        models.Transaction.user_id == current_user.id,
         models.Transaction.type == "expense",
+        models.Transaction.user_id == current_user.id,
         func.extract('month', models.Transaction.date) == month,
         func.extract('year', models.Transaction.date) == year
     ).scalar()
     total_expense = float(expense_val) if expense_val is not None else 0.0
-    
-    # 3. Fetch breakdown of expenses by category for this month & year (including uncategorized)
+
+    # 3. Spending by category (with budget info and outer join for Uncategorized)
     category_data = db.query(
         models.Category.name,
+        models.Category.monthly_budget,
         func.sum(models.Transaction.amount)
     ).select_from(models.Transaction).outerjoin(
         models.Category, models.Transaction.category_id == models.Category.id
     ).filter(
-        models.Transaction.user_id == current_user.id,
         models.Transaction.type == "expense",
+        models.Transaction.user_id == current_user.id,
         func.extract('month', models.Transaction.date) == month,
         func.extract('year', models.Transaction.date) == year
     ).group_by(
-        models.Category.name
+        models.Category.name,
+        models.Category.monthly_budget
     ).all()
-    
-    # 4. Format the category data into a list of dicts
+
     by_category = [
-        {"category_name": name if name is not None else "Uncategorized", "amount": float(amount)}
-        for name, amount in category_data
+        {
+            "category_name": name if name is not None else "Uncategorized",
+            "budget": float(budget) if budget is not None else 0.0,
+            "amount": float(amount),
+        }
+        for name, budget, amount in category_data
     ]
-    
-    # 5. Return the full dashboard summary
+
     return {
-      "total_income": total_income,
-      "total_expense": total_expense,
-      "net_savings": total_income - total_expense,
-      "by_category": by_category
+        "total_income": total_income,
+        "total_expense": total_expense,
+        "net_savings": total_income - total_expense,
+        "by_category": by_category
     }
+
+
+#  =====================RESET ENDPOINT====================
+
+@app.post("/debug/reset-db")
+def reset_db():
+    # Drop all existing tables
+    Base.metadata.drop_all(bind=engine)
+    # Recreate all tables with new schema/constraints
+    Base.metadata.create_all(bind=engine)
+    return {"message": "Database reset successfully! All tables recreated with new schemas."}

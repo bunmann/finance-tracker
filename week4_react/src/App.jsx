@@ -13,6 +13,7 @@ import TransactionForm from './components/TransactionForm';
 import LoginPage from './components/LoginPage';
 import SignupPage from './components/SignupPage';
 import CsvUpload from './components/CsvUpload';
+import BudgetOverview from './components/BudgetOverview';
 import './App.css';
 
 function App() {
@@ -88,6 +89,7 @@ function App() {
                                         />
                                     </div>
                                 } />
+                                <Route path="/budgets" element={<BudgetOverview />} />
                                 <Route path="*" element={<Navigate to="/" />} />
                             </>
                         ) : (

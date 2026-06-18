@@ -90,13 +90,13 @@ def get_dashboard_summary(
     ).scalar()
     total_expense = float(expense_val) if expense_val is not None else 0.0
 
-    # 3. Spending by category (with budget info)
+    # 3. Spending by category (with budget info and outer join for Uncategorized)
     category_data = db.query(
         models.Category.name,
         models.Category.monthly_budget,
         func.sum(models.Transaction.amount)
-    ).join(
-        models.Transaction, models.Transaction.category_id == models.Category.id
+    ).select_from(models.Transaction).outerjoin(
+        models.Category, models.Transaction.category_id == models.Category.id
     ).filter(
         models.Transaction.type == "expense",
         models.Transaction.user_id == current_user.id,
@@ -109,8 +109,8 @@ def get_dashboard_summary(
 
     by_category = [
         {
-            "category_name": name,
-            "budget": float(budget) if budget else 0.0,
+            "category_name": name if name is not None else "Uncategorized",
+            "budget": float(budget) if budget is not None else 0.0,
             "amount": float(amount),
         }
         for name, budget, amount in category_data
@@ -494,7 +494,7 @@ Add to **`App.css`**:
 ```
 
 ---
-
+i 
 ## 8. Your Task
 
 1. Add `PUT /categories/{id}` endpoint to `main.py`.

@@ -1,3 +1,8 @@
+// ============================================================================
+// File: CsvUpload.jsx
+// Description: Component for selecting and uploading CSV bank statement files,
+//              handling upload progress, and showing transaction import results.
+// ============================================================================
 import { useState } from 'react';
 import api from '../api';
 

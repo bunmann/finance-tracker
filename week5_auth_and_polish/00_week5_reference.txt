@@ -102,7 +102,22 @@ LESSON 4: CSV Import — Frontend
 
 LESSON 5: Budget Tracking
 
+    POST vs PUT vs PATCH:
+    -> Post is completely new resource
+    -> Put is replacing existing resource w/ new entirely
+    -> Patch is updating existing resource (only fields that you send)
 
+    Promise.all: Does parallel API calls, and waits for all of them
+    -> returns an array of results in the order they were passed in
+    -> if one fails, goes to .catch
+
+    value (controlled) vs defaultValue (uncontrolled):
+    -> Controlled (value + onChange): React state is the source of truth (locked without onChange)
+       - Best for: live validation, search-as-you-type, formatting inputs on keypress
+    -> Uncontrolled (defaultValue + onBlur): Browser DOM manages the text dynamically
+       - Best for: autosaving on focus out (prevents API spam on every keystroke), form performance
+
+    
 
 LESSON 6: UI Polish & Error Handling
 

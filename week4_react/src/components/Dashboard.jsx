@@ -86,6 +86,26 @@ function Dashboard({ transactions }) {
                 </div>
             </div>
 
+            {/* Budget Alerts */}
+            {dashboardData.by_category
+                .filter(cat => cat.budget > 0 && cat.amount >= cat.budget * 0.75)
+                .map((cat, i) => {
+                    const percentage = Math.round((cat.amount / cat.budget) * 100);
+                    const isOver = cat.amount >= cat.budget;
+                    return (
+                        <div
+                            key={i}
+                            className={`budget-alert ${isOver ? 'alert-danger' : 'alert-warning'}`}
+                        >
+                            {isOver
+                                ? `⚠️ Over budget! ${cat.category_name}: $${cat.amount.toFixed(2)} / $${cat.budget.toFixed(2)} (${percentage}%)`
+                                : `⚡ Approaching limit: ${cat.category_name}: $${cat.amount.toFixed(2)} / $${cat.budget.toFixed(2)} (${percentage}%)`
+                            }
+                        </div>
+                    );
+                })
+            }
+
             {/* Pie Chart — Spending by Category */}
             {dashboardData.by_category.length > 0 ? (
                 <div>
