@@ -12,6 +12,7 @@ This file contains detailed metrics and time-tracking logs for each lesson compl
 | Jun 16, 2026 | Week 5 — Lesson 2 | 11:47 AM | 01:27 PM | 1h 40m | 26 |
 | Jun 16, 2026 | Week 5 — Lesson 3 | 06:19 PM | 07:29 PM | 1h 10m | 12 |
 | Jun 18, 2026 | Week 5 — Lesson 4 | 12:23 AM | 01:15 AM | 52m | 10 |
+| Jun 18, 2026 | Week 5 — Lesson 5 | 01:57 PM | 03:33 PM | 1h 36m | 15 |
 
 
 ---
@@ -70,3 +71,15 @@ This file contains detailed metrics and time-tracking logs for each lesson compl
   - Resolving HTTP parameter payload structures (e.g. how Axios post signatures map parameters).
   - Building side-by-side modular page layouts for forms and file import controls.
   - Integrating dashboard state refresh handlers to reload time-series transaction statistics automatically upon import success.
+
+### 📅 Week 5 — Lesson 5: Budget Tracking (Backend & Refactoring)
+- **Date Completed**: Jun 18, 2026
+- **Time Window**: 01:57 PM – 03:33 PM EDT
+- **Total Duration**: 1 hour, 36 minutes
+- **Number of Prompts**: 15
+- **Key Concepts Learned**:
+  - Modularizing a monolithic FastAPI application into domain-specific router modules using `APIRouter`.
+  - Database-backed categories for special placeholders like "Uncategorized" to enable budgeting on all items uniformly.
+  - Fallback logic for database queries with `outerjoin` to ensure transactions without a category are still reported correctly.
+  - Custom list sorting logic using Python tuples to order lists alphabetically while pinning specific categories at the bottom.
+  - Adding deletion protection constraints to database entities via API-level request handlers.

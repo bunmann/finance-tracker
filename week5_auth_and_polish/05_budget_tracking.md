@@ -22,10 +22,10 @@ We need:
 
 ## 2. Backend — Update Category Endpoint
 
-We already have `POST` and `DELETE` for categories, but no way to **update** an existing one. Add a `PUT` endpoint to **`main.py`**:
+We already have `POST` and `DELETE` for categories, but no way to **update** an existing one. Add a `PUT` endpoint to **`routers/categories.py`**:
 
 ```python
-@app.put("/categories/{category_id}")
+@router.put("/{category_id}")
 def update_category(
     category_id: int,
     category: CategoryCreate,
@@ -62,10 +62,10 @@ We're using `PUT` here. In practice, the difference between PUT and PATCH isn't 
 
 ## 3. Backend — Enhanced Dashboard Data
 
-Update the dashboard endpoint in **`main.py`** to include budget information per category:
+Update the dashboard endpoint in **`routers/dashboard.py`** to include budget information per category:
 
 ```python
-@app.get("/dashboard")
+@router.get("")
 def get_dashboard_summary(
     month: int,
     year: int,
@@ -497,8 +497,8 @@ Add to **`App.css`**:
 i 
 ## 8. Your Task
 
-1. Add `PUT /categories/{id}` endpoint to `main.py`.
-2. Update the `GET /dashboard` endpoint to include `monthly_budget` data.
+1. Add/Verify the `PUT /categories/{id}` endpoint in `routers/categories.py` (which is already implemented in your refactored backend).
+2. Update/Verify the `GET /dashboard` endpoint in `routers/dashboard.py` to include `monthly_budget` data (already complete).
 3. Create `src/components/BudgetOverview.jsx`.
 4. Add the `/budgets` route to `App.jsx` and a "Budgets" link to `Navbar.jsx`.
 5. Add the budget styles to `App.css`.
