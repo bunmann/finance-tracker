@@ -77,7 +77,7 @@ def create_transaction(
     current_user: models.User = Depends(get_current_user)
 ):
     cat_id = transaction.category_id
-    if cat_id is None:
+    if cat_id is None and transaction.type == "expense":
         # Default to the user's database-seeded Uncategorized category if none specified
         uncat_category = db.query(models.Category).filter(
             models.Category.user_id == current_user.id,
@@ -208,7 +208,7 @@ def upload_csv(
                 type=tx_type,
                 date=tx_date,
                 user_id=current_user.id,
-                category_id=uncat_id,  # CSV imports start in the database-backed Uncategorized category
+                category_id=uncat_id if tx_type == "expense" else None,  # CSV expenses start in Uncategorized, income stays None
                 fingerprint=fingerprint
             )
             db.add(db_transaction)
