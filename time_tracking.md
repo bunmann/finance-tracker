@@ -13,6 +13,7 @@ This file contains detailed metrics and time-tracking logs for each lesson compl
 | Jun 16, 2026 | Week 5 — Lesson 3 | 06:19 PM | 07:29 PM | 1h 10m | 12 |
 | Jun 18, 2026 | Week 5 — Lesson 4 | 12:23 AM | 01:15 AM | 52m | 10 |
 | Jun 18, 2026 | Week 5 — Lesson 5 | 01:57 PM | 03:33 PM | 1h 36m | 15 |
+| Jun 20, 2026 | Week 5 — Lesson 6 | 12:48 AM | 02:40 AM | 1h 52m | 23 |
 
 
 ---
@@ -83,3 +84,17 @@ This file contains detailed metrics and time-tracking logs for each lesson compl
   - Fallback logic for database queries with `outerjoin` to ensure transactions without a category are still reported correctly.
   - Custom list sorting logic using Python tuples to order lists alphabetically while pinning specific categories at the bottom.
   - Adding deletion protection constraints to database entities via API-level request handlers.
+
+### 📅 Week 5 — Lesson 6: UI Polish & Error Handling
+- **Date Completed**: Jun 20, 2026
+- **Time Window**: 12:48 AM – 02:40 AM EDT
+- **Total Duration**: 1 hour, 52 minutes
+- **Number of Prompts**: 23
+- **Key Concepts Learned**:
+  - Conditional rendering in JSX with short-circuit logical operators (`{toast && <Toast />}`).
+  - Data flows in React: passing callback function references as props to child components (lifting state up) and how Javascript closures retain parent state references.
+  - Optional chaining operator (`?.`) in ES6 Javascript for clean, crash-free defensive checks on function/object props.
+  - Designing a global feedback loop with custom auto-dismissing toast notifications.
+  - Implementation of React Error Boundaries using Class components and lifecycle methods (`componentDidCatch`, `getDerivedStateFromError`) to catch rendering errors and render fallback UIs.
+  - Intercepting keyboard input via DOM `onKeyDown` hooks and managing focus using `e.target.blur()` to enhance UX forms.
+  - Declaring styling variables and animations in CSS with `@keyframes`.

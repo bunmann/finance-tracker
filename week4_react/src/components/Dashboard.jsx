@@ -9,7 +9,7 @@ import api from '../api';
 // Colors for the pie chart slices
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#FF6B6B', '#4ECDC4'];
 
-function Dashboard({ transactions }) {
+function Dashboard({ transactions, showToast }) {
     const today = new Date();
     const [month, setMonth] = useState(today.getMonth() + 1); // JS months are 0-indexed
     const [year, setYear] = useState(today.getFullYear());
@@ -26,11 +26,16 @@ function Dashboard({ transactions }) {
             })
             .catch(error => {
                 console.error('Error fetching dashboard:', error);
+                showToast?.('Failed to load dashboard data.', 'error');
                 setLoading(false);
             });
-    }, [month, year, transactions]);  // Re-fetch when month, year, or transactions list changes!
+    }, [month, year, transactions, showToast]);  // Re-fetch when month, year, or transactions list changes!
 
-    if (loading) return <p>Loading dashboard...</p>;
+    if (loading) return (
+        <div className="spinner-container">
+            <div className="spinner"></div>
+        </div>
+    );
     if (!dashboardData) return <p>Error loading dashboard data.</p>;
 
     // Inject colors directly into data array (best practice to avoid deprecated Cell component)

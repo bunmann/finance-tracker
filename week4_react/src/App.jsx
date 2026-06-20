@@ -14,12 +14,19 @@ import LoginPage from './components/LoginPage';
 import SignupPage from './components/SignupPage';
 import CsvUpload from './components/CsvUpload';
 import BudgetOverview from './components/BudgetOverview';
+import Toast from './components/Toast';
+import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
 
 function App() {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+    const [toast, setToast] = useState(null);
+
+    const showToast = (message, type = 'success') => {
+        setToast({ message, type });
+    };
 
     // Fetch transactions only when logged in
     useEffect(() => {
@@ -38,6 +45,8 @@ function App() {
                 // If we get a 401, token is invalid — log out
                 if (error.response && error.response.status === 401) {
                     handleLogout();
+                } else {
+                    showToast('Failed to load transactions.', 'error');
                 }
                 setLoading(false);
             });
@@ -64,7 +73,10 @@ function App() {
     const handleImportComplete = () => {
         api.get('/transactions')
             .then(response => setTransactions(response.data))
-            .catch(error => console.error('Error fetching transactions after import:', error));
+            .catch(error => {
+                console.error('Error fetching transactions after import:', error);
+                showToast('Failed to sync transactions after import.', 'error');
+            });
     };
 
     return (
@@ -72,35 +84,54 @@ function App() {
             <div className="App">
                 <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
                 <main className="main-content">
-                    <Routes>
-                        {isLoggedIn ? (
-                            <>
-                                <Route path="/" element={<Dashboard transactions={transactions} />} />
-                                <Route path="/transactions" element={
-                                    <div className="transactions-page">
-                                        <div className="transactions-forms">
-                                            <TransactionForm onTransactionAdded={handleTransactionAdded} />
-                                            <CsvUpload onImportComplete={handleImportComplete} />
+                    <ErrorBoundary>
+                        <Routes>
+                            {isLoggedIn ? (
+                                <>
+                                    <Route path="/" element={<Dashboard transactions={transactions} showToast={showToast} />} />
+                                    <Route path="/transactions" element={
+                                        <div className="transactions-page">
+                                            <div className="transactions-forms">
+                                                <TransactionForm
+                                                    onTransactionAdded={(tx) => {
+                                                        handleTransactionAdded(tx);
+                                                        showToast('Transaction added successfully!');
+                                                    }}
+                                                    showToast={showToast}
+                                                />
+                                                <CsvUpload onImportComplete={handleImportComplete} />
+                                            </div>
+                                            <TransactionList
+                                                transactions={transactions}
+                                                loading={loading}
+                                                onDelete={(id) => {
+                                                    handleTransactionDeleted(id);
+                                                    showToast('Transaction deleted successfully!', 'warning');
+                                                }}
+                                                showToast={showToast}
+                                            />
                                         </div>
-                                        <TransactionList
-                                            transactions={transactions}
-                                            loading={loading}
-                                            onDelete={handleTransactionDeleted}
-                                        />
-                                    </div>
-                                } />
-                                <Route path="/budgets" element={<BudgetOverview />} />
-                                <Route path="*" element={<Navigate to="/" />} />
-                            </>
-                        ) : (
-                            <>
-                                <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
-                                <Route path="/signup" element={<SignupPage />} />
-                                <Route path="*" element={<Navigate to="/login" />} />
-                            </>
-                        )}
-                    </Routes>
+                                    } />
+                                    <Route path="/budgets" element={<BudgetOverview showToast={showToast} />} />
+                                    <Route path="*" element={<Navigate to="/" />} />
+                                </>
+                            ) : (
+                                <>
+                                    <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+                                    <Route path="/signup" element={<SignupPage />} />
+                                    <Route path="*" element={<Navigate to="/login" />} />
+                                </>
+                            )}
+                        </Routes>
+                    </ErrorBoundary>
                 </main>
+                {toast && (
+                    <Toast
+                        message={toast.message}
+                        type={toast.type}
+                        onClose={() => setToast(null)}
+                    />
+                )}
             </div>
         </Router>
     );

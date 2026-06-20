@@ -189,7 +189,9 @@ LESSON 2: React Basics
     -> useEffect accepts two arguments: a function and a dependency array
     -> The function runs after the component renders
     -> The dependency array controls when the function runs (empty array = once on mount (first added to screen), [var] = once on first mount, then when var changes, nothing = after every re-rendeer (usually bad))
-    
+    -> Cleanup function: If it returns a function, IT WILL EXECUTE when component unmounts OR when dependancy changes
+    ** Can only return nothing or a function
+
     e.g. useEffect(() => {  
         console.log("Component mounted");
     }, []);

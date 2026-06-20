@@ -121,6 +121,9 @@ LESSON 5: Budget Tracking
 
 LESSON 6: UI Polish & Error Handling
 
+    @keyframes & animation: allows for CSS animations with no complex js
+    Toast notifications: Notifications that follow user in corner, goes away after time
+
 
 
 LESSON 7: README & Demo

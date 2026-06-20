@@ -140,7 +140,7 @@ function Toast({ message, type, onClose }) {
 
         // Cleanup: cancel timer if Toast unmounts early
         return () => clearTimeout(timer);
-    }, [onClose]);
+    }, [message, onClose]);
 
     return (
         <div className={`toast toast-${type}`}>
@@ -159,7 +159,7 @@ export default Toast;
 useEffect(() => {
     const timer = setTimeout(() => onClose(), 3000);
     return () => clearTimeout(timer);  // Cleanup function
-}, [onClose]);
+}, [message, onClose]);
 ```
 
 The `return () => clearTimeout(timer)` is a **cleanup function**. React calls it when:

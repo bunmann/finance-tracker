@@ -4,15 +4,28 @@
 // ============================================================================
 import api from '../api';
 
-function TransactionList({ transactions, loading, onDelete }) {
+function TransactionList({ transactions, loading, onDelete, showToast }) {
     const handleDelete = (id) => {
         api.delete(`/transactions/${id}`)
             .then(() => onDelete(id))
-            .catch(error => console.error('Error deleting:', error));
+            .catch(error => {
+                console.error('Error deleting:', error);
+                showToast?.('Failed to delete transaction.', 'error');
+            });
     };
 
-    if (loading) return <p>Loading transactions...</p>;
-    if (transactions.length === 0) return <p>No transactions yet. Add one!</p>;
+    if (loading) return (
+        <div className="spinner-container">
+            <div className="spinner"></div>
+        </div>
+    );
+    if (transactions.length === 0) return (
+        <div className="empty-state">
+            <div className="empty-icon">📋</div>
+            <h3>No transactions yet</h3>
+            <p>Add your first transaction using the form above, or import a CSV file.</p>
+        </div>
+    );
 
     return (
         <div>

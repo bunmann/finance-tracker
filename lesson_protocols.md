@@ -6,14 +6,18 @@ This document outlines the rules, guidelines, and interactive protocols that the
 
 ## 1. Lesson Initialization & Greetings
 - **GREETING**: Whenever a new lesson starts (when David says something like *"Let's start Lesson X"*), the assistant MUST begin by greeting him with **"Welcome back David"** as the first words of the response.
-- **TIME TRACKING START**: The assistant must note the start timestamp from the metadata of the starting message.
+- **TIME TRACKING START**: Immediately upon starting a new lesson, the assistant MUST log the start time by writing a placeholder row into the table in [time_tracking.md](file:///Users/david/Documents/PG/Finance%20Project/time_tracking.md). For example:
+  `| Jun 20, 2026 | Week 5 — Lesson 7 | 02:45 AM | In Progress | - | - |`
+  This ensures the start time is permanently recorded on disk and survives any model history compaction.
 
 ## 2. Lesson Completion & Logging
 - **COMPLETION**: When David says a lesson is done or asks to wrap up (e.g., *"Lesson X is done, let's wrap up/commit"*), the assistant must:
-  1. Note the completion timestamp from the metadata.
-  2. Calculate the exact elapsed time (in hours/minutes).
-  3. Update the corresponding lesson row in [project_roadmap.md](file:///Users/david/Documents/PG/Finance%20Project/project_roadmap.md) with `Status = ✅`, `Time Spent = <elapsed_time>`, and `Date Completed = <current_date>`.
-  4. Create or update the detailed log in [time_tracking.md](file:///Users/david/Documents/PG/Finance%20Project/time_tracking.md) with detailed metrics:
+  1. Retrieve the start time directly from the placeholder row in [time_tracking.md](file:///Users/david/Documents/PG/Finance%20Project/time_tracking.md).
+  2. Note the completion timestamp from the current local time metadata.
+  3. Calculate the exact elapsed time (in hours/minutes) between the recorded start time and the completion time.
+  4. Look at the local conversation transcript log (`transcript.jsonl` in `<appDataDir>/brain/<conversation-id>/.system_generated/logs/transcript.jsonl`) to count the number of prompts sent by David since the recorded start time of this lesson.
+  5. Update the corresponding lesson row in [project_roadmap.md](file:///Users/david/Documents/PG/Finance%20Project/project_roadmap.md) with `Status = ✅`, `Time Spent = <elapsed_time>`, and `Date Completed = <current_date>`.
+  6. Replace the placeholder row in [time_tracking.md](file:///Users/david/Documents/PG/Finance%20Project/time_tracking.md) with the completed session info, and add the detailed log at the bottom:
      - **Lesson Name / Week**
      - **Start Time** (local timezone)
      - **End Time** (local timezone)
@@ -21,8 +25,8 @@ This document outlines the rules, guidelines, and interactive protocols that the
      - **Date Completed**
      - **Number of Prompts** (count of messages sent by the user during this session)
      - **Key Concepts Learned**
-  5. Print a clear, formatted summary of the logged time, prompts, and modified files in the chat.
-  6. Let David run git commit himself (do NOT commit automatically).
+  7. Print a clear, formatted summary of the logged time, prompts, and modified files in the chat.
+  8. Let David run git commit himself (do NOT commit automatically).
 
 ## 3. Execution Boundaries
 - **DO NOT RUN INSTALL/DOWNLOAD COMMANDS**: The assistant must NEVER run commands that perform installations (e.g., `pip install`, `npm install`) or network downloads. These actions are David's responsibility to run in his local environment as part of the lesson task.

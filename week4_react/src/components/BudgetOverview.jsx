@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
 
-function BudgetOverview() {
+function BudgetOverview({ showToast }) {
     const today = new Date();
     const [month, setMonth] = useState(today.getMonth() + 1);
     const [year, setYear] = useState(today.getFullYear());
@@ -29,9 +29,10 @@ function BudgetOverview() {
             })
             .catch(error => {
                 console.error('Error fetching budget data:', error);
+                showToast?.('Failed to load budget data.', 'error');
                 setLoading(false);
             });
-    }, [month, year]);
+    }, [month, year, showToast]);
 
     const handleBudgetUpdate = (categoryId, newBudget) => {
         const category = categories.find(c => c.id === categoryId);
@@ -46,8 +47,12 @@ function BudgetOverview() {
                 setCategories(categories.map(c =>
                     c.id === categoryId ? response.data : c
                 ));
+                showToast?.('Budget updated successfully!');
             })
-            .catch(error => console.error('Error updating budget:', error));
+            .catch(error => {
+                console.error('Error updating budget:', error);
+                showToast?.('Failed to update budget.', 'error');
+            });
     };
 
     const getProgressColor = (percentage) => {
@@ -56,7 +61,11 @@ function BudgetOverview() {
         return 'on-track';
     };
 
-    if (loading) return <p>Loading budget data...</p>;
+    if (loading) return (
+        <div className="spinner-container">
+            <div className="spinner"></div>
+        </div>
+    );
 
     return (
         <div>
@@ -122,6 +131,11 @@ function BudgetOverview() {
                                         type="number"
                                         defaultValue={budget}
                                         onBlur={(e) => handleBudgetUpdate(category.id, e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.target.blur();
+                                            }
+                                        }}
                                         step="10"
                                         min="0"
                                     />

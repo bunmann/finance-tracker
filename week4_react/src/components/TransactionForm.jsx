@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
 
-function TransactionForm({ onTransactionAdded }) {
+function TransactionForm({ onTransactionAdded, showToast }) {
     // Form state — each input field gets its own state variable
     const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
@@ -19,8 +19,11 @@ function TransactionForm({ onTransactionAdded }) {
     useEffect(() => {
         api.get('/categories')
             .then(response => setCategories(response.data))
-            .catch(err => console.error('Error fetching categories:', err));
-    }, []);
+            .catch(err => {
+                console.error('Error fetching categories:', err);
+                showToast?.('Failed to load categories.', 'error');
+            });
+    }, [showToast]);
 
     const handleSubmit = (e) => {
         e.preventDefault();  // Prevent the browser from refreshing the page
@@ -45,9 +48,7 @@ function TransactionForm({ onTransactionAdded }) {
                 setDate('');
                 setCategoryId('');
                 // Notify the parent component that a new transaction was added
-                if (onTransactionAdded) {
-                    onTransactionAdded(response.data);
-                }
+                onTransactionAdded?.(response.data);
             })
             .catch(err => {
                 // Display the error message from the API

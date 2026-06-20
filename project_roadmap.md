@@ -200,7 +200,7 @@ All tasks for Week 4 are completed:
 | **Lesson 3** | CSV Import — Backend: file upload endpoint, CSV parsing, duplicate detection (SHA256 fingerprint), batch inserts | ✅ | 1h 10m | Jun 16, 2026 |
 | **Lesson 4** | CSV Import — Frontend: file input component, FormData upload, import results display | ✅ | 52m | Jun 18, 2026 |
 | **Lesson 5** | Budget Tracking: PUT endpoint for categories, modular routers refactoring, database-backed Uncategorized category | ✅ | 1h 36m | Jun 18, 2026 |
-| **Lesson 6** | UI Polish: loading spinners, empty states, toast notifications, error boundaries | ⏳ | - | - |
+| **Lesson 6** | UI Polish: loading spinners, empty states, toast notifications, error boundaries | ✅ | 1h 52m | Jun 20, 2026 |
 | **Lesson 7** | README & Demo: professional README, screenshots, demo video, final commit | ⏳ | - | - |
 
 ### 🏁 MVP Checkpoint

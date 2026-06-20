@@ -47,9 +47,7 @@ function CsvUpload({ onImportComplete }) {
                 // Reset the file input
                 document.getElementById('csv-file-input').value = '';
                 // Notify parent to refresh transactions
-                if (onImportComplete) {
-                    onImportComplete();
-                }
+                onImportComplete?.();
             })
             .catch(err => {
                 if (err.response && err.response.data && err.response.data.detail) {
