@@ -6,6 +6,11 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api';
 
+/**
+ * Component: SignupPage
+ * Description: Renders the user signup registration page. Collects email and passwords,
+ *              performs matching check validations, and posts a user creation request.
+ */
 function SignupPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -14,6 +19,13 @@ function SignupPage() {
     const [success, setSuccess] = useState('');
     const navigate = useNavigate();
 
+    /**
+     * Function: handleSubmit
+     * Description: Validates confirm password match, submits registration info to 
+     *              POST /users, and schedules navigate redirection upon creation success.
+     * Parameters:
+     *   - e (Event): Standard submit event.
+     */
     const handleSubmit = (e) => {
         e.preventDefault();
         setError('');

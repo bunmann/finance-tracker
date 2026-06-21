@@ -1,12 +1,21 @@
 // ============================================================================
 // File: BudgetOverview.jsx
-// Description: Component displaying category budget limits, spent vs budgeted progress
-//              bars, and inline inputs for updating budgets.
+// Description: Parent component managing state for budget limits, selected period,
+//              and rendering a list of BudgetCard components.
 // ============================================================================
 import { useState, useEffect } from 'react';
 import api from '../api';
+import BudgetCard from './BudgetCard';
 
-function BudgetOverview({ showToast }) {
+/**
+ * Component: BudgetOverview
+ * Description: Parent page component that coordinates the month/year selection
+ *              and fetches budget limits and spent totals from the API.
+ * Props:
+ *   - transactions (Array): List of all loaded transactions (passed to BudgetCard for filtering).
+ *   - showToast (Function): Global toast callback to display alerts/success messages.
+ */
+function BudgetOverview({ transactions = [], showToast }) {
     const today = new Date();
     const [month, setMonth] = useState(today.getMonth() + 1);
     const [year, setYear] = useState(today.getFullYear());
@@ -14,7 +23,12 @@ function BudgetOverview({ showToast }) {
     const [budgetData, setBudgetData] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // Fetch categories and dashboard data
+    /**
+     * Hook: useEffect (Data Fetcher)
+     * Description: Runs whenever selected month or year changes. Fires parallel
+     *              API requests to fetch all category definitions and category-wise
+     *              spending totals, updating state when done.
+     */
     useEffect(() => {
         setLoading(true);
 
@@ -34,6 +48,15 @@ function BudgetOverview({ showToast }) {
             });
     }, [month, year, showToast]);
 
+    /**
+     * Function: handleBudgetUpdate
+     * Description: Submits an API PUT request to update the target category's budget limit,
+     *              updating the local React categories state upon successful confirmation.
+     * Parameters:
+     *   - categoryId (Number): Database ID of the category being modified.
+     *   - newBudget (String): The text input value of the new budget limit.
+     * Passed to: BudgetCard (via the onBudgetUpdate prop)
+     */
     const handleBudgetUpdate = (categoryId, newBudget) => {
         const category = categories.find(c => c.id === categoryId);
         if (!category) return;
@@ -53,12 +76,6 @@ function BudgetOverview({ showToast }) {
                 console.error('Error updating budget:', error);
                 showToast?.('Failed to update budget.', 'error');
             });
-    };
-
-    const getProgressColor = (percentage) => {
-        if (percentage >= 100) return 'over-budget';
-        if (percentage >= 75) return 'warning';
-        return 'on-track';
     };
 
     if (loading) return (
@@ -99,49 +116,17 @@ function BudgetOverview({ showToast }) {
                         b => b.category_name === category.name
                     );
                     const spent = spending ? spending.amount : 0;
-                    const budget = parseFloat(category.monthly_budget) || 0;
-                    const percentage = budget > 0 ? Math.round((spent / budget) * 100) : 0;
 
                     return (
-                        <div key={category.id} className="budget-card">
-                            <div className="budget-header">
-                                <span className="budget-category">
-                                    {category.icon} {category.name}
-                                </span>
-                                <span className="budget-amounts">
-                                    ${spent.toFixed(2)} / ${budget.toFixed(2)}
-                                </span>
-                            </div>
-
-                            {/* Progress bar */}
-                            <div className="progress-bar-container">
-                                <div
-                                    className={`progress-bar-fill ${getProgressColor(percentage)}`}
-                                    style={{ width: `${Math.min(percentage, 100)}%` }}
-                                />
-                            </div>
-
-                            <div className="budget-footer">
-                                <span className={`budget-percentage ${getProgressColor(percentage)}`}>
-                                    {budget > 0 ? `${percentage}%` : 'No budget set'}
-                                </span>
-                                <div className="budget-input-group">
-                                    <label>Budget: $</label>
-                                    <input
-                                        type="number"
-                                        defaultValue={budget}
-                                        onBlur={(e) => handleBudgetUpdate(category.id, e.target.value)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                                e.target.blur();
-                                            }
-                                        }}
-                                        step="10"
-                                        min="0"
-                                    />
-                                </div>
-                            </div>
-                        </div>
+                        <BudgetCard
+                            key={category.id}
+                            category={category}
+                            spent={spent}
+                            transactions={transactions}
+                            month={month}
+                            year={year}
+                            onBudgetUpdate={handleBudgetUpdate}
+                        />
                     );
                 })}
             </div>

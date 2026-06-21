@@ -6,12 +6,25 @@
 import { useState } from 'react';
 import api from '../api';
 
+/**
+ * Component: CsvUpload
+ * Description: Renders the CSV file picker and upload triggers, managing loading indicators
+ *              and rendering statistical summaries of import outcomes.
+ * Props:
+ *   - onImportComplete (Function): Parent callback handler triggered after a file import completes.
+ */
 function CsvUpload({ onImportComplete }) {
     const [file, setFile] = useState(null);
     const [uploading, setUploading] = useState(false);
     const [result, setResult] = useState(null);
     const [error, setError] = useState('');
 
+    /**
+     * Function: handleFileChange
+     * Description: Validates and sets the chosen file in React state. Rejects non-CSV files.
+     * Parameters:
+     *   - e (Event): Standard onChange file selection event.
+     */
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
         if (selectedFile && !selectedFile.name.endsWith('.csv')) {
@@ -24,6 +37,12 @@ function CsvUpload({ onImportComplete }) {
         setFile(selectedFile);
     };
 
+    /**
+     * Function: handleUpload
+     * Description: Packages the selected CSV file into a FormData payload, submits a 
+     *              POST request to the backend import endpoint, handles UI state resets,
+     *              and triggers parent database refreshes on completion.
+     */
     const handleUpload = () => {
         if (!file) {
             setError('Please select a file first.');

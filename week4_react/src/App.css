@@ -631,3 +631,78 @@ tbody button:hover {
     color: #c62828;
     border-left: 4px solid #ff4757;
 }
+
+/* ========== Budget Collapsible Transactions ========== */
+.budget-card-transactions {
+    margin-top: 15px;
+    animation: slideDown 0.2s ease-out;
+}
+
+.budget-transactions-divider {
+    height: 1px;
+    background: #e9ecef;
+    margin: 15px 0 10px 0;
+}
+
+.budget-transactions-title {
+    font-size: 13px;
+    color: #495057;
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.no-transactions-text {
+    font-size: 13px;
+    color: #868e96;
+    font-style: italic;
+    margin: 5px 0;
+}
+
+.mini-transactions-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 10px;
+    box-shadow: none !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+}
+
+.mini-transactions-table thead {
+    background-color: #f1f3f5 !important;
+    color: #495057 !important;
+}
+
+.mini-transactions-table th {
+    text-align: left;
+    color: #495057 !important;
+    font-weight: 600;
+    padding: 8px;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.mini-transactions-table td {
+    padding: 8px;
+    border-bottom: 1px solid #e9ecef;
+    color: #343a40;
+}
+
+.mini-transactions-table tbody tr {
+    background-color: transparent !important;
+}
+
+.mini-transactions-table tbody tr:hover {
+    background-color: #f1f3f5 !important;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

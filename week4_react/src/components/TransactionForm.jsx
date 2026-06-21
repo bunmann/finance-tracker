@@ -5,6 +5,13 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
 
+/**
+ * Component: TransactionForm
+ * Description: Renders an input form allowing users to manually create new transactions.
+ * Props:
+ *   - onTransactionAdded (Function): Parent callback handler triggered after a transaction is successfully created.
+ *   - showToast (Function): Global toast callback to display alerts/success messages.
+ */
 function TransactionForm({ onTransactionAdded, showToast }) {
     // Form state — each input field gets its own state variable
     const [amount, setAmount] = useState('');
@@ -15,7 +22,11 @@ function TransactionForm({ onTransactionAdded, showToast }) {
     const [categories, setCategories] = useState([]);
     const [error, setError] = useState('');
 
-    // Fetch categories from API on load (for the dropdown)
+    /**
+     * Hook: useEffect (Categories Loader)
+     * Description: Fetches all category definitions on page mount to populate the
+     *              category selection dropdown options.
+     */
     useEffect(() => {
         api.get('/categories')
             .then(response => setCategories(response.data))
@@ -25,6 +36,14 @@ function TransactionForm({ onTransactionAdded, showToast }) {
             });
     }, [showToast]);
 
+    /**
+     * Function: handleSubmit
+     * Description: Triggered upon form submission. Formats state values, validates inputs,
+     *              submits an API POST request to save the transaction, resets the form
+     *              state, and updates the parent component state.
+     * Parameters:
+     *   - e (Event): Standard submit event.
+     */
     const handleSubmit = (e) => {
         e.preventDefault();  // Prevent the browser from refreshing the page
         setError('');  // Clear any previous error

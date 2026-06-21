@@ -14,6 +14,10 @@ router = APIRouter(
     tags=["Categories"]
 )
 
+# API Endpoint: GET /categories
+# Description: Fetches all category definitions created by the user,
+#              sorting them alphabetically but pinning Uncategorized at the bottom.
+# Response: List of sorted Category objects.
 @router.get("")
 def get_categories(
     db: Session = Depends(get_db),
@@ -24,6 +28,10 @@ def get_categories(
     return sorted(categories, key=lambda c: (c.name.lower() == "uncategorized", c.name.lower()))
 
 
+# API Endpoint: POST /categories
+# Description: Creates a new user category, enforcing uniqueness on name per user.
+# Request Body: CategoryCreate schema (name, icon, monthly_budget).
+# Response: Created Category object.
 @router.post("")
 def create_category(
     category: CategoryCreate,
@@ -54,6 +62,12 @@ def create_category(
     return db_category
 
 
+# API Endpoint: PUT /categories/{category_id}
+# Description: Updates category properties (budget, icon, name) by category ID.
+# Path Params:
+#   - category_id (int): Database ID of the category.
+# Request Body: CategoryCreate schema (name, icon, monthly_budget).
+# Response: Updated Category object.
 @router.put("/{category_id}")
 def update_category(
     category_id: int,
@@ -77,6 +91,11 @@ def update_category(
     return db_category
 
 
+# API Endpoint: DELETE /categories/{category_id}
+# Description: Deletes a specific category, blocking deletion of required 'Uncategorized' category.
+# Path Params:
+#   - category_id (int): Database ID of the category.
+# Response: Deletion status message.
 @router.delete("/{category_id}")
 def delete_category(
     category_id: int,

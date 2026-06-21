@@ -18,17 +18,35 @@ import Toast from './components/Toast';
 import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
 
+/**
+ * Component: App
+ * Description: The main application root component that initializes global state,
+ *              coordinates page routing, manages authentication status, handles 
+ *              outbound API syncs, and displays toasts.
+ */
 function App() {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
     const [toast, setToast] = useState(null);
 
+    /**
+     * Function: showToast
+     * Description: Triggers a state update to show a floating alert notification.
+     * Parameters:
+     *   - message (String): Text to display inside the toast.
+     *   - type (String): Toast style variant ('success', 'error', 'warning').
+     * Passed to: Child components (Dashboard, TransactionForm, TransactionList, BudgetOverview)
+     */
     const showToast = (message, type = 'success') => {
         setToast({ message, type });
     };
 
-    // Fetch transactions only when logged in
+    /**
+     * Hook: useEffect (Initial Transaction Loader)
+     * Description: Fires when login status changes. Fetches the initial list of 
+     *              transactions if logged in, or resets state and loading if logged out.
+     */
     useEffect(() => {
         if (!isLoggedIn) {
             setLoading(false);
@@ -52,24 +70,54 @@ function App() {
             });
     }, [isLoggedIn]);
 
+    /**
+     * Function: handleLogin
+     * Description: Sets user authentication state to true (triggered on login form submission).
+     * Passed to: LoginPage component
+     */
     const handleLogin = () => {
         setIsLoggedIn(true);
     };
 
+    /**
+     * Function: handleLogout
+     * Description: Clears authentication tokens, resets state, and updates logged-out state.
+     * Passed to: Navbar component (via onLogout prop)
+     */
     const handleLogout = () => {
         localStorage.removeItem('token');
         setIsLoggedIn(false);
         setTransactions([]);
     };
 
+    /**
+     * Function: handleTransactionAdded
+     * Description: Dynamically appends a newly created transaction directly to 
+     *              local state to prevent needing a full API page refresh.
+     * Parameters:
+     *   - newTransaction (Object): The database object returned by API.
+     * Passed to: TransactionForm component (via onTransactionAdded prop)
+     */
     const handleTransactionAdded = (newTransaction) => {
         setTransactions([...transactions, newTransaction]);
     };
 
+    /**
+     * Function: handleTransactionDeleted
+     * Description: Removes a deleted transaction from local state dynamically.
+     * Parameters:
+     *   - id (Number): The database ID of the deleted transaction.
+     * Passed to: TransactionList component (via onDelete prop)
+     */
     const handleTransactionDeleted = (id) => {
         setTransactions(transactions.filter(t => t.id !== id));
     };
 
+    /**
+     * Function: handleImportComplete
+     * Description: Re-fetches the full transaction list after a CSV upload completes.
+     * Passed to: CsvUpload component (via onImportComplete prop)
+     */
     const handleImportComplete = () => {
         api.get('/transactions')
             .then(response => setTransactions(response.data))
@@ -112,7 +160,7 @@ function App() {
                                             />
                                         </div>
                                     } />
-                                    <Route path="/budgets" element={<BudgetOverview showToast={showToast} />} />
+                                    <Route path="/budgets" element={<BudgetOverview transactions={transactions} showToast={showToast} />} />
                                     <Route path="*" element={<Navigate to="/" />} />
                                 </>
                             ) : (

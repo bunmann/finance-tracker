@@ -4,6 +4,14 @@
 // ============================================================================
 import { Link } from 'react-router-dom';
 
+/**
+ * Component: Navbar
+ * Description: Renders the site-wide main navigation bar, showing links depending on
+ *              authentication status and exposing a logout trigger.
+ * Props:
+ *   - isLoggedIn (Boolean): User session state.
+ *   - onLogout (Function): Navbar logout handler that clears local browser tokens.
+ */
 function Navbar({ isLoggedIn, onLogout }) {
     return (
         <nav className="navbar">

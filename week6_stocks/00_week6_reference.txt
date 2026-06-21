@@ -1,0 +1,38 @@
+============================================================================
+WEEK 6 — STOCK PORTFOLIO & SMART CATEGORIZATION Quick Reference Notes
+============================================================================
+
+This week covers TWO major features:
+  A) Smart auto-categorization pipeline (Tiers 1 & 2) — enhances existing CSV import
+  B) Stock portfolio backend — new domain, external API integration
+
+
+LESSON 1: Smart Auto-Categorization — Tier 1 (Global Keyword Matching)
+────────────────────────────────────────────────────────────────────────
+  Created categorization.py to help auto categorize csv imported transactions with pre-built dicts
+  -> Match in reverse so "uber eats" matches before "uber"
+
+
+LESSON 2: Smart Auto-Categorization — Tier 2 (User-Trained Rules)
+────────────────────────────────────────────────────────────────────
+
+
+LESSON 3: Stock Portfolio — Schema & Models
+────────────────────────────────────────────
+
+
+LESSON 4: Stock Portfolio — Alpha Vantage API Integration
+────────────────────────────────────────────────────────────
+
+
+LESSON 5: Stock Portfolio — CRUD Endpoints & Business Logic
+────────────────────────────────────────────────────────────
+
+
+LESSON 6: Stock Portfolio — Frontend Integration
+────────────────────────────────────────────────────
+
+
+LESSON 7: Brokerage CSV Import (Wealthsimple / Questrade)
+────────────────────────────────────────────────────────────
+

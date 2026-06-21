@@ -14,12 +14,20 @@ router = APIRouter(
     tags=["Authentication"]
 )
 
+# API Endpoint: GET /users
+# Description: Debug endpoint that lists all registered users in the database.
+# Response: List of user objects (id, email).
 @router.get("/users")
 def get_users(db: Session = Depends(get_db)):
     users = db.query(models.User).all() # Gets all rows of User from models.py
     return users
 
 
+# API Endpoint: POST /users
+# Description: Registers a new user account, hashes their password, and seeds
+#              their initial set of default categories (Food & Dining, etc.).
+# Request Body: UserCreate schema (email, password).
+# Response: Object containing user id and email.
 @router.post("/users")
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     # Check if a user with this email already exists
@@ -41,26 +49,33 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
 
     # Seed default categories for the new user
     default_categories = [
+        {"name": "Uncategorized", "icon": "📁"},
         {"name": "Food & Dining", "icon": "🍔"},
         {"name": "Transportation", "icon": "🚗"},
         {"name": "Entertainment", "icon": "🎬"},
-        {"name": "Utilities", "icon": "💡"},
-        {"name": "Rent & Housing", "icon": "🏠"},
-        {"name": "Uncategorized", "icon": "❓"},
+        {"name": "Shopping", "icon": "🛍️"},
+        {"name": "Bills & Utilities", "icon": "💡"},
+        {"name": "Health", "icon": "💊"},
     ]
+
     for cat in default_categories:
-        db_cat = models.Category(
+        db_category = models.Category(
             name=cat["name"],
             icon=cat["icon"],
             monthly_budget=0.0,
             user_id=db_user.id
         )
-        db.add(db_cat)
+        db.add(db_category)
+
     db.commit()
 
     return {"id": db_user.id, "email": db_user.email}
 
 
+# API Endpoint: POST /login
+# Description: Authenticates user credentials and returns a signed JWT access token.
+# Request Body: LoginRequest schema (email, password).
+# Response: Object with access_token and token_type.
 @router.post("/login")
 def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     # 1. Find the user by email

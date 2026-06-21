@@ -27,3 +27,7 @@ Thumbs.db
 
 # Data directory
 data/
+
+# Course metadata / lessons
+.lessons/
+

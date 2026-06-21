@@ -9,6 +9,14 @@ import api from '../api';
 // Colors for the pie chart slices
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#FF6B6B', '#4ECDC4'];
 
+/**
+ * Component: Dashboard
+ * Description: Renders the monthly summary statistics (income, expenses, net savings),
+ *              budget limit alerts, and a Pie Chart breakdown of expenses by category.
+ * Props:
+ *   - transactions (Array): User transactions list (forces re-renders/sync on dashboard when transactions change).
+ *   - showToast (Function): Global toast callback to display alerts/success messages.
+ */
 function Dashboard({ transactions, showToast }) {
     const today = new Date();
     const [month, setMonth] = useState(today.getMonth() + 1); // JS months are 0-indexed
@@ -16,7 +24,11 @@ function Dashboard({ transactions, showToast }) {
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Fetch dashboard data whenever month or year changes
+    /**
+     * Hook: useEffect (Dashboard Data Loader)
+     * Description: Re-fetches aggregate monthly financial stats and category spending
+     *              from the database whenever the month, year, or transaction list changes.
+     */
     useEffect(() => {
         setLoading(true);
         api.get(`/dashboard?month=${month}&year=${year}`)

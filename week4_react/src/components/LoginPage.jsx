@@ -7,12 +7,26 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api';
 
+/**
+ * Component: LoginPage
+ * Description: Renders the user login page. Authenticates credentials against the API
+ *              and stores JWT tokens to local storage before navigating to root dashboard.
+ * Props:
+ *   - onLogin (Function): App parent login callback to toggle auth state.
+ */
 function LoginPage({ onLogin }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
+    /**
+     * Function: handleSubmit
+     * Description: Submits the user's email and password to POST /login,
+     *              saves the signed JWT, updates app state, and redirects to dashboard.
+     * Parameters:
+     *   - e (Event): Standard submit event.
+     */
     const handleSubmit = (e) => {
         e.preventDefault();
         setError('');

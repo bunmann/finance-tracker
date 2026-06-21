@@ -5,16 +5,38 @@
 // ============================================================================
 import { Component } from 'react';
 
+/**
+ * Component: ErrorBoundary
+ * Description: Class-based React component wrapper that catches JavaScript runtime errors 
+ *              anywhere in its child component tree, logging errors and rendering a fallback UI.
+ */
 class ErrorBoundary extends Component {
     constructor(props) {
         super(props);
         this.state = { hasError: false, error: null };
     }
 
+    /**
+     * Function: getDerivedStateFromError
+     * Description: Static lifecycle method invoked after a descendant component throws an error,
+     *              returning the state update object to render the fallback UI.
+     * Parameters:
+     *   - error (Error): The error thrown.
+     * Returns:
+     *   - Object: State update object.
+     */
     static getDerivedStateFromError(error) {
         return { hasError: true, error };
     }
 
+    /**
+     * Function: componentDidCatch
+     * Description: Lifecycle method invoked after an error has been caught by the boundary,
+     *              allowing logging of stack traces or reporting to error aggregation services.
+     * Parameters:
+     *   - error (Error): The error thrown.
+     *   - errorInfo (Object): Stack trace metadata info.
+     */
     componentDidCatch(error, errorInfo) {
         console.error('ErrorBoundary caught:', error, errorInfo);
     }

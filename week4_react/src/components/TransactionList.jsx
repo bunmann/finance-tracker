@@ -4,7 +4,23 @@
 // ============================================================================
 import api from '../api';
 
+/**
+ * Component: TransactionList
+ * Description: Renders a tabular record of user transactions and actions.
+ * Props:
+ *   - transactions (Array): List of loaded transactions to display.
+ *   - loading (Boolean): Loading indicator state.
+ *   - onDelete (Function): Parent callback handler triggered after a transaction is deleted.
+ *   - showToast (Function): Global toast callback to display alerts/success messages.
+ */
 function TransactionList({ transactions, loading, onDelete, showToast }) {
+    /**
+     * Function: handleDelete
+     * Description: Submits an API DELETE request to delete a transaction by ID,
+     *              triggering the parent's update callback upon success.
+     * Parameters:
+     *   - id (Number): Database ID of the transaction to delete.
+     */
     const handleDelete = (id) => {
         api.delete(`/transactions/${id}`)
             .then(() => onDelete(id))

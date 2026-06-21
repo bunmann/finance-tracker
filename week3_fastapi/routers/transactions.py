@@ -2,6 +2,7 @@
 # File: routers/transactions.py
 # Description: Defines transaction CRUD and CSV import routes using APIRouter.
 # ============================================================================
+from routers import dashboard
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 from database import get_db
@@ -14,31 +15,27 @@ from collections import defaultdict
 import csv
 import io
 import hashlib
+from utils import parse_date
+from categorization import auto_categorize
 
 router = APIRouter(
     prefix="/transactions",
     tags=["Transactions"]
 )
 
-def parse_date(date_str: str):
-    """Try to parse a date string in common formats."""
-    formats = [
-        "%Y-%m-%d",     # 2026-06-01
-        "%m/%d/%Y",     # 06/01/2026
-        "%d/%m/%Y",     # 01/06/2026
-        "%m-%d-%Y",     # 06-01-2026
-    ]
-    for fmt in formats:
-        try:
-            return datetime.strptime(date_str, fmt).date()
-        except ValueError:
-            continue
-    return None
 
-
+# API Endpoint: GET /transactions
+# Description: Fetches a filtered, paginated list of the current user's transactions.
+# Query Params:
+#   - limit (int): Max number of items to return (default: 100).
+#   - offset (int): Pagination offset.
+#   - type (str): Filter by type ('income' or 'expense').
+#   - category_id (int): Filter by category ID.
+#   - start_date (date): Filter transactions on or after this date.
+#   - end_date (date): Filter transactions on or before this date.
 @router.get("")
 def get_transactions(
-    limit: int = 10,
+    limit: int = 100,
     offset: int = 0,
     type: Optional[Literal["income", "expense"]] = None,
     category_id: Optional[int] = None,
@@ -70,6 +67,10 @@ def get_transactions(
     return transactions
 
 
+# API Endpoint: POST /transactions
+# Description: Manually records a new income or expense transaction for the user,
+#              falling back to Uncategorized for expenses if no category is specified.
+# Request Body: TransactionCreate schema (amount, description, type, date, category_id).
 @router.post("")
 def create_transaction(
     transaction: TransactionCreate,
@@ -102,6 +103,10 @@ def create_transaction(
     return db_transaction
 
 
+# API Endpoint: DELETE /transactions/{transaction_id}
+# Description: Deletes a specific transaction owned by the current user.
+# Path Params:
+#   - transaction_id (int): Database ID of the transaction to delete.
 @router.delete("/{transaction_id}")
 def delete_transaction(
     transaction_id: int,
@@ -124,6 +129,11 @@ def delete_transaction(
     return {"message": f"Transaction {transaction_id} deleted"}
 
 
+# API Endpoint: POST /transactions/upload-csv
+# Description: Uploads and parses a bank statement CSV, automatically matching
+#              known merchants against default category keywords and filtering out
+#              duplicate transaction entries using SHA256 fingerprints.
+# Request Body: Multipart form data containing the 'file'.
 @router.post("/upload-csv")
 def upload_csv(
     file: UploadFile = File(...),
@@ -201,6 +211,18 @@ def upload_csv(
                 skipped += 1
                 continue
 
+            # 8. Auto-categorization: try keyword matching first, fall back to Uncategorized
+
+            user_categories = db.query(models.Category).filter(
+                models.Category.user_id == current_user.id
+            ).all()
+
+            if tx_type == "expense":
+                matched_category_id = auto_categorize(description, user_categories)
+                cat_id = matched_category_id if matched_category_id else uncat_id
+            else:
+                cat_id = None
+
             # 8. Create the transaction
             db_transaction = models.Transaction(
                 amount=amount,
@@ -208,7 +230,7 @@ def upload_csv(
                 type=tx_type,
                 date=tx_date,
                 user_id=current_user.id,
-                category_id=uncat_id if tx_type == "expense" else None,  # CSV expenses start in Uncategorized, income stays None
+                category_id=cat_id,
                 fingerprint=fingerprint
             )
             db.add(db_transaction)

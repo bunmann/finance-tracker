@@ -14,6 +14,13 @@ router = APIRouter(
     tags=["Dashboard"]
 )
 
+# API Endpoint: GET /dashboard
+# Description: Generates monthly summary metrics including total income, total expense,
+#              net savings, and a category-by-category breakdown of expense amounts and budgets.
+# Query Params:
+#   - month (int): Target calendar month (1-12).
+#   - year (int): Target calendar year.
+# Response: Dictionary containing total_income, total_expense, net_savings, and by_category array.
 @router.get("")
 def get_dashboard_summary(
     month: int,
