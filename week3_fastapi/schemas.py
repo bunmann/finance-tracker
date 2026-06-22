@@ -25,3 +25,18 @@ class CategoryCreate(BaseModel):
 class LoginRequest(BaseModel):
     email: str
     password: str
+
+
+class StockTransactionCreate(BaseModel):
+    ticker: str
+    shares: float = Field(gt=0, description="Number of shares must be positive")
+    price: float = Field(gt=0, description="Price per share must be positive")
+    date: Optional[DateType] = None
+
+
+class WatchlistCreate(BaseModel):
+    ticker: str = Field(..., min_length=1, max_length=10, description="Stock ticker symbol")
+
+
+class SectorCompetenceCreate(BaseModel):
+    sector: str = Field(..., min_length=1, max_length=100, description="Sector name")

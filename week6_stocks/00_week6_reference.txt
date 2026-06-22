@@ -31,7 +31,12 @@ LESSON 2: Smart Auto-Categorization — Tier 2 (User-Trained Rules)
 
 LESSON 3: Stock Portfolio — Schema & Models
 ────────────────────────────────────────────
-
+  Use Numeric(12, 4) for 12 digits up to 4 decimals
+  -> More precise than float (slower)
+  -> supports fractional shares (e.g., 0.5 shares)
+  -> supports avg cost basis calculation
+  -> supports dividend tracking
+  
 
 LESSON 4: Stock Portfolio — Alpha Vantage API Integration
 ────────────────────────────────────────────────────────────

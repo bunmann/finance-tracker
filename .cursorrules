@@ -1,0 +1,105 @@
+# ============================================================================
+# File: .cursorrules
+# Description: Permanent project rules, code style guidelines, and execution boundaries.
+# ============================================================================
+
+# Project Context
+This is a Personal Finance and Stock Portfolio Tracker application.
+- Backend: FastAPI, SQLAlchemy (SQLite), Pydantic
+- Frontend: React (Vite), vanilla CSS, Axios
+
+# Execution Boundaries
+- **No Automatic Installations**: Never run installation commands (e.g., `pip install`, `npm install`) or external download commands. Always instruct the user to run them in their terminal.
+- **Git Actions**: Do not run `git commit` or push commands directly. The user will handle commits and version control.
+
+# Lesson Tracking & Logging Protocols
+Whenever a new lesson from the roadmap is started or wrapped up, the agent must execute these specific logging steps:
+- **Lesson Start**:
+  - Begin the response with the exact greeting: **"Welcome back David"** as the first words.
+  - Immediately log the start time by appending a placeholder row in `.lessons/time_tracking.md` (e.g., `| Date | Lesson Name | Start Time | In Progress | - | - |`).
+- **Lesson Completion & Wrap-Up**:
+  - Calculate elapsed time between start and end.
+  - Count the number of user prompts sent since the start time of the lesson from the local conversation transcript (`.system_generated/logs/transcript.jsonl`).
+  - Mark the lesson complete (`✅`, with duration and completion date) in `.lessons/project_roadmap.md`.
+  - Replace the placeholder row in `.lessons/time_tracking.md` with final metrics, and append a detailed session log summarizing completed time, duration, prompt counts, and key concepts learned.
+  - Present a formatted summary of the completed lesson and direct the user to run `git commit` manually.
+
+# Agent Workflow & Artifact Lifecycle
+Before making any file changes or writing code, the agent must adhere to a structured three-step lifecycle:
+1. **Planning**:
+   - Research the files, dependencies, and requirements.
+   - Create or update the **Implementation Plan** (`implementation_plan.md` in the artifacts folder).
+   - Stop and request explicit user approval before writing code.
+2. **Execution (Act-Observe-Refine)**:
+   - Create a task checklist (`task.md` in the artifacts folder) using `[ ]`, `[/]`, and `[x]`.
+   - Update this checklist continuously as steps are completed.
+   - Run the code in the iterative **Act-Observe-Refine** loop to resolve any compiler or runtime errors.
+3. **Walkthrough & Verification**:
+   - Provide a final **Walkthrough Guide** (`walkthrough.md` in the artifacts folder) summarizing what was done and detailing manual/automated verification steps.
+
+# Agent Execution Loop (Act-Observe-Refine)
+When executing approved plans, the agent must operate in a rigorous feedback loop:
+- **Act**: 
+  - Write or modify code in clean, logical segments. 
+  - Adhere strictly to the codebase structure, styling conventions, and file headers.
+- **Observe**: 
+  - Proactively run terminal scripts, API checks, or validation commands to test changes.
+  - Inspect server runtime logs, syntax errors, and compiler/linter warnings.
+  - Verify that changes did not break existing features.
+- **Refine**: 
+  - If errors are found, analyze the root cause, modify the code, and re-test. Repeat until correct.
+  - Refactor redundant code or duplicate helpers into clean, modular abstractions rather than taking shortcuts.
+  - Defensively handle edge cases (e.g. API failures, null responses, bad user inputs).
+
+# File Header Comments
+Every new code file added or existing file modified significantly must include a unified visual header block at the top:
+- For Python (`#`):
+  ```python
+  # ============================================================================
+  # File: filename.py
+  # Description: brief explanation of what the code does
+  # ============================================================================
+  ```
+- For JS/JSX/CSS (`//` or `/* */`):
+  ```javascript
+  // ============================================================================
+  // File: filename.jsx
+  // Description: brief explanation of what the code does
+  // ============================================================================
+  ```
+
+# Code Quality & Logic Guidelines
+- **Precision with Money**: Never use float representations for money. Always use `Numeric` (FastAPI/SQLAlchemy) or exact decimal rounding configurations to avoid floating-point errors.
+- **No Placeholders**: Write fully functional, production-ready code blocks without `TODO` placeholders in final code (router skeletons are an exception during initial planning).
+- **Separation of Concerns**: Keep database models, validation schemas, router endpoints, and presentation logic separated. Do not duplicate price data or static values across tables. Use a cache-aside pattern with fallback handling (graceful degradation) for external APIs.
+- **Teaching Style**: Prioritize explaining the *why* of coding patterns over just the *what*. Use clear, step-by-step logic.
+
+# Design & Aesthetic Guidelines
+- **Visual Excellence**: Avoid simple browser defaults or plain primary colors (e.g., basic red, blue, green). Use harmonious HSL palettes, smooth gradients, and sleek dark modes.
+- **Typography**: Prefer modern Google Fonts (e.g., Inter, Outfit, Roboto) over default system sans-serif fonts.
+- **Interactions**: Implement hover effects, responsive layout transitions, and subtle micro-animations for high-fidelity interactive elements.
+- **Tailwind CSS**: Do not use Tailwind CSS unless explicitly requested by the user. Prefer vanilla CSS.
+
+# Codebase Architecture & File Mappings
+
+| Folder Path | Target Files / Subdirectories | Responsibility / Separation of Concerns |
+| :--- | :--- | :--- |
+| **`week3_fastapi/`** | `main.py` | Entry point: configures CORS, registers global middlewares, and mounts routers. |
+| | `database.py` | Connection layer: initializes engine, sessionmaker, and database dependency. |
+| | `models.py` | Data Definition layer: defines SQLAlchemy schemas and relationships (database tables). |
+| | `schemas.py` | Validation layer: defines Pydantic network request inputs and API response structures. |
+| | `stock_service.py` | Core Stock Logic: Handles fetching live stock prices and cache-aside lookup logic. |
+| | `categorization.py` | Classification logic: runs the cascading rule match and keyword auto-categorization. |
+| | `utils.py` | Shared Helpers: Contains standalone functions like datetime parsing. |
+| | `routers/` | Endpoint definition: split by domain (e.g. `auth.py`, `transactions.py`, `stocks.py`). |
+| **`week4_react/src/`** | `main.jsx` & `App.jsx` | UI entry and base layout wrapper (Routing context, core state coordination). |
+| | `api.js` | Network layer: centralized Axios interceptors for auth tokens and request headers. |
+| | `index.css` & `App.css` | Styling layer: global variables (HSL color tokens, layouts, base animations). |
+| | `hooks/` | Custom Hooks: isolates visual rendering from data manipulation logic (e.g., `useSortableData.js`). |
+| | `components/` | Modular component views structured by sub-domain. |
+| | `components/auth/` | Auth components: user login, signup pages, and routing guards. |
+| | `components/common/` | Reusable UI components: custom notifications (toast), modals, sortable table headers. |
+| | `components/dashboard/` | High-level statistics components: charts, budget overview widgets, summaries. |
+| | `components/transactions/` | Ledger management: data forms, transaction grid tables, category assignment controls. |
+| | `components/stocks/` | (Future) Stock tracker pages: buy/sell panels, watchlist grids, sector competency charts. |
+

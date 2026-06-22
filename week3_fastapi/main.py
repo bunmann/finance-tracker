@@ -6,7 +6,7 @@
 from fastapi import FastAPI
 from database import engine, Base
 from fastapi.middleware.cors import CORSMiddleware
-from routers import auth, transactions, categories, dashboard
+from routers import auth, transactions, categories, dashboard, stocks
 
 # Create all tables in the database (if they don't exist yet)
 Base.metadata.create_all(bind=engine)
@@ -27,6 +27,7 @@ app.include_router(auth.router)
 app.include_router(transactions.router)
 app.include_router(categories.router)
 app.include_router(dashboard.router)
+app.include_router(stocks.router)
 
 
 @app.get("/")
