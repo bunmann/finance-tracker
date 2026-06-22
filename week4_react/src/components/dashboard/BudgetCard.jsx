@@ -4,6 +4,7 @@
 //              inline budget update, and a collapsible transaction list.
 // ============================================================================
 import { useState } from 'react';
+import TransactionTable from '../transactions/TransactionTable';
 
 /**
  * Component: BudgetCard
@@ -108,26 +109,10 @@ function BudgetCard({ category, spent, transactions, month, year, onBudgetUpdate
                     {catTransactions.length === 0 ? (
                         <p className="no-transactions-text">No transactions logged under this category for this period.</p>
                     ) : (
-                        <table className="mini-transactions-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Description</th>
-                                    <th style={{ textAlign: 'right' }}>Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {catTransactions.map(t => (
-                                    <tr key={t.id}>
-                                        <td>{t.date}</td>
-                                        <td>{t.description}</td>
-                                        <td style={{ textAlign: 'right', fontWeight: '500' }}>
-                                            ${Number(t.amount).toFixed(2)}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <TransactionTable
+                            transactions={catTransactions}
+                            isMini={true}
+                        />
                     )}
                 </div>
             )}

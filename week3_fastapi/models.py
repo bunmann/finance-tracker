@@ -7,6 +7,10 @@ from sqlalchemy.orm import relationship
 from database import Base
 
 class User(Base):
+    """
+    Represents a registered system user.
+    Handles user credentials and separates per-user tenant data.
+    """
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -15,6 +19,10 @@ class User(Base):
 
 
 class Category(Base):
+    """
+    Represents a transaction category (e.g., 'Food & Dining', 'Transportation').
+    Supports customized category names, icons, and monthly budgets per user.
+    """
     __tablename__ = "categories"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -28,6 +36,10 @@ class Category(Base):
 
 
 class Transaction(Base):
+    """
+    Represents an income or expense ledger transaction.
+    Logs amounts, descriptions, dates, and fingerprints for import deduplication.
+    """
     __tablename__ = "transactions"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -38,3 +50,19 @@ class Transaction(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=True)
     fingerprint = Column(String(64), nullable=True, index=True)  # SHA256 hash for dedup
+
+
+class CategoryRule(Base):
+    """
+    Represents a user-trained rule for auto-categorization (Tier 2).
+    Maps a user-specific keyword to a target category ID for automated assignment.
+    """
+    __tablename__ = "category_rules"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    keyword = Column(String(255), nullable=False)
+    category_id = Column(Integer, ForeignKey("categories.id"), nullable=False)
+
+    # Each user can only have one rule per keyword
+    __table_args__ = (UniqueConstraint('user_id', 'keyword', name='_user_keyword_uc'),)

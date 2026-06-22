@@ -17,13 +17,15 @@ A stock portfolio tracker that lets users:
 
 ### The Data Model
 
-We need three new tables:
+We need five new tables:
 
 | Table | Purpose |
 |---|---|
 | `holdings` | Current state: what stocks you own right now (ticker, shares, avg cost) |
 | `stock_transactions` | History: every buy, sell, and dividend ever logged |
 | `price_cache` | Performance: cached stock prices so we don't hit the API every request |
+| `watchlists` | Preferences: stock tickers the user is tracking/watching |
+| `sector_competence` | Preferences: industries/sectors representing the user's Circle of Competence |
 
 ---
 
@@ -163,15 +165,62 @@ Notice there's no `user_id` column. Stock prices are the same for everyone — A
 
 ---
 
+## 5b. The Watchlists Table
+
+To support the screener and stock tracking features, we need a table to store the stock tickers that each user is watching.
+
+```python
+class Watchlist(Base):
+    __tablename__ = "watchlists"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    ticker = Column(String(10), nullable=False)           # e.g., "AAPL", "MSFT"
+
+    # Ensure a user cannot watch the same ticker multiple times
+    __table_args__ = (UniqueConstraint('user_id', 'ticker', name='_user_watchlist_uc'),)
+```
+
+### Key Design Decisions
+
+- **`ticker` as String(10):** Standard format to match our holding/transaction schemas.
+- **`UNIQUE(user_id, ticker)`:** Prevents duplicate entries of the same ticker in a single user's watchlist.
+- **User-Specific:** Unlike `price_cache`, watchlists are private and customized per user, hence the `user_id` column.
+
+---
+
+## 5c. The Sector Competence Table
+
+The **Circle of Competence** concept requires users to tag which industries or sectors they have expertise in (e.g., "Technology", "Healthcare", "Financials"). We'll use this table to filter screener results or portfolio views.
+
+```python
+class SectorCompetence(Base):
+    __tablename__ = "sector_competence"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    sector = Column(String(100), nullable=False)           # e.g., "Technology", "Healthcare"
+
+    # Ensure a user cannot add the same sector multiple times
+    __table_args__ = (UniqueConstraint('user_id', 'sector', name='_user_sector_competence_uc'),)
+```
+
+### Key Design Decisions
+
+- **`sector` as String(100):** Long enough to support various industry name lengths.
+- **`UNIQUE(user_id, sector)`:** Prevents duplicate sector configurations per user.
+
+---
+
 ## 6. Adding the Models to models.py
 
-Update **`models.py`** with all three new models. You'll need to add `DateTime` to the SQLAlchemy imports:
+Update **`models.py`** with all five new models. You'll need to add `DateTime` to the SQLAlchemy imports:
 
 ```python
 from sqlalchemy import Column, Integer, String, Numeric, Date, DateTime, ForeignKey, UniqueConstraint
 ```
 
-Then add the three classes from sections 3, 4, and 5 below the existing models.
+Then add the five classes (`Holding`, `StockTransaction`, `PriceCache`, `Watchlist`, and `SectorCompetence`) below the existing models.
 
 ---
 
@@ -185,9 +234,15 @@ class StockTransactionCreate(BaseModel):
     shares: float = Field(gt=0, description="Number of shares must be positive")
     price: float = Field(gt=0, description="Price per share must be positive")
     date: Optional[DateType] = None
+
+class WatchlistCreate(BaseModel):
+    ticker: str = Field(..., min_length=1, max_length=10, description="Stock ticker symbol")
+
+class SectorCompetenceCreate(BaseModel):
+    sector: str = Field(..., min_length=1, max_length=100, description="Sector name")
 ```
 
-This schema is used for both buy and sell requests. The `type` field ("buy", "sell", "dividend") will be set by the endpoint, not the user — different endpoints for different actions.
+This schema `StockTransactionCreate` is used for both buy and sell requests. The `type` field ("buy", "sell", "dividend") will be set by the endpoint, not the user — different endpoints for different actions. `WatchlistCreate` and `SectorCompetenceCreate` are simple schemas to validate incoming watch and sector choices.
 
 ---
 
@@ -198,13 +253,13 @@ Create **`routers/stocks.py`** with placeholder endpoints:
 ```python
 # ============================================================================
 # File: routers/stocks.py
-# Description: Stock portfolio endpoints: buy, sell, dividend, portfolio view.
+# Description: Stock portfolio endpoints: portfolio, transactions, buy/sell, watchlist, sector competence.
 # ============================================================================
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from auth import get_current_user
-from schemas import StockTransactionCreate
+from schemas import StockTransactionCreate, WatchlistCreate, SectorCompetenceCreate
 import models
 
 router = APIRouter(
@@ -258,6 +313,74 @@ def sell_stock(
     """Log a stock sale."""
     # TODO: Implement in Lesson 5
     pass
+
+
+# --- Watchlist Endpoints ---
+
+@router.post("/watchlist")
+def add_to_watchlist(
+    item: WatchlistCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Add a stock ticker to the user's watchlist."""
+    # TODO: Implement in Lesson 5
+    pass
+
+
+@router.get("/watchlist")
+def get_watchlist(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Get the user's watchlist of stock tickers."""
+    # TODO: Implement in Lesson 5
+    pass
+
+
+@router.delete("/watchlist/{ticker}")
+def remove_from_watchlist(
+    ticker: str,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Remove a stock ticker from the user's watchlist."""
+    # TODO: Implement in Lesson 5
+    pass
+
+
+# --- Circle of Competence (Sector) Endpoints ---
+
+@router.post("/competence")
+def add_sector_competence(
+    item: SectorCompetenceCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Add a sector to the user's Circle of Competence."""
+    # TODO: Implement in Lesson 5
+    pass
+
+
+@router.get("/competence")
+def get_sector_competence(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Get the user's Circle of Competence sectors."""
+    # TODO: Implement in Lesson 5
+    pass
+
+
+@router.delete("/competence/{sector}")
+def remove_sector_competence(
+    sector: str,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Remove a sector from the user's Circle of Competence."""
+    # TODO: Implement in Lesson 5
+    pass
 ```
 
 ### Register the Router
@@ -280,10 +403,10 @@ app.include_router(stocks.router)
 
 1. Update `models.py`:
    - Add `DateTime` to the SQLAlchemy imports
-   - Add the `Holding`, `StockTransaction`, and `PriceCache` models
+   - Add the `Holding`, `StockTransaction`, `PriceCache`, `Watchlist`, and `SectorCompetence` models
 2. Update `schemas.py`:
-   - Add `StockTransactionCreate`
-3. Create `routers/stocks.py` with the placeholder endpoints
+   - Add `StockTransactionCreate`, `WatchlistCreate`, and `SectorCompetenceCreate` schemas
+3. Create `routers/stocks.py` with the placeholder endpoints (including watchlist and competence skeletons)
 4. Register the stocks router in `main.py`
 5. Reset the database (`POST /debug/reset-db`) to create the new tables
 6. Verify in Swagger (`http://localhost:8000/docs`) that the new `/stocks/` endpoints appear
@@ -298,6 +421,7 @@ app.include_router(stocks.router)
 | **Numeric vs Float** | `Numeric` stores exact decimals; `Float` has rounding errors — never use float for money |
 | **Weighted average cost basis** | `(old_shares × old_avg + new_shares × new_price) / total_shares` |
 | **Price caching** | Store API responses in the database to avoid hitting rate limits |
-| **UNIQUE constraint** | One holding per ticker per user; one cached price per ticker globally |
+| **UNIQUE constraint** | Ensures uniqueness across attributes (e.g., one holding/watchlist item per ticker per user) |
 | **Fingerprint column** | SHA256 hash for deduplication during brokerage CSV imports |
 | **Router skeleton** | Define endpoints with `pass`/`TODO` to plan the API structure before writing logic |
+| **Watchlists & Sector Competence** | Personalization models for ticker tracking and defining Circle of Competence |

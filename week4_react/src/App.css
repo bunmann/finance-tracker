@@ -706,3 +706,70 @@ tbody button:hover {
         transform: translateY(0);
     }
 }
+
+/* Table Select Dropdowns */
+td select {
+    padding: 6px 10px;
+    font-size: 13px;
+    width: 160px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    color: #333;
+}
+
+td select:focus {
+    outline: none;
+    border-color: #1a1a2e;
+    box-shadow: 0 0 0 2px rgba(26, 26, 46, 0.1);
+}
+
+.income-category-label {
+    font-size: 13px;
+    color: #2ed573;
+    font-weight: 600;
+    padding: 4px 8px;
+    background-color: rgba(46, 213, 115, 0.1);
+    border-radius: 4px;
+    display: inline-block;
+}
+
+/* ========== Column Sorting ========== */
+th.sortable-header {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease;
+    position: relative;
+}
+
+/* Hover for full table headers */
+thead th.sortable-header:hover {
+    background-color: #252542;
+}
+
+/* Hover for mini-table headers */
+.mini-transactions-table th.sortable-header:hover {
+    background-color: #e2e6ea !important;
+}
+
+.sort-indicator {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 11px;
+    opacity: 0.35;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+th.sortable-header:hover .sort-indicator {
+    opacity: 0.7;
+}
+
+th.sortable-header.active .sort-indicator {
+    opacity: 1;
+    color: #4f46e5; /* premium indigo highlight */
+}
+
+/* If header is active in dark background, keep arrow white or yellow/blue */
+thead th.sortable-header.active .sort-indicator {
+    color: #38bdf8; /* sleek cyan highlight in dark mode */
+}

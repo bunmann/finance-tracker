@@ -4,7 +4,7 @@
 //              handling upload progress, and showing transaction import results.
 // ============================================================================
 import { useState } from 'react';
-import api from '../api';
+import api from '../../api';
 
 /**
  * Component: CsvUpload

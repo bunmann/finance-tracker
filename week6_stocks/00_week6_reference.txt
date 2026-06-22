@@ -15,7 +15,19 @@ LESSON 1: Smart Auto-Categorization — Tier 1 (Global Keyword Matching)
 
 LESSON 2: Smart Auto-Categorization — Tier 2 (User-Trained Rules)
 ────────────────────────────────────────────────────────────────────
+  Event-driven data capture: side effects created by the users' actions 
+  useMemo: React Hook that caches calculations to avoid re-running heavy math/sorting on every render
+  useEffect vs useMemo:
+    - useMemo: Calculates and returns a value *during* render (pure function, no side effects)
+    - useEffect: Performs an action/side effect *after* render (API requests, timers, DOM edits)
 
+  React Re-rendering & Hook Rules:
+    - Re-rendering: When a component's state updates, the entire component function runs again from top to bottom.
+    - Normal Variables: Are completely recreated and reset on every single re-render.
+    - React Hooks: Persist state between renders. Calling state setters tells React to re-render the calling component.
+    - Custom Hooks: Plain JS functions encapsulating React hooks. The internal hooks act as if they are a part of the calling component. 
+        -> Therefore, when state inside a custom hook changes, the calling component re-renders and re-executes.
+    - Note: This also applies to Context consumers. If a component consumes a Context and that Context's value changes, the component will re-render.
 
 LESSON 3: Stock Portfolio — Schema & Models
 ────────────────────────────────────────────

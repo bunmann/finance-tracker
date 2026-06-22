@@ -1,6 +1,6 @@
 # ============================================================================
 # File: routers/transactions.py
-# Description: Defines transaction CRUD and CSV import routes using APIRouter.
+# Description: Defines transaction CRUD, manual updates, and CSV import routes using APIRouter.
 # ============================================================================
 from routers import dashboard
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
@@ -16,7 +16,7 @@ import csv
 import io
 import hashlib
 from utils import parse_date
-from categorization import auto_categorize
+from categorization import auto_categorize, clean_description
 
 router = APIRouter(
     prefix="/transactions",
@@ -129,6 +129,63 @@ def delete_transaction(
     return {"message": f"Transaction {transaction_id} deleted"}
 
 
+# API Endpoint: PUT /transactions/{transaction_id}
+# Description: Updates a specific transaction's category and trains a custom rule for the user (upsert).
+@router.put("/{transaction_id}")
+def update_transaction_category(
+    transaction_id: int,
+    category_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """
+    Update a transaction's category and save a user rule for future auto-categorization.
+    """
+    # 1. Find the transaction
+    transaction = db.query(models.Transaction).filter(
+        models.Transaction.id == transaction_id,
+        models.Transaction.user_id == current_user.id
+    ).first()
+
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+
+    # 2. Verify the category exists and belongs to this user
+    category = db.query(models.Category).filter(
+        models.Category.id == category_id,
+        models.Category.user_id == current_user.id
+    ).first()
+
+    if not category:
+        raise HTTPException(status_code=404, detail="Category not found")
+
+    # 3. Update the transaction's category
+    transaction.category_id = category_id
+    
+    # 4. Save a user rule (upsert: update if exists, insert if not)
+    cleaned_keyword = clean_description(transaction.description)
+    existing_rule = db.query(models.CategoryRule).filter(
+        models.CategoryRule.user_id == current_user.id,
+        models.CategoryRule.keyword == cleaned_keyword
+    ).first()
+
+    if existing_rule:
+        # Rule exists — update the category
+        existing_rule.category_id = category_id
+    else:
+        # No rule — create a new one
+        new_rule = models.CategoryRule(
+            user_id=current_user.id,
+            keyword=cleaned_keyword,
+            category_id=category_id
+        )
+        db.add(new_rule)
+
+    db.commit()
+    db.refresh(transaction)
+    return transaction
+
+
 # API Endpoint: POST /transactions/upload-csv
 # Description: Uploads and parses a bank statement CSV, automatically matching
 #              known merchants against default category keywords and filtering out
@@ -156,6 +213,15 @@ def upload_csv(
         models.Category.name == "Uncategorized"
     ).first()
     uncat_id = uncat_category.id if uncat_category else None
+
+    # Load categories and personal categorization rules for Tier 1 and Tier 2 auto-categorization
+    user_categories = db.query(models.Category).filter(
+        models.Category.user_id == current_user.id
+    ).all()
+
+    user_rules = db.query(models.CategoryRule).filter(
+        models.CategoryRule.user_id == current_user.id
+    ).all()
 
     reader = csv.DictReader(io.StringIO(contents))
 
@@ -211,19 +277,14 @@ def upload_csv(
                 skipped += 1
                 continue
 
-            # 8. Auto-categorization: try keyword matching first, fall back to Uncategorized
-
-            user_categories = db.query(models.Category).filter(
-                models.Category.user_id == current_user.id
-            ).all()
-
+            # 8. Auto-categorization: try user rules, then global keywords, and fall back to Uncategorized
             if tx_type == "expense":
-                matched_category_id = auto_categorize(description, user_categories)
+                matched_category_id = auto_categorize(description, user_categories, user_rules)
                 cat_id = matched_category_id if matched_category_id else uncat_id
             else:
                 cat_id = None
 
-            # 8. Create the transaction
+            # 9. Create the transaction
             db_transaction = models.Transaction(
                 amount=amount,
                 description=description,
@@ -239,7 +300,7 @@ def upload_csv(
         except Exception as e:
             errors.append(f"Row {row_num}: {str(e)}")
 
-    # 9. Commit all at once (batch insert)
+    # 10. Commit all at once (batch insert)
     db.commit()
 
     return {

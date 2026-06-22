@@ -4,7 +4,7 @@
 // ============================================================================
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import api from '../api';
+import api from '../../api';
 
 /**
  * Component: SignupPage

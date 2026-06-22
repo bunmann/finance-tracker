@@ -6,16 +6,16 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import api from './api';
-import Navbar from './components/Navbar';
-import Dashboard from './components/Dashboard';
-import TransactionList from './components/TransactionList';
-import TransactionForm from './components/TransactionForm';
-import LoginPage from './components/LoginPage';
-import SignupPage from './components/SignupPage';
-import CsvUpload from './components/CsvUpload';
-import BudgetOverview from './components/BudgetOverview';
-import Toast from './components/Toast';
-import ErrorBoundary from './components/ErrorBoundary';
+import Navbar from './components/common/Navbar';
+import Dashboard from './components/dashboard/Dashboard';
+import TransactionList from './components/transactions/TransactionList';
+import TransactionForm from './components/transactions/TransactionForm';
+import LoginPage from './components/auth/LoginPage';
+import SignupPage from './components/auth/SignupPage';
+import CsvUpload from './components/transactions/CsvUpload';
+import BudgetOverview from './components/dashboard/BudgetOverview';
+import Toast from './components/common/Toast';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import './App.css';
 
 /**
@@ -114,6 +114,17 @@ function App() {
     };
 
     /**
+     * Function: handleTransactionUpdated
+     * Description: Updates an edited transaction inside local state dynamically.
+     * Parameters:
+     *   - updatedTransaction (Object): The updated transaction DB object.
+     * Passed to: TransactionList component (via onUpdate prop)
+     */
+    const handleTransactionUpdated = (updatedTransaction) => {
+        setTransactions(transactions.map(t => t.id === updatedTransaction.id ? updatedTransaction : t));
+    };
+
+    /**
      * Function: handleImportComplete
      * Description: Re-fetches the full transaction list after a CSV upload completes.
      * Passed to: CsvUpload component (via onImportComplete prop)
@@ -155,6 +166,10 @@ function App() {
                                                 onDelete={(id) => {
                                                     handleTransactionDeleted(id);
                                                     showToast('Transaction deleted successfully!', 'warning');
+                                                }}
+                                                onUpdate={(updatedTx) => {
+                                                    handleTransactionUpdated(updatedTx);
+                                                    showToast('Category updated successfully!');
                                                 }}
                                                 showToast={showToast}
                                             />
