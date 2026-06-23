@@ -18,6 +18,7 @@ Whenever a new lesson from the roadmap is started or wrapped up, the agent must 
   - Begin the response with the exact greeting: **"Welcome back David"** as the first words.
   - Immediately log the start time by appending a placeholder row in `.lessons/time_tracking.md` (e.g., `| Date | Lesson Name | Start Time | In Progress | - | - |`).
 - **Lesson Completion & Wrap-Up**:
+  - **CRITICAL**: Do NOT automatically perform this wrap-up. Only mark a lesson as complete and execute these steps when the user explicitly states they are done, ready to finalize, or want to wrap up the current lesson.
   - Calculate elapsed time between start and end.
   - Count the number of user prompts sent since the start time of the lesson from the local conversation transcript (`.system_generated/logs/transcript.jsonl`).
   - Mark the lesson complete (`✅`, with duration and completion date) in `.lessons/project_roadmap.md`.

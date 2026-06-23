@@ -1,12 +1,14 @@
 # ============================================================================
 # File: routers/stocks.py
-# Description: Stock portfolio endpoints: portfolio, transactions, buy/sell, watchlist, sector competence.
+# Description: Stock portfolio endpoints: pricing, holdings, buy/sell, watchlist, sector competence.
 # ============================================================================
+from datetime import date
+from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from auth import get_current_user
-from schemas import StockTransactionCreate, WatchlistCreate, SectorCompetenceCreate
+from schemas import StockTransaction, WatchlistCreate, SectorCompetenceCreate
 import models
 from stock_service import get_stock_price
 
@@ -15,6 +17,10 @@ router = APIRouter(
     tags=["Stocks"]
 )
 
+
+# ============================================================================
+# 1. Market Data & Pricing
+# ============================================================================
 
 @router.get("/price/{ticker}")
 def get_price(
@@ -40,17 +46,78 @@ def get_price(
     }
 
 
+# ============================================================================
+# 2. Portfolio Holdings & Transaction Ledger
+# ============================================================================
+
 @router.get("/portfolio")
 def get_portfolio(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """Get all holdings with current prices and P&L."""
-    # TODO: Implement in Lesson 5
+    """
+    Get all stock holdings for the authenticated user with current prices and unrealized P&L.
+    
+    Parameters:
+    - db (Session): The database session dependency.
+    - current_user (User): The currently authenticated user.
+    
+    Returns:
+    - dict: A dictionary containing the holdings list, total market value, total cost basis, 
+            total unrealized gain, and warning metadata if any pricing fails.
+    """
     holdings = db.query(models.Holding).filter(
         models.Holding.user_id == current_user.id
     ).all()
-    return holdings
+
+    portfolio = []
+    total_value = Decimal("0")
+    total_cost = Decimal("0")
+    failed_tickers = []
+
+    for holding in holdings:
+        price, last_updated, is_stale = get_stock_price(holding.ticker, db)
+        
+        market_value = Decimal(str(price)) * holding.shares if price is not None else None
+        cost_basis = holding.avg_cost * holding.shares
+        unrealized_gain = market_value - cost_basis if market_value is not None else None
+        gain_percent = (unrealized_gain / cost_basis * 100) if unrealized_gain is not None and cost_basis else None
+
+        portfolio.append({
+            "ticker": holding.ticker,
+            "shares": float(holding.shares),
+            "avg_cost": float(holding.avg_cost),
+            "current_price": float(price) if price is not None else None,
+            "last_updated": last_updated.isoformat() if last_updated else None,
+            "is_stale": is_stale,
+            "market_value": float(market_value) if market_value is not None else None,
+            "cost_basis": float(cost_basis),
+            "unrealized_gain": float(unrealized_gain) if unrealized_gain is not None else None,
+            "gain_percent": float(gain_percent) if gain_percent is not None else None,
+        })
+
+        if price is None:
+            failed_tickers.append(holding.ticker)
+            
+        if market_value is not None:
+            total_value += market_value
+        total_cost += cost_basis
+
+    has_failures = len(failed_tickers) > 0
+    warning_msg = (
+        f"Could not retrieve current prices for: {', '.join(failed_tickers)}. Portfolio totals are unavailable."
+        if has_failures
+        else None
+    )
+
+    return {
+        "holdings": portfolio,
+        "total_value": float(total_value) if not has_failures else None,
+        "total_cost": float(total_cost),
+        "total_gain": float(total_value - total_cost) if not has_failures else None,
+        "warning": warning_msg,
+        "failed_tickers": failed_tickers
+    }
 
 
 @router.get("/transactions")
@@ -58,36 +125,161 @@ def get_stock_transactions(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """Get stock transaction history."""
+    """
+    Get stock transaction history.
+    
+    Parameters:
+    - db (Session): The database session dependency.
+    - current_user (User): The currently authenticated user.
+    
+    Returns:
+    - list[StockTransaction]: Chronological list of user stock purchases and sales.
+    """
     transactions = db.query(models.StockTransaction).filter(
         models.StockTransaction.user_id == current_user.id
     ).order_by(models.StockTransaction.date.desc()).all()
     return transactions
 
 
+# ============================================================================
+# 3. Buy & Sell Trading Endpoints
+# ============================================================================
+
 @router.post("/buy")
 def buy_stock(
-    trade: StockTransactionCreate,
+    trade: StockTransaction,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """Log a stock purchase."""
-    # TODO: Implement in Lesson 5
-    pass
+    """
+    Log a stock purchase transaction and update or create the user's holding.
+    
+    Parameters:
+    - trade (StockTransaction): The transaction input schema containing ticker, shares, price, and date.
+    - db (Session): The database session dependency.
+    - current_user (User): The currently authenticated user.
+    
+    Returns:
+    - StockTransaction: The newly created stock transaction record.
+    """
+    ticker = trade.ticker.upper().strip()
+    shares = Decimal(str(trade.shares))
+    price = Decimal(str(trade.price))
+    total = shares * price
+
+    # 1. Log the transaction
+    tx_date = trade.date if trade.date else date.today()
+    
+    db_transaction = models.StockTransaction(
+        user_id=current_user.id,
+        ticker=ticker,
+        type="buy",
+        shares=shares,
+        price=price,
+        total=total,
+        date=tx_date
+    )
+    db.add(db_transaction)
+
+    # 2. Update or create the holding
+    holding = db.query(models.Holding).filter(
+        models.Holding.user_id == current_user.id,
+        models.Holding.ticker == ticker
+    ).first()
+
+    if holding:
+        # Existing holding — recalculate weighted average cost basis
+        old_total = holding.shares * holding.avg_cost
+        new_total = old_total + total
+        holding.shares = holding.shares + shares
+        holding.avg_cost = new_total / holding.shares
+    else:
+        # New holding
+        holding = models.Holding(
+            user_id=current_user.id,
+            ticker=ticker,
+            shares=shares,
+            avg_cost=price
+        )
+        db.add(holding)
+
+    db.commit()
+    db.refresh(db_transaction)
+    return db_transaction
 
 
 @router.post("/sell")
 def sell_stock(
-    trade: StockTransactionCreate,
+    trade: StockTransaction,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """Log a stock sale."""
-    # TODO: Implement in Lesson 5
-    pass
+    """
+    Log a stock sale transaction, verify share balances, calculate realized P&L, and update the holding.
+    
+    Parameters:
+    - trade (StockTransaction): The transaction input schema containing ticker, shares, price, and date.
+    - db (Session): The database session dependency.
+    - current_user (User): The currently authenticated user.
+    
+    Returns:
+    - dict: A dictionary containing the created transaction record and the realized gain/loss.
+    """
+    ticker = trade.ticker.upper().strip()
+    shares = Decimal(str(trade.shares))
+    price = Decimal(str(trade.price))
+    total = shares * price
+
+    # 1. Check if user holds this stock
+    holding = db.query(models.Holding).filter(
+        models.Holding.user_id == current_user.id,
+        models.Holding.ticker == ticker
+    ).first()
+
+    if not holding:
+        raise HTTPException(status_code=400, detail=f"You don't hold any {ticker} shares")
+
+    if holding.shares < shares:
+        raise HTTPException(
+            status_code=400,
+            detail=f"You only have {holding.shares} shares of {ticker}, cannot sell {shares}"
+        )
+
+    # 2. Calculate realized gain/loss
+    realized_gain = (price - holding.avg_cost) * shares
+
+    # 3. Log the transaction
+    tx_date = trade.date if trade.date else date.today()
+
+    db_transaction = models.StockTransaction(
+        user_id=current_user.id,
+        ticker=ticker,
+        type="sell",
+        shares=shares,
+        price=price,
+        total=total,
+        date=tx_date
+    )
+    db.add(db_transaction)
+
+    # 4. Update the holding
+    holding.shares = holding.shares - shares
+
+    if holding.shares == 0:
+        # Sold all shares — remove the holding entirely
+        db.delete(holding)
+
+    db.commit()
+    db.refresh(db_transaction)
+    return {
+        "transaction": db_transaction,
+        "realized_gain": float(realized_gain)
+    }
 
 
-# --- Watchlist Endpoints ---
+# ============================================================================
+# 4. Watchlist Management
+# ============================================================================
 
 @router.post("/watchlist")
 def add_to_watchlist(
@@ -95,9 +287,38 @@ def add_to_watchlist(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """Add a stock ticker to the user's watchlist."""
-    # TODO: Implement in Lesson 5
-    pass
+    """
+    Add a stock ticker symbol to the user's watchlist.
+    
+    Parameters:
+    - item (WatchlistCreate): The watchlist item creation schema containing the ticker symbol.
+    - db (Session): The database session dependency.
+    - current_user (User): The currently authenticated user.
+    
+    Returns:
+    - Watchlist: The newly created watchlist record.
+    """
+    ticker = item.ticker.upper().strip()
+    
+    # Check if user is already watching this ticker
+    existing = db.query(models.Watchlist).filter(
+        models.Watchlist.user_id == current_user.id,
+        models.Watchlist.ticker == ticker
+    ).first()
+    if existing:
+        raise HTTPException(
+            status_code=400,
+            detail=f"You are already watching {ticker}"
+        )
+        
+    db_item = models.Watchlist(
+        user_id=current_user.id,
+        ticker=ticker
+    )
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
 
 
 @router.get("/watchlist")
@@ -105,9 +326,31 @@ def get_watchlist(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """Get the user's watchlist of stock tickers."""
-    # TODO: Implement in Lesson 5
-    pass
+    """
+    Retrieve the user's watchlist of stock tickers, along with live prices and metadata.
+    
+    Parameters:
+    - db (Session): The database session dependency.
+    - current_user (User): The currently authenticated user.
+    
+    Returns:
+    - list: A list of watchlist items, each enriched with current_price, last_updated, and is_stale properties.
+    """
+    items = db.query(models.Watchlist).filter(
+        models.Watchlist.user_id == current_user.id
+    ).all()
+    
+    watchlist_enriched = []
+    for item in items:
+        price, last_updated, is_stale = get_stock_price(item.ticker, db)
+        watchlist_enriched.append({
+            "id": item.id,
+            "ticker": item.ticker,
+            "current_price": float(price) if price is not None else None,
+            "last_updated": last_updated.isoformat() if last_updated else None,
+            "is_stale": is_stale
+        })
+    return watchlist_enriched
 
 
 @router.delete("/watchlist/{ticker}")
@@ -116,12 +359,35 @@ def remove_from_watchlist(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """Remove a stock ticker from the user's watchlist."""
-    # TODO: Implement in Lesson 5
-    pass
+    """
+    Remove a stock ticker symbol from the user's watchlist.
+    
+    Parameters:
+    - ticker (str): The stock symbol to remove.
+    - db (Session): The database session dependency.
+    - current_user (User): The currently authenticated user.
+    
+    Returns:
+    - dict: A success message confirmation.
+    """
+    ticker_clean = ticker.upper().strip()
+    item = db.query(models.Watchlist).filter(
+        models.Watchlist.user_id == current_user.id,
+        models.Watchlist.ticker == ticker_clean
+    ).first()
+    if not item:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Watchlist item {ticker_clean} not found"
+        )
+    db.delete(item)
+    db.commit()
+    return {"message": f"Successfully removed {ticker_clean} from watchlist"}
 
 
-# --- Circle of Competence (Sector) Endpoints ---
+# ============================================================================
+# 5. Circle of Competence (Sector Tracking)
+# ============================================================================
 
 @router.post("/competence")
 def add_sector_competence(
@@ -129,9 +395,38 @@ def add_sector_competence(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """Add a sector to the user's Circle of Competence."""
-    # TODO: Implement in Lesson 5
-    pass
+    """
+    Add a sector to the user's Circle of Competence.
+    
+    Parameters:
+    - item (SectorCompetenceCreate): The competence creation schema containing the sector name.
+    - db (Session): The database session dependency.
+    - current_user (User): The currently authenticated user.
+    
+    Returns:
+    - SectorCompetence: The newly created sector competence record.
+    """
+    sector = item.sector.strip()
+    
+    # Check if user already has this sector in their Circle of Competence
+    existing = db.query(models.SectorCompetence).filter(
+        models.SectorCompetence.user_id == current_user.id,
+        models.SectorCompetence.sector == sector
+    ).first()
+    if existing:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Sector '{sector}' is already in your Circle of Competence"
+        )
+        
+    db_item = models.SectorCompetence(
+        user_id=current_user.id,
+        sector=sector
+    )
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
 
 
 @router.get("/competence")
@@ -139,9 +434,19 @@ def get_sector_competence(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """Get the user's Circle of Competence sectors."""
-    # TODO: Implement in Lesson 5
-    pass
+    """
+    Retrieve all market sectors within the user's Circle of Competence.
+    
+    Parameters:
+    - db (Session): The database session dependency.
+    - current_user (User): The currently authenticated user.
+    
+    Returns:
+    - list: A list of sector competence records.
+    """
+    return db.query(models.SectorCompetence).filter(
+        models.SectorCompetence.user_id == current_user.id
+    ).all()
 
 
 @router.delete("/competence/{sector}")
@@ -150,6 +455,27 @@ def remove_sector_competence(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """Remove a sector from the user's Circle of Competence."""
-    # TODO: Implement in Lesson 5
-    pass
+    """
+    Remove a sector from the user's Circle of Competence.
+    
+    Parameters:
+    - sector (str): The name of the sector to remove.
+    - db (Session): The database session dependency.
+    - current_user (User): The currently authenticated user.
+    
+    Returns:
+    - dict: A success message confirmation.
+    """
+    sector_clean = sector.strip()
+    item = db.query(models.SectorCompetence).filter(
+        models.SectorCompetence.user_id == current_user.id,
+        models.SectorCompetence.sector == sector_clean
+    ).first()
+    if not item:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Sector competence for '{sector_clean}' not found"
+        )
+    db.delete(item)
+    db.commit()
+    return {"message": f"Successfully removed sector '{sector_clean}' from Circle of Competence"}

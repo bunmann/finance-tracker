@@ -40,7 +40,7 @@ class TransactionCreate(BaseModel):
 # Stock Portfolio Schemas
 # ============================================================================
 
-class StockTransactionCreate(BaseModel):
+class StockTransaction(BaseModel):
     ticker: str
     shares: float = Field(gt=0, description="Number of shares must be positive")
     price: float = Field(gt=0, description="Price per share must be positive")
