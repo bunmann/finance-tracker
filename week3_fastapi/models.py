@@ -6,6 +6,11 @@ from sqlalchemy import Column, Integer, String, Numeric, Date, DateTime, Foreign
 from sqlalchemy.orm import relationship
 from database import Base
 
+# ============================================================================
+# Core & Authentication Models
+# ============================================================================
+
+
 class User(Base):
     """
     Represents a registered system user.
@@ -16,6 +21,11 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(255), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
+
+
+# ============================================================================
+# Cash Flow & Categorization Models
+# ============================================================================
 
 
 class Category(Base):
@@ -66,6 +76,11 @@ class CategoryRule(Base):
 
     # Each user can only have one rule per keyword
     __table_args__ = (UniqueConstraint('user_id', 'keyword', name='_user_keyword_uc'),)
+
+
+# ============================================================================
+# Stock Portfolio Models
+# ============================================================================
 
 
 class Holding(Base):

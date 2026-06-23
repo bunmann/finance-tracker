@@ -4,6 +4,11 @@
 #              Registers CORS middleware and mounts all APIRouter modules.
 # ============================================================================
 from fastapi import FastAPI
+from dotenv import load_dotenv
+
+# Load configuration and secrets from the local .env file
+load_dotenv()
+
 from database import engine, Base
 from fastapi.middleware.cors import CORSMiddleware
 from routers import auth, transactions, categories, dashboard, stocks

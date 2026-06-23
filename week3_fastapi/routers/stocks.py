@@ -8,11 +8,36 @@ from database import get_db
 from auth import get_current_user
 from schemas import StockTransactionCreate, WatchlistCreate, SectorCompetenceCreate
 import models
+from stock_service import get_stock_price
 
 router = APIRouter(
     prefix="/stocks",
     tags=["Stocks"]
 )
+
+
+@router.get("/price/{ticker}")
+def get_price(
+    ticker: str,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """
+    Get the current market price for a stock ticker.
+    Utilizes the global cache-aside mechanism (PriceCache) and Alpha Vantage quote endpoint.
+    """
+    price, last_updated, is_stale = get_stock_price(ticker, db)
+    if price is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Could not fetch price for stock symbol: {ticker.upper()}"
+        )
+    return {
+        "ticker": ticker.upper(),
+        "price": price,
+        "last_updated": last_updated.isoformat() if last_updated else None,
+        "is_stale": is_stale
+    }
 
 
 @router.get("/portfolio")

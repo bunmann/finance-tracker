@@ -40,6 +40,23 @@ LESSON 3: Stock Portfolio — Schema & Models
 
 LESSON 4: Stock Portfolio — Alpha Vantage API Integration
 ────────────────────────────────────────────────────────────
+  API KEY is stored in .env which is hidden by .gitignore
+  -> fetched by python-dotenv library
+  -> os.getenv('API_KEY')
+
+  Requests library handles external API calls
+  -> requests.get(url, params={...}, timeout=10)
+
+  Cache-aside pattern:
+    1. Check if fresh price exists in database
+    2. If not, fetch from API
+    3. Save to database
+
+  StockService returns a tuple:
+    -> (price, last_updated, is_stale)
+
+  Encapsulation Convention (_ before functions): Restricting internal/private helper scopes using leading underscore _ prefixes.
+
 
 
 LESSON 5: Stock Portfolio — CRUD Endpoints & Business Logic

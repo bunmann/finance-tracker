@@ -6,6 +6,28 @@ from pydantic import BaseModel, Field
 from typing import Optional, Literal
 from datetime import date as DateType
 
+# ============================================================================
+# Core & Authentication Schemas
+# ============================================================================
+
+class UserCreate(BaseModel):
+    email: str
+    password: str
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+# ============================================================================
+# Cash Flow & Categorization Schemas
+# ============================================================================
+
+class CategoryCreate(BaseModel):
+    name: str
+    icon: Optional[str] = "📁"
+    monthly_budget: Optional[float] = 0.0
+
 class TransactionCreate(BaseModel):
     amount: float = Field(gt=0, description="Amount must be positive")
     category_id: Optional[int] = None
@@ -13,19 +35,10 @@ class TransactionCreate(BaseModel):
     type: Literal["income", "expense"]  
     date: Optional[DateType] = None  # Optional field, defaults to None
 
-class UserCreate(BaseModel):
-    email: str
-    password: str
 
-class CategoryCreate(BaseModel):
-    name: str
-    icon: Optional[str] = "📁"
-    monthly_budget: Optional[float] = 0.0
-
-class LoginRequest(BaseModel):
-    email: str
-    password: str
-
+# ============================================================================
+# Stock Portfolio Schemas
+# ============================================================================
 
 class StockTransactionCreate(BaseModel):
     ticker: str

@@ -29,7 +29,7 @@ Before making any file changes or writing code, the agent must adhere to a struc
 1. **Planning**:
    - Research the files, dependencies, and requirements.
    - Create or update the **Implementation Plan** (`implementation_plan.md` in the artifacts folder).
-   - Stop and request explicit user approval before writing code.
+   - **Gated Transition Constraint**: Stop the turn immediately after presenting or updating the plan. Do **NOT** invoke any codebase file modifications (e.g. `write_to_file` or `replace_file_content` on project files) in the same turn that the plan is created or updated. The agent must wait for explicit user approval in the next prompt before transitioning to the Execution state.
 2. **Execution (Act-Observe-Refine)**:
    - Create a task checklist (`task.md` in the artifacts folder) using `[ ]`, `[/]`, and `[x]`.
    - Update this checklist continuously as steps are completed.
@@ -69,6 +69,9 @@ Every new code file added or existing file modified significantly must include a
   ```
 
 # Code Quality & Logic Guidelines
+- **Commentary & Documentation**: 
+  - Every function, method, and class must have descriptive comments/docstrings above it outlining its purpose, parameters, and return types (using Python docstrings or JSDoc format).
+  - Use inline comments strategically to explain the **why** behind complex or non-obvious blocks of code rather than restating **what** the syntax does.
 - **Precision with Money**: Never use float representations for money. Always use `Numeric` (FastAPI/SQLAlchemy) or exact decimal rounding configurations to avoid floating-point errors.
 - **No Placeholders**: Write fully functional, production-ready code blocks without `TODO` placeholders in final code (router skeletons are an exception during initial planning).
 - **Separation of Concerns**: Keep database models, validation schemas, router endpoints, and presentation logic separated. Do not duplicate price data or static values across tables. Use a cache-aside pattern with fallback handling (graceful degradation) for external APIs.
