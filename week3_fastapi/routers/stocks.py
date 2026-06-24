@@ -242,7 +242,7 @@ def sell_stock(
     if holding.shares < shares:
         raise HTTPException(
             status_code=400,
-            detail=f"You only have {holding.shares} shares of {ticker}, cannot sell {shares}"
+            detail=f"You only have {holding.shares:g} shares of {ticker}, cannot sell {shares:g}"
         )
 
     # 2. Calculate realized gain/loss

@@ -773,3 +773,167 @@ th.sortable-header.active .sort-indicator {
 thead th.sortable-header.active .sort-indicator {
     color: #38bdf8; /* sleek cyan highlight in dark mode */
 }
+
+/* ========== Stock Portfolio ========== */
+.stocks-page {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.portfolio-header {
+    margin-bottom: 1.5rem;
+}
+
+.portfolio-totals {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Card layout spacing */
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 25px;
+}
+
+.card h3 {
+    color: #1a1a2e;
+    font-size: 1.25rem;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* Holdings table */
+.holdings-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.holdings-table th,
+.holdings-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.holdings-table th {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: #666;
+    letter-spacing: 0.05em;
+}
+
+.ticker-cell {
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.gain-text {
+    color: #2ed573 !important;
+}
+
+.loss-text {
+    color: #ff4757 !important;
+}
+
+.type-buy {
+    color: #2ed573;
+    font-weight: 600;
+}
+
+.type-sell {
+    color: #ff4757;
+    font-weight: 600;
+}
+
+.transaction-type-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.transaction-type-badge.type-buy {
+    background-color: rgba(46, 213, 115, 0.15);
+    color: #2ed573;
+}
+
+.transaction-type-badge.type-sell {
+    background-color: rgba(255, 71, 87, 0.15);
+    color: #ff4757;
+}
+
+/* Stock forms */
+.stock-forms {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.stock-form {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
+}
+
+.stock-form div {
+    margin-bottom: 12px;
+}
+
+.stock-form h2 {
+    color: #1a1a2e;
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.btn-buy {
+    background: linear-gradient(135deg, #2ed573, #26af5f) !important;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s ease, background-color 0.2s;
+    margin-top: 10px;
+}
+
+.btn-buy:hover {
+    transform: scale(1.02);
+}
+
+.btn-sell {
+    background: linear-gradient(135deg, #ff4757, #e03e4d) !important;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s ease, background-color 0.2s;
+    margin-top: 10px;
+}
+
+.btn-sell:hover {
+    transform: scale(1.02);
+}
+
+@media (max-width: 768px) {
+    .stock-forms {
+        grid-template-columns: 1fr;
+    }
+}

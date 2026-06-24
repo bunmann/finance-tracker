@@ -40,7 +40,9 @@ function useSortableData(items, config = null, categories = []) {
                 if (bVal === undefined || bVal === null) bVal = '';
 
                 // Handle numeric values
-                if (sortConfig.key === 'amount' || sortConfig.key === 'id') {
+                // Handle numeric values
+                const numericKeys = ['amount', 'id', 'shares', 'price', 'total', 'avg_cost', 'market_value', 'unrealized_gain', 'gain_percent'];
+                if (numericKeys.includes(sortConfig.key)) {
                     const aNum = parseFloat(aVal) || 0;
                     const bNum = parseFloat(bVal) || 0;
                     return sortConfig.direction === 'asc' ? aNum - bNum : bNum - aNum;

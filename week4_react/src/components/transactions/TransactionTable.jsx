@@ -1,16 +1,15 @@
 // ============================================================================
 // File: TransactionTable.jsx
 // Description: Reusable table component for rendering transactions in full or mini views.
-//              Supports column sorting on dates, amounts, categories, and more.
+//              Leverages GenericTable to handle sorting and base table shell markup.
 // ============================================================================
 import api from '../../api';
-import useSortableData from '../../hooks/useSortableData';
+import GenericTable from '../common/GenericTable';
 
 /**
  * Component: TransactionTable
  * Description: Renders a list of transactions in either a detailed (full) table
- *              or a simplified (mini) table. Handles category updates, deletions,
- *              and column sorting via the useSortableData custom hook.
+ *              or a simplified (mini) table by wrapping GenericTable.
  * Props:
  *   - transactions (Array): Filtered transactions to display.
  *   - isMini (Boolean): If true, renders a simplified 3-column view without actions.
@@ -27,13 +26,6 @@ function TransactionTable({
     onCategoryChange,
     showToast
 }) {
-    // Utilize custom sorting hook
-    const { items: sortedTransactions, requestSort, sortConfig } = useSortableData(
-        transactions,
-        { key: 'date', direction: 'asc' },
-        categories
-    );
-
     /**
      * Function: handleDelete
      * Description: Sends an API delete request and triggers the parent onDelete callback.
@@ -62,28 +54,6 @@ function TransactionTable({
             });
     };
 
-    /**
-     * Function: getClassNamesFor
-     * Description: Returns classes for headers based on active sorting state.
-     */
-    const getClassNamesFor = (name) => {
-        if (!sortConfig) return 'sortable-header';
-        return sortConfig.key === name ? `sortable-header active ${sortConfig.direction}` : 'sortable-header';
-    };
-
-    /**
-     * Function: renderSortIndicator
-     * Description: Renders the appropriate sort direction arrow or placeholder indicator.
-     */
-    const renderSortIndicator = (name) => {
-        if (!sortConfig || sortConfig.key !== name) {
-            return <span className="sort-indicator">↕</span>;
-        }
-        return sortConfig.direction === 'asc'
-            ? <span className="sort-indicator asc">▲</span>
-            : <span className="sort-indicator desc">▼</span>;
-    };
-
     if (transactions.length === 0) {
         return (
             <p className="no-transactions-text">
@@ -93,96 +63,80 @@ function TransactionTable({
     }
 
     if (isMini) {
+        const miniColumns = [
+            { label: 'Date', key: 'date' },
+            { label: 'Description', key: 'description' },
+            { label: 'Amount', key: 'amount', align: 'right' }
+        ];
+
         return (
-            <table className="mini-transactions-table">
-                <thead>
-                    <tr>
-                        <th onClick={() => requestSort('date')} className={getClassNamesFor('date')}>
-                            Date {renderSortIndicator('date')}
-                        </th>
-                        <th onClick={() => requestSort('description')} className={getClassNamesFor('description')}>
-                            Description {renderSortIndicator('description')}
-                        </th>
-                        <th onClick={() => requestSort('amount')} className={getClassNamesFor('amount')} style={{ textAlign: 'right' }}>
-                            Amount {renderSortIndicator('amount')}
-                        </th>
+            <GenericTable
+                data={transactions}
+                columns={miniColumns}
+                tableClass="mini-transactions-table"
+                defaultSort={{ key: 'date', direction: 'asc' }}
+                renderRow={(t) => (
+                    <tr key={t.id}>
+                        <td>{t.date}</td>
+                        <td>{t.description}</td>
+                        <td style={{ textAlign: 'right', fontWeight: '500' }}>
+                            ${Number(t.amount).toFixed(2)}
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    {sortedTransactions.map(t => (
-                        <tr key={t.id}>
-                            <td>{t.date}</td>
-                            <td>{t.description}</td>
-                            <td style={{ textAlign: 'right', fontWeight: '500' }}>
-                                ${Number(t.amount).toFixed(2)}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+                )}
+            />
         );
     }
 
+    const fullColumns = [
+        { label: 'ID', key: 'id' },
+        { label: 'Date', key: 'date' },
+        { label: 'Description', key: 'description' },
+        { label: 'Category', key: 'category' },
+        { label: 'Type', key: 'type' },
+        { label: 'Amount', key: 'amount' },
+        { label: 'Actions', key: null }
+    ];
+
     return (
-        <table>
-            <thead>
-                <tr>
-                    <th onClick={() => requestSort('id')} className={getClassNamesFor('id')}>
-                        ID {renderSortIndicator('id')}
-                    </th>
-                    <th onClick={() => requestSort('date')} className={getClassNamesFor('date')}>
-                        Date {renderSortIndicator('date')}
-                    </th>
-                    <th onClick={() => requestSort('description')} className={getClassNamesFor('description')}>
-                        Description {renderSortIndicator('description')}
-                    </th>
-                    <th onClick={() => requestSort('category')} className={getClassNamesFor('category')}>
-                        Category {renderSortIndicator('category')}
-                    </th>
-                    <th onClick={() => requestSort('type')} className={getClassNamesFor('type')}>
-                        Type {renderSortIndicator('type')}
-                    </th>
-                    <th onClick={() => requestSort('amount')} className={getClassNamesFor('amount')}>
-                        Amount {renderSortIndicator('amount')}
-                    </th>
-                    <th>Actions</th>
+        <GenericTable
+            data={transactions}
+            columns={fullColumns}
+            categories={categories}
+            defaultSort={{ key: 'date', direction: 'asc' }}
+            renderRow={(t) => (
+                <tr key={t.id}>
+                    <td>{t.id}</td>
+                    <td>{t.date}</td>
+                    <td>{t.description}</td>
+                    <td>
+                        {t.type === 'expense' ? (
+                            <select
+                                value={t.category_id || ''}
+                                onChange={(e) => handleCategoryChange(t.id, parseInt(e.target.value))}
+                                className="category-select"
+                            >
+                                {!t.category_id && <option value="">Select Category</option>}
+                                {categories.map(cat => (
+                                    <option key={cat.id} value={cat.id}>
+                                        {cat.icon} {cat.name}
+                                    </option>
+                                ))}
+                            </select>
+                        ) : (
+                            <span className="income-category-label">Income</span>
+                        )}
+                    </td>
+                    <td>{t.type}</td>
+                    <td>${Number(t.amount).toFixed(2)}</td>
+                    <td>
+                        <button onClick={() => handleDelete(t.id)}>
+                            Delete
+                        </button>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                {sortedTransactions.map(t => (
-                    <tr key={t.id}>
-                        <td>{t.id}</td>
-                        <td>{t.date}</td>
-                        <td>{t.description}</td>
-                        <td>
-                            {t.type === 'expense' ? (
-                                <select
-                                    value={t.category_id || ''}
-                                    onChange={(e) => handleCategoryChange(t.id, parseInt(e.target.value))}
-                                    className="category-select"
-                                >
-                                    {!t.category_id && <option value="">Select Category</option>}
-                                    {categories.map(cat => (
-                                        <option key={cat.id} value={cat.id}>
-                                            {cat.icon} {cat.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            ) : (
-                                <span className="income-category-label">Income</span>
-                            )}
-                        </td>
-                        <td>{t.type}</td>
-                        <td>${Number(t.amount).toFixed(2)}</td>
-                        <td>
-                            <button onClick={() => handleDelete(t.id)}>
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
+            )}
+        />
     );
 }
 

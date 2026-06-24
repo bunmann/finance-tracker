@@ -14,6 +14,7 @@ import LoginPage from './components/auth/LoginPage';
 import SignupPage from './components/auth/SignupPage';
 import CsvUpload from './components/transactions/CsvUpload';
 import BudgetOverview from './components/dashboard/BudgetOverview';
+import StockPortfolio from './components/stocks/StockPortfolio';
 import Toast from './components/common/Toast';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import './App.css';
@@ -176,6 +177,7 @@ function App() {
                                         </div>
                                     } />
                                     <Route path="/budgets" element={<BudgetOverview transactions={transactions} showToast={showToast} />} />
+                                    <Route path="/stocks" element={<StockPortfolio showToast={showToast} />} />
                                     <Route path="*" element={<Navigate to="/" />} />
                                 </>
                             ) : (

@@ -40,7 +40,7 @@ def read_root():
     return {"message": "Hello World! Welcome to your Finance API."}
 
 
-#  =====================RESET ENDPOINT====================
+#  =====================RESET & SEED ENDPOINTS ====================
 
 @app.post("/debug/reset-db")
 def reset_db():
@@ -49,3 +49,21 @@ def reset_db():
     # Recreate all tables with new schema/constraints
     Base.metadata.create_all(bind=engine)
     return {"message": "Database reset successfully! All tables recreated with new schemas."}
+
+@app.post("/debug/seed-prices")
+def seed_prices():
+    import models
+    from database import SessionLocal
+    from datetime import datetime
+    db = SessionLocal()
+    try:
+        db.query(models.PriceCache).filter(models.PriceCache.ticker.in_(["AAPL", "TSLA", "MSFT"])).delete(synchronize_session=False)
+        price_aapl = models.PriceCache(ticker="AAPL", price=150.00, last_updated=datetime.now())
+        price_tsla = models.PriceCache(ticker="TSLA", price=200.00, last_updated=datetime.now())
+        db.add_all([price_aapl, price_tsla])
+        db.commit()
+        return {"message": "Prices seeded successfully!"}
+    except Exception as e:
+        return {"error": str(e)}
+    finally:
+        db.close()

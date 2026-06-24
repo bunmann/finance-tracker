@@ -5,6 +5,8 @@
 import { useState, useEffect } from 'react';
 import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import api from '../../api';
+import MetricCard from '../common/MetricCard';
+import AlertBanner from '../common/AlertBanner';
 
 // Colors for the pie chart slices
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#FF6B6B', '#4ECDC4'];
@@ -83,24 +85,21 @@ function Dashboard({ transactions, showToast }) {
 
             {/* Summary Cards */}
             <div className="summary-cards">
-                <div className="summary-card">
-                    <h3>Income</h3>
-                    <p className="amount income">
-                        ${dashboardData.total_income.toFixed(2)}
-                    </p>
-                </div>
-                <div className="summary-card">
-                    <h3>Expenses</h3>
-                    <p className="amount expense">
-                        ${dashboardData.total_expense.toFixed(2)}
-                    </p>
-                </div>
-                <div className="summary-card">
-                    <h3>Net Savings</h3>
-                    <p className={`amount ${dashboardData.net_savings >= 0 ? 'savings-positive' : 'savings-negative'}`}>
-                        ${dashboardData.net_savings.toFixed(2)}
-                    </p>
-                </div>
+                <MetricCard
+                    title="Income"
+                    value={dashboardData.total_income}
+                    className="income"
+                />
+                <MetricCard
+                    title="Expenses"
+                    value={dashboardData.total_expense}
+                    className="expense"
+                />
+                <MetricCard
+                    title="Net Savings"
+                    value={dashboardData.net_savings}
+                    className={dashboardData.net_savings >= 0 ? 'savings-positive' : 'savings-negative'}
+                />
             </div>
 
             {/* Budget Alerts */}
@@ -110,15 +109,15 @@ function Dashboard({ transactions, showToast }) {
                     const percentage = Math.round((cat.amount / cat.budget) * 100);
                     const isOver = cat.amount >= cat.budget;
                     return (
-                        <div
+                        <AlertBanner
                             key={i}
-                            className={`budget-alert ${isOver ? 'alert-danger' : 'alert-warning'}`}
-                        >
-                            {isOver
-                                ? `⚠️ Over budget! ${cat.category_name}: $${cat.amount.toFixed(2)} / $${cat.budget.toFixed(2)} (${percentage}%)`
-                                : `⚡ Approaching limit: ${cat.category_name}: $${cat.amount.toFixed(2)} / $${cat.budget.toFixed(2)} (${percentage}%)`
+                            type={isOver ? 'danger' : 'warning'}
+                            icon={isOver ? '⚠️' : '⚡'}
+                            message={isOver
+                                ? `Over budget! ${cat.category_name}: $${cat.amount.toFixed(2)} / $${cat.budget.toFixed(2)} (${percentage}%)`
+                                : `Approaching limit: ${cat.category_name}: $${cat.amount.toFixed(2)} / $${cat.budget.toFixed(2)} (${percentage}%)`
                             }
-                        </div>
+                        />
                     );
                 })
             }
