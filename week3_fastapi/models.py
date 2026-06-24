@@ -116,6 +116,7 @@ class StockTransaction(Base):
     total = Column(Numeric(12, 2), nullable=False)
     date = Column(Date, nullable=False)
     fingerprint = Column(String(64), nullable=True, index=True)  # for CSV import dedup
+    realized_gain = Column(Numeric(12, 2), nullable=True)
 
 
 class PriceCache(Base):

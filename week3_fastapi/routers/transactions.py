@@ -15,8 +15,9 @@ from collections import defaultdict
 import csv
 import io
 import hashlib
-from utils import parse_date
-from categorization import auto_categorize, clean_description
+from common.date_parser import parse_date
+from common.categorization import auto_categorize, clean_description
+from common.transaction_csv_parser import validate_and_parse_transactions_csv
 
 router = APIRouter(
     prefix="/transactions",
@@ -197,15 +198,10 @@ def upload_csv(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    # 0. Guard: reject non-CSV files
-    if not file.filename.endswith(".csv"):
-        raise HTTPException(status_code=400, detail="File must be a CSV.")
-
-    # 1. Read the uploaded file
     try:
-        contents = file.file.read().decode("utf-8")
-    except UnicodeDecodeError:
-        raise HTTPException(status_code=400, detail="File content is not valid text. Please upload a plain-text CSV.")
+        parsed_txs, errors = validate_and_parse_transactions_csv(file)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
     # Find the user's "Uncategorized" category so we can assign it by default.
     uncat_category = db.query(models.Category).filter(
@@ -223,51 +219,30 @@ def upload_csv(
         models.CategoryRule.user_id == current_user.id
     ).all()
 
-    reader = csv.DictReader(io.StringIO(contents))
-
     imported = 0
     skipped = 0
-    errors = []
 
     # Track occurrence counts for identical rows within this CSV
     occurrence_tracker = defaultdict(int)
 
-    for row_num, row in enumerate(reader, start=2):  # start=2 because row 1 is the header
+    for tx in parsed_txs:
         try:
-            # 2. Parse the row
-            date_str = row.get("Date", "").strip()
-            description = row.get("Description", "").strip()
-            amount_str = row.get("Amount", "").strip()
+            tx_date = tx["date"]
+            description = tx["description"]
+            amount = tx["amount"]
+            tx_type = tx["type"]
 
-            if not date_str or not description or not amount_str:
-                errors.append(f"Row {row_num}: Missing required fields")
-                continue
-
-            # 3. Parse the amount and determine type
-            amount = float(amount_str)
-            if amount < 0:
-                tx_type = "expense"
-                amount = abs(amount)  # Store as positive
-            else:
-                tx_type = "income"
-
-            # 4. Parse the date (try common formats)
-            tx_date = parse_date(date_str)
-            if tx_date is None:
-                errors.append(f"Row {row_num}: Could not parse date '{date_str}'")
-                continue
-
-            # 5. Count the occurrence of this (date, description, amount) combo
+            # Count the occurrence of this (date, description, amount) combo
             row_key = (tx_date.isoformat(), description, str(amount))
             occurrence_tracker[row_key] += 1
             occurrence = occurrence_tracker[row_key]
 
-            # 6. Compute fingerprint for duplicate detection (includes occurrence)
+            # Compute fingerprint for duplicate detection (includes occurrence)
             fingerprint = hashlib.sha256(
                 f"{tx_date.isoformat()}|{description}|{amount}|{occurrence}".encode()
             ).hexdigest()
 
-            # 7. Check for duplicates
+            # Check for duplicates
             existing = db.query(models.Transaction).filter(
                 models.Transaction.fingerprint == fingerprint,
                 models.Transaction.user_id == current_user.id
@@ -277,14 +252,14 @@ def upload_csv(
                 skipped += 1
                 continue
 
-            # 8. Auto-categorization: try user rules, then global keywords, and fall back to Uncategorized
+            # Auto-categorization: try user rules, then global keywords, and fall back to Uncategorized
             if tx_type == "expense":
                 matched_category_id = auto_categorize(description, user_categories, user_rules)
                 cat_id = matched_category_id if matched_category_id else uncat_id
             else:
                 cat_id = None
 
-            # 9. Create the transaction
+            # Create the transaction
             db_transaction = models.Transaction(
                 amount=amount,
                 description=description,
@@ -298,10 +273,12 @@ def upload_csv(
             imported += 1
 
         except Exception as e:
-            errors.append(f"Row {row_num}: {str(e)}")
+            # We construct a generic row error. Note: since row numbers aren't preserved 1-to-1 in the parsed list easily, 
+            # the helper records any parse-related line errors, while DB-related errors are handled here.
+            errors.append(f"DB Error for '{description}': {str(e)}")
 
-    # 10. Commit all at once (batch insert)
-    db.commit()
+    if imported > 0:
+        db.commit()
 
     return {
         "imported": imported,
@@ -309,3 +286,4 @@ def upload_csv(
         "errors": errors,
         "total_rows": imported + skipped + len(errors)
     }
+

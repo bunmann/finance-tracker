@@ -70,4 +70,7 @@ LESSON 6: Stock Portfolio — Frontend Integration
 
 LESSON 7: Brokerage CSV Import (Wealthsimple / Questrade)
 ────────────────────────────────────────────────────────────
-
+  -> refactored backend with common parsers for CSV to seperate from endpoint Logic
+  -> uses strategy pattern to auto-detect brokerage type
+  -> created frontend component to import CSVs
+    

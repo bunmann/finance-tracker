@@ -4,13 +4,17 @@
 # ============================================================================
 from datetime import date
 from decimal import Decimal
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from database import get_db
 from auth import get_current_user
 from schemas import StockTransaction, WatchlistCreate, SectorCompetenceCreate
 import models
-from stock_service import get_stock_price
+from common.stock_service import get_stock_price
+from common.stock_csv_parser import validate_and_parse_brokerage_csv
+import io
+import hashlib
 
 router = APIRouter(
     prefix="/stocks",
@@ -110,11 +114,17 @@ def get_portfolio(
         else None
     )
 
+    total_realized = db.query(func.sum(models.StockTransaction.realized_gain)).filter(
+        models.StockTransaction.user_id == current_user.id,
+        models.StockTransaction.type == "sell"
+    ).scalar() or Decimal("0")
+
     return {
         "holdings": portfolio,
         "total_value": float(total_value) if not has_failures else None,
         "total_cost": float(total_cost),
         "total_gain": float(total_value - total_cost) if not has_failures else None,
+        "total_realized_gain": float(total_realized),
         "warning": warning_msg,
         "failed_tickers": failed_tickers
     }
@@ -141,6 +151,124 @@ def get_stock_transactions(
     return transactions
 
 
+@router.post("/upload-csv")
+def upload_csv(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """
+    Upload and parse a brokerage statement CSV (Questrade or Wealthsimple).
+    Auto-detects the brokerage format, filters duplicates, validates tickers,
+    updates holdings, and logs transactions.
+    """
+    try:
+        parsed_txs = validate_and_parse_brokerage_csv(file)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    imported = 0
+    duplicates = 0
+    errors = []
+
+    # Sort parsed transactions by date ascending so we process buys before sells chronologically
+    parsed_txs.sort(key=lambda t: t["date"])
+
+    for idx, tx in enumerate(parsed_txs, start=2):
+        ticker = tx["ticker"].upper().strip()
+        # Normalize Canadian ticker suffixes
+        if ticker.endswith(".TO"):
+            ticker = ticker[:-3]
+
+        tx_type = tx["type"]
+        shares = tx["shares"]
+        price = tx["price"]
+        total = tx["total"]
+        tx_date = tx["date"]
+
+        # Generate unique fingerprint for deduplication
+        raw_str = f"{current_user.id}:{ticker}:{tx_type}:{shares}:{price}:{tx_date}"
+        fingerprint = hashlib.sha256(raw_str.encode("utf-8")).hexdigest()
+
+        # Check for duplicates
+        existing = db.query(models.StockTransaction).filter(
+            models.StockTransaction.user_id == current_user.id,
+            models.StockTransaction.fingerprint == fingerprint
+        ).first()
+
+        if existing:
+            duplicates += 1
+            continue
+
+        # Validate ticker symbol
+        price_val, _, _ = get_stock_price(ticker, db)
+        if price_val is False:
+            errors.append(f"Row {idx}: Invalid ticker symbol '{ticker}'.")
+            continue
+
+        # Database processing based on action type
+        realized_gain = None
+        holding = db.query(models.Holding).filter(
+            models.Holding.user_id == current_user.id,
+            models.Holding.ticker == ticker
+        ).first()
+
+        if tx_type == "buy":
+            if holding:
+                old_total = holding.shares * holding.avg_cost
+                new_total = old_total + total
+                holding.shares = holding.shares + shares
+                holding.avg_cost = new_total / holding.shares
+            else:
+                holding = models.Holding(
+                    user_id=current_user.id,
+                    ticker=ticker,
+                    shares=shares,
+                    avg_cost=price
+                )
+                db.add(holding)
+                db.flush()
+
+        elif tx_type == "sell":
+            if not holding:
+                errors.append(f"Row {idx}: You don't hold any shares of {ticker} to sell.")
+                continue
+            if holding.shares < shares:
+                errors.append(f"Row {idx}: Insufficient shares of {ticker} (holding {holding.shares.normalize()}, trying to sell {shares.normalize()}).")
+                continue
+
+            realized_gain = (price - holding.avg_cost) * shares
+            holding.shares = holding.shares - shares
+
+            if holding.shares == 0:
+                db.delete(holding)
+                db.flush()
+
+        # Log the transaction
+        db_transaction = models.StockTransaction(
+            user_id=current_user.id,
+            ticker=ticker,
+            type=tx_type,
+            shares=shares,
+            price=price,
+            total=total,
+            date=tx_date,
+            fingerprint=fingerprint,
+            realized_gain=realized_gain
+        )
+        db.add(db_transaction)
+        imported += 1
+
+    if imported > 0:
+        db.commit()
+
+    return {
+        "imported": imported,
+        "duplicates": duplicates,
+        "errors": errors
+    }
+
+
 # ============================================================================
 # 3. Buy & Sell Trading Endpoints
 # ============================================================================
@@ -163,6 +291,15 @@ def buy_stock(
     - StockTransaction: The newly created stock transaction record.
     """
     ticker = trade.ticker.upper().strip()
+    
+    # Verify the stock symbol exists
+    price_val, _, _ = get_stock_price(ticker, db)
+    if price_val is False:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid stock symbol: '{ticker}'. Please check the ticker name."
+        )
+
     shares = Decimal(str(trade.shares))
     price = Decimal(str(trade.price))
     total = shares * price
@@ -242,7 +379,7 @@ def sell_stock(
     if holding.shares < shares:
         raise HTTPException(
             status_code=400,
-            detail=f"You only have {holding.shares:g} shares of {ticker}, cannot sell {shares:g}"
+            detail=f"You only have {holding.shares.normalize()} shares of {ticker}, cannot sell {shares.normalize()}"
         )
 
     # 2. Calculate realized gain/loss
@@ -258,7 +395,8 @@ def sell_stock(
         shares=shares,
         price=price,
         total=total,
-        date=tx_date
+        date=tx_date,
+        realized_gain=realized_gain
     )
     db.add(db_transaction)
 
@@ -299,6 +437,14 @@ def add_to_watchlist(
     - Watchlist: The newly created watchlist record.
     """
     ticker = item.ticker.upper().strip()
+    
+    # Verify the stock symbol exists
+    price_val, _, _ = get_stock_price(ticker, db)
+    if price_val is False:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid stock symbol: '{ticker}'. Please check the ticker name."
+        )
     
     # Check if user is already watching this ticker
     existing = db.query(models.Watchlist).filter(

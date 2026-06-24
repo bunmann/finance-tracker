@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import api from '../../api';
 import MetricCard from '../common/MetricCard';
 import AlertBanner from '../common/AlertBanner';
+import CsvImporter from '../common/CsvImporter';
 import StockHoldings from './StockHoldings';
 import StockForm from './StockForm';
 import StockTransactions from './StockTransactions';
@@ -89,6 +90,12 @@ function StockPortfolio({ showToast }) {
                             className={gainClass}
                             prefix={portfolio.total_gain !== null && portfolio.total_gain >= 0 ? '+$' : '$'}
                         />
+                        <MetricCard
+                            title="Realized P&L"
+                            value={portfolio.total_realized_gain}
+                            className={portfolio.total_realized_gain >= 0 ? 'gain-text' : 'loss-text'}
+                            prefix={portfolio.total_realized_gain !== null && portfolio.total_realized_gain >= 0 ? '+$' : '$'}
+                        />
                     </div>
                 )}
             </div>
@@ -101,6 +108,19 @@ function StockPortfolio({ showToast }) {
                 <StockForm type="buy" onComplete={handleTradeComplete} showToast={showToast} />
                 <StockForm type="sell" onComplete={handleTradeComplete} showToast={showToast} />
             </div>
+
+            {/* CSV Import */}
+            <CsvImporter 
+                uploadUrl="/stocks/upload-csv"
+                title="Import Brokerage Trades"
+                description={
+                    <>
+                        Upload a CSV export from your brokerage (Wealthsimple or Questrade). 
+                        Supported columns include: <strong>Date, Type/Action, Symbol, Quantity, Price, Amount/Net Amount</strong>.
+                    </>
+                }
+                onImportComplete={handleTradeComplete}
+            />
 
             {/* Transaction History */}
             <StockTransactions refreshTrigger={refreshTransactionsTrigger} showToast={showToast} />

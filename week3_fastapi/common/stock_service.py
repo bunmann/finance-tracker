@@ -1,9 +1,9 @@
 # ============================================================================
 # File: stock_service.py
-# Description: Fetches live stock prices from Alpha Vantage API with caching.
+# Description: Fetches live stock prices from Yahoo Finance (yfinance) with caching.
 # ============================================================================
 import os
-import requests
+import yfinance as yf
 from datetime import datetime, timezone, timedelta
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
@@ -12,22 +12,19 @@ import models
 # Explicitly trigger loading of environmental configurations at module import
 load_dotenv()
 
-ALPHA_VANTAGE_API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
-ALPHA_VANTAGE_BASE_URL = "https://www.alphavantage.co/query"
-
 # Caching Strategy: We consider cached prices "fresh" for 60 minutes.
-# This prevents our backend from hitting Alpha Vantage's strict 25 calls/day free limit.
+# This keeps response times ultra-fast and avoids unnecessary network requests.
 CACHE_DURATION_MINUTES = 60
 
 
-def get_stock_price(ticker: str, db: Session) -> tuple[float | None, datetime | None, bool]:
+def get_stock_price(ticker: str, db: Session) -> tuple[float | None | bool, datetime | None, bool]:
     """
     Retrieves the current market price for a given stock ticker along with metadata.
     
     This function implements a cache-aside pattern:
       1. Inspects the SQLite `price_cache` table for a fresh price.
       2. Serves the cached price directly if it is less than 60 minutes old.
-      3. Otherwise, requests the current price from the Alpha Vantage API.
+      3. Otherwise, requests the current price from Yahoo Finance (yfinance).
       4. Saves the retrieved price to the SQLite cache (upserts).
       5. Gracefully degrades to stale cached data if the external API fails.
       
@@ -36,8 +33,8 @@ def get_stock_price(ticker: str, db: Session) -> tuple[float | None, datetime | 
         db (Session): The database session.
         
     Returns:
-        tuple[float | None, datetime | None, bool]:
-            - price (float | None): The stock price, or None if unavailable.
+        tuple[float | None | bool, datetime | None, bool]:
+            - price (float | None | bool): The price, False if invalid symbol, or None if unavailable.
             - last_updated (datetime | None): Timestamp of when the price was fetched.
             - is_stale (bool): True if served from fallback/expired cache because API failed.
     """
@@ -53,7 +50,7 @@ def get_stock_price(ticker: str, db: Session) -> tuple[float | None, datetime | 
         last_updated_utc = cached.last_updated.replace(tzinfo=timezone.utc)
         age = datetime.now(timezone.utc) - last_updated_utc
         
-        # Serving from cache saves bandwidth, respects rate-limits, and response is immediate
+        # Serving from cache saves bandwidth and response is immediate
         if age < timedelta(minutes=CACHE_DURATION_MINUTES):
             return float(cached.price), cached.last_updated, False
 
@@ -61,6 +58,9 @@ def get_stock_price(ticker: str, db: Session) -> tuple[float | None, datetime | 
     price = _fetch_price_from_api(ticker)
     
     # ── Step 3: Handle Failures & Caching Updates ──
+    if price is False:
+        return False, None, False
+
     if price is None:
         # Graceful Degradation: If API limits are reached or network is down,
         # we return the stale price and flag it as is_stale=True.
@@ -85,49 +85,30 @@ def get_stock_price(ticker: str, db: Session) -> tuple[float | None, datetime | 
     return price, now_utc, False
 
 
-def _fetch_price_from_api(ticker: str) -> float | None:
+def _fetch_price_from_api(ticker: str) -> float | None | bool:
     """
-    Sends an outbound HTTP GET request to the Alpha Vantage GLOBAL_QUOTE API.
+    Fetches the current price for a stock ticker from Yahoo Finance (yfinance).
     
     Args:
         ticker (str): The normalized ticker symbol.
         
     Returns:
-        float | None: The parsed stock price, or None if network or parsing fails.
+        float | None | bool: 
+            - float: The parsed stock price.
+            - False: The stock symbol is definitely invalid.
+            - None: The request failed due to connection issues.
     """
-    if not ALPHA_VANTAGE_API_KEY or ALPHA_VANTAGE_API_KEY == "your_actual_key_here":
-        print("WARNING: ALPHA_VANTAGE_API_KEY not configured or using default placeholder.")
-        return None
-
     try:
-        response = requests.get(ALPHA_VANTAGE_BASE_URL, params={
-            "function": "GLOBAL_QUOTE",
-            "symbol": ticker,
-            "apikey": ALPHA_VANTAGE_API_KEY
-        }, timeout=10) # 10-second timeout ensures our backend doesn't freeze if Alpha Vantage hangs
+        ticker_obj = yf.Ticker(ticker)
+        price = ticker_obj.fast_info.last_price
 
-        # Turn HTTP error statuses (4xx, 5xx) into exceptions to trigger our catch blocks
-        response.raise_for_status()  
-        data = response.json()
+        if price is None:
+            # If yfinance successfully returned but the price is None, the symbol does not exist
+            print(f"WARNING: Symbol '{ticker}' does not exist on Yahoo Finance.")
+            return False
 
-        # Parse response schema: Alpha Vantage wraps the result under a "Global Quote" key
-        quote = data.get("Global Quote", {})
-        price_str = quote.get("05. price")
+        return float(price)
 
-        if not price_str:
-            # Handles API return formats when we exceed rate limits or symbols are invalid
-            # Note: Alpha Vantage returns a successful 200 OK containing warning messages on errors
-            print(f"WARNING: No price data returned for {ticker}. API Response: {data}")
-            return None
-
-        return float(price_str)
-
-    except requests.exceptions.Timeout:
-        print(f"ERROR: Alpha Vantage request timed out for {ticker}")
-        return None
-    except requests.exceptions.RequestException as e:
-        print(f"ERROR: Outbound request to Alpha Vantage failed for {ticker}: {e}")
-        return None
-    except (ValueError, KeyError) as e:
-        print(f"ERROR: Could not parse price output for {ticker}: {e}")
+    except Exception as e:
+        print(f"ERROR: Failed to fetch price from yfinance for {ticker}: {e}")
         return None

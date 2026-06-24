@@ -16,6 +16,7 @@ from routers import auth, transactions, categories, dashboard, stocks
 # Create all tables in the database (if they don't exist yet)
 Base.metadata.create_all(bind=engine)
 
+
 app = FastAPI()
 
 # Allow the React frontend to talk to the backend
