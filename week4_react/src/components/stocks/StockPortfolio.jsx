@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import api from '../../api';
 import MetricCard from '../common/MetricCard';
 import AlertBanner from '../common/AlertBanner';
-import CsvImporter from '../common/CsvImporter';
+import BrokerageCsvUpload from './BrokerageCsvUpload';
 import StockHoldings from './StockHoldings';
 import StockForm from './StockForm';
 import StockTransactions from './StockTransactions';
@@ -110,17 +110,7 @@ function StockPortfolio({ showToast }) {
             </div>
 
             {/* CSV Import */}
-            <CsvImporter 
-                uploadUrl="/stocks/upload-csv"
-                title="Import Brokerage Trades"
-                description={
-                    <>
-                        Upload a CSV export from your brokerage (Wealthsimple or Questrade). 
-                        Supported columns include: <strong>Date, Type/Action, Symbol, Quantity, Price, Amount/Net Amount</strong>.
-                    </>
-                }
-                onImportComplete={handleTradeComplete}
-            />
+            <BrokerageCsvUpload onBrokerageImportComplete={handleTradeComplete} />
 
             {/* Transaction History */}
             <StockTransactions refreshTrigger={refreshTransactionsTrigger} showToast={showToast} />

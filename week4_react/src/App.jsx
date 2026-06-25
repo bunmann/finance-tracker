@@ -8,11 +8,9 @@ import { useState, useEffect } from 'react';
 import api from './api';
 import Navbar from './components/common/Navbar';
 import Dashboard from './components/dashboard/Dashboard';
-import TransactionList from './components/transactions/TransactionList';
-import TransactionForm from './components/transactions/TransactionForm';
+import TransactionsPage from './components/transactions/TransactionsPage';
 import LoginPage from './components/auth/LoginPage';
 import SignupPage from './components/auth/SignupPage';
-import CsvUpload from './components/transactions/CsvUpload';
 import BudgetOverview from './components/dashboard/BudgetOverview';
 import StockPortfolio from './components/stocks/StockPortfolio';
 import Toast from './components/common/Toast';
@@ -126,11 +124,11 @@ function App() {
     };
 
     /**
-     * Function: handleImportComplete
+     * Function: handleTransactionImportComplete
      * Description: Re-fetches the full transaction list after a CSV upload completes.
-     * Passed to: CsvUpload component (via onImportComplete prop)
+     * Passed to: TransactionsPage component (via onTransactionImportComplete prop)
      */
-    const handleImportComplete = () => {
+    const handleTransactionImportComplete = () => {
         api.get('/transactions')
             .then(response => setTransactions(response.data))
             .catch(error => {
@@ -150,31 +148,15 @@ function App() {
                                 <>
                                     <Route path="/" element={<Dashboard transactions={transactions} showToast={showToast} />} />
                                     <Route path="/transactions" element={
-                                        <div className="transactions-page">
-                                            <div className="transactions-forms">
-                                                <TransactionForm
-                                                    onTransactionAdded={(tx) => {
-                                                        handleTransactionAdded(tx);
-                                                        showToast('Transaction added successfully!');
-                                                    }}
-                                                    showToast={showToast}
-                                                />
-                                                <CsvUpload onImportComplete={handleImportComplete} />
-                                            </div>
-                                            <TransactionList
-                                                transactions={transactions}
-                                                loading={loading}
-                                                onDelete={(id) => {
-                                                    handleTransactionDeleted(id);
-                                                    showToast('Transaction deleted successfully!', 'warning');
-                                                }}
-                                                onUpdate={(updatedTx) => {
-                                                    handleTransactionUpdated(updatedTx);
-                                                    showToast('Category updated successfully!');
-                                                }}
-                                                showToast={showToast}
-                                            />
-                                        </div>
+                                        <TransactionsPage
+                                            transactions={transactions}
+                                            loading={loading}
+                                            onTransactionAdded={handleTransactionAdded}
+                                            onTransactionDeleted={handleTransactionDeleted}
+                                            onTransactionUpdated={handleTransactionUpdated}
+                                            onTransactionImportComplete={handleTransactionImportComplete}
+                                            showToast={showToast}
+                                        />
                                     } />
                                     <Route path="/budgets" element={<BudgetOverview transactions={transactions} showToast={showToast} />} />
                                     <Route path="/stocks" element={<StockPortfolio showToast={showToast} />} />

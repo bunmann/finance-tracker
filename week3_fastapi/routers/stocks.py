@@ -4,6 +4,7 @@
 # ============================================================================
 from datetime import date
 from decimal import Decimal
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -151,6 +152,59 @@ def get_stock_transactions(
     return transactions
 
 
+def _update_holding_buy(db: Session, user_id: int, ticker: str, shares: Decimal, price: Decimal) -> models.Holding:
+    """Update or create a holding after a buy trade."""
+    holding = db.query(models.Holding).filter(
+        models.Holding.user_id == user_id,
+        models.Holding.ticker == ticker
+    ).first()
+
+    total = shares * price
+    if holding:
+        old_total = holding.shares * holding.avg_cost
+        holding.shares = holding.shares + shares
+        holding.avg_cost = (old_total + total) / holding.shares
+    else:
+        holding = models.Holding(
+            user_id=user_id,
+            ticker=ticker,
+            shares=shares,
+            avg_cost=price
+        )
+        db.add(holding)
+        db.flush()
+    return holding
+
+
+def _update_holding_sell(db: Session, user_id: int, ticker: str, shares: Decimal, price: Decimal) -> tuple[Decimal, bool]:
+    """
+    Update a holding after a sell trade.
+    Raises ValueError if the holding does not exist or has insufficient shares.
+    Returns:
+        tuple[realized_gain, was_holding_deleted]
+    """
+    holding = db.query(models.Holding).filter(
+        models.Holding.user_id == user_id,
+        models.Holding.ticker == ticker
+    ).first()
+
+    if not holding:
+        raise ValueError(f"You don't hold any shares of {ticker} to sell.")
+
+    if holding.shares < shares:
+        raise ValueError(f"Insufficient shares of {ticker} (holding {holding.shares.normalize()}, trying to sell {shares.normalize()}).")
+
+    realized_gain = (price - holding.avg_cost) * shares
+    holding.shares = holding.shares - shares
+
+    deleted = False
+    if holding.shares == 0:
+        db.delete(holding)
+        db.flush()
+        deleted = True
+    return realized_gain, deleted
+
+
 @router.post("/upload-csv")
 def upload_csv(
     file: UploadFile = File(...),
@@ -208,41 +262,16 @@ def upload_csv(
 
         # Database processing based on action type
         realized_gain = None
-        holding = db.query(models.Holding).filter(
-            models.Holding.user_id == current_user.id,
-            models.Holding.ticker == ticker
-        ).first()
 
         if tx_type == "buy":
-            if holding:
-                old_total = holding.shares * holding.avg_cost
-                new_total = old_total + total
-                holding.shares = holding.shares + shares
-                holding.avg_cost = new_total / holding.shares
-            else:
-                holding = models.Holding(
-                    user_id=current_user.id,
-                    ticker=ticker,
-                    shares=shares,
-                    avg_cost=price
-                )
-                db.add(holding)
-                db.flush()
+            _update_holding_buy(db, current_user.id, ticker, shares, price)
 
         elif tx_type == "sell":
-            if not holding:
-                errors.append(f"Row {idx}: You don't hold any shares of {ticker} to sell.")
+            try:
+                realized_gain, _ = _update_holding_sell(db, current_user.id, ticker, shares, price)
+            except ValueError as e:
+                errors.append(f"Row {idx}: {str(e)}")
                 continue
-            if holding.shares < shares:
-                errors.append(f"Row {idx}: Insufficient shares of {ticker} (holding {holding.shares.normalize()}, trying to sell {shares.normalize()}).")
-                continue
-
-            realized_gain = (price - holding.avg_cost) * shares
-            holding.shares = holding.shares - shares
-
-            if holding.shares == 0:
-                db.delete(holding)
-                db.flush()
 
         # Log the transaction
         db_transaction = models.StockTransaction(
@@ -319,26 +348,7 @@ def buy_stock(
     db.add(db_transaction)
 
     # 2. Update or create the holding
-    holding = db.query(models.Holding).filter(
-        models.Holding.user_id == current_user.id,
-        models.Holding.ticker == ticker
-    ).first()
-
-    if holding:
-        # Existing holding — recalculate weighted average cost basis
-        old_total = holding.shares * holding.avg_cost
-        new_total = old_total + total
-        holding.shares = holding.shares + shares
-        holding.avg_cost = new_total / holding.shares
-    else:
-        # New holding
-        holding = models.Holding(
-            user_id=current_user.id,
-            ticker=ticker,
-            shares=shares,
-            avg_cost=price
-        )
-        db.add(holding)
+    _update_holding_buy(db, current_user.id, ticker, shares, price)
 
     db.commit()
     db.refresh(db_transaction)
@@ -367,25 +377,13 @@ def sell_stock(
     price = Decimal(str(trade.price))
     total = shares * price
 
-    # 1. Check if user holds this stock
-    holding = db.query(models.Holding).filter(
-        models.Holding.user_id == current_user.id,
-        models.Holding.ticker == ticker
-    ).first()
+    # 1. Update the holding (which checks for sufficient shares and calculates realized gain)
+    try:
+        realized_gain, _ = _update_holding_sell(db, current_user.id, ticker, shares, price)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-    if not holding:
-        raise HTTPException(status_code=400, detail=f"You don't hold any {ticker} shares")
-
-    if holding.shares < shares:
-        raise HTTPException(
-            status_code=400,
-            detail=f"You only have {holding.shares.normalize()} shares of {ticker}, cannot sell {shares.normalize()}"
-        )
-
-    # 2. Calculate realized gain/loss
-    realized_gain = (price - holding.avg_cost) * shares
-
-    # 3. Log the transaction
+    # 2. Log the transaction
     tx_date = trade.date if trade.date else date.today()
 
     db_transaction = models.StockTransaction(
@@ -399,13 +397,6 @@ def sell_stock(
         realized_gain=realized_gain
     )
     db.add(db_transaction)
-
-    # 4. Update the holding
-    holding.shares = holding.shares - shares
-
-    if holding.shares == 0:
-        # Sold all shares — remove the holding entirely
-        db.delete(holding)
 
     db.commit()
     db.refresh(db_transaction)

@@ -1,12 +1,12 @@
 import CsvImporter from '../common/CsvImporter';
 
 /**
- * Component: CsvUpload
+ * Component: TransactionCsvUpload
  * Description: Renders the transaction upload card by wrapping the common CsvImporter.
  * Props:
  *   - onImportComplete (Function): Callback trigger on success.
  */
-function CsvUpload({ onImportComplete }) {
+function TransactionCsvUpload({ onTransactionImportComplete }) {
     const description = (
         <>
             Upload a CSV file from your bank. The file should have columns:
@@ -19,9 +19,9 @@ function CsvUpload({ onImportComplete }) {
             uploadUrl="/transactions/upload-csv"
             title="Import Transactions from CSV"
             description={description}
-            onImportComplete={onImportComplete}
+            onImportComplete={onTransactionImportComplete}
         />
     );
 }
 
-export default CsvUpload;
+export default TransactionCsvUpload;
