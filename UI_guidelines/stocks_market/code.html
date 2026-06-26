@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CapitalPulse | Stocks Overview</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Space+Grotesk:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#624000",
+                        "tertiary-container": "#f6a500",
+                        "on-secondary-fixed-variant": "#930010",
+                        "outline-variant": "#bbcbb9",
+                        "on-primary-container": "#005324",
+                        "primary-container": "#00d166",
+                        "on-surface": "#131b2e",
+                        "outline": "#6c7b6c",
+                        "primary-fixed": "#64ff92",
+                        "on-secondary-fixed": "#410003",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#e2242a",
+                        "surface-container-low": "#f2f3ff",
+                        "surface-container-high": "#e2e7ff",
+                        "surface-container-highest": "#dae2fd",
+                        "primary-fixed-dim": "#30e375",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "surface-dim": "#d2d9f4",
+                        "on-background": "#131b2e",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#291800",
+                        "primary": "#006d32",
+                        "on-primary-fixed": "#00210b",
+                        "tertiary": "#825500",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#3c4a3d",
+                        "surface-tint": "#006d32",
+                        "on-secondary-container": "#fffbff",
+                        "tertiary-fixed": "#ffddb3",
+                        "on-tertiary-container": "#634000",
+                        "inverse-primary": "#30e375",
+                        "secondary-fixed": "#ffdad6",
+                        "inverse-surface": "#283044",
+                        "tertiary-fixed-dim": "#ffb950",
+                        "surface-bright": "#faf8ff",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#005224",
+                        "inverse-on-surface": "#eef0ff",
+                        "surface-container": "#eaedff",
+                        "surface-variant": "#dae2fd",
+                        "surface": "#faf8ff",
+                        "secondary": "#bb0017",
+                        "secondary-fixed-dim": "#ffb3ac",
+                        "background": "#faf8ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "32px",
+                        "container-max": "1440px",
+                        "gutter": "16px",
+                        "density-comfortable": "12px",
+                        "unit": "4px",
+                        "density-tight": "4px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Space Grotesk"],
+                        "headline-md": ["Space Grotesk"],
+                        "body-sm": ["Inter"],
+                        "data-lg": ["Space Grotesk"],
+                        "mono-data": ["JetBrains Mono"],
+                        "display-lg": ["Space Grotesk"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                        "data-lg": ["20px", {"lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "mono-data": ["13px", {"lineHeight": "18px", "fontWeight": "500"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .stock-chart-gradient {
+            background: linear-gradient(180deg, rgba(0, 209, 102, 0.1) 0%, rgba(0, 209, 102, 0) 100%);
+        }
+        .stock-chart-gradient-loss {
+            background: linear-gradient(180deg, rgba(226, 36, 42, 0.1) 0%, rgba(226, 36, 42, 0) 100%);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .grid-bg {
+            background-image: radial-gradient(circle at 2px 2px, rgba(0,0,0,0.05) 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary-container selection:text-on-primary-container font-body-md">
+<!-- Global Sidebar (SideNavBar) -->
+<aside class="fixed left-0 top-0 h-full w-[240px] bg-inverse-surface dark:bg-inverse-surface flex flex-col py-spacing-margin-desktop border-r border-outline-variant dark:border-outline z-50">
+<div class="px-6 mb-10">
+<h1 class="font-headline-md text-headline-md font-bold text-primary-fixed">CapitalPulse</h1>
+<p class="text-on-surface-variant opacity-60 text-body-sm">Pro Edition</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 transition-colors duration-200 text-on-surface-variant hover:text-on-primary-fixed-variant px-4 py-3 hover:bg-primary/10" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 transition-colors duration-200 text-on-surface-variant hover:text-on-primary-fixed-variant px-4 py-3 hover:bg-primary/10" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span>Transactions</span>
+</a>
+<a class="flex items-center gap-3 transition-colors duration-200 text-on-surface-variant hover:text-on-primary-fixed-variant px-4 py-3 hover:bg-primary/10" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span>Budgets</span>
+</a>
+<!-- Active Tab: Stocks -->
+<a class="flex items-center gap-3 transition-colors duration-200 text-primary-fixed font-bold border-l-4 border-primary-fixed pl-3 py-3 bg-primary/5" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span>Stocks</span>
+</a>
+<a class="flex items-center gap-3 transition-colors duration-200 text-on-surface-variant hover:text-on-primary-fixed-variant px-4 py-3 hover:bg-primary/10" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-6 space-y-4">
+<button class="w-full py-3 px-4 bg-primary text-on-primary rounded-lg font-bold text-sm hover:brightness-110 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">workspace_premium</span>
+                Upgrade to Gold
+            </button>
+<div class="pt-6 border-t border-outline/20">
+<a class="flex items-center gap-3 text-on-surface-variant hover:text-on-primary-fixed-variant px-4 py-2 text-sm" href="#">
+<span class="material-symbols-outlined">help</span> Support
+                </a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:text-on-primary-fixed-variant px-4 py-2 text-sm" href="#">
+<span class="material-symbols-outlined">logout</span> Sign Out
+                </a>
+</div>
+</div>
+</aside>
+<!-- Top Navigation (TopAppBar) -->
+<header class="fixed top-0 right-0 w-[calc(100%-240px)] h-16 bg-surface dark:bg-surface-dim flex items-center justify-between px-spacing-margin-desktop border-b border-outline-variant dark:border-outline z-40">
+<div class="flex items-center bg-surface-container-low rounded-full px-4 py-1.5 w-96 border border-outline-variant focus-within:ring-2 focus-within:ring-primary transition-all">
+<span class="material-symbols-outlined text-on-surface-variant mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-on-surface-variant/50" placeholder="Search markets, stocks, or news..." type="text"/>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-all relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-secondary rounded-full"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-all">
+<span class="material-symbols-outlined">trending_up</span>
+</button>
+</div>
+<button class="bg-primary-container text-on-primary-container px-6 py-2 rounded-full font-bold text-sm flex items-center gap-2 hover:brightness-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                Add Transaction
+            </button>
+<div class="flex items-center gap-3 pl-4 border-l border-outline-variant">
+<div class="text-right">
+<p class="font-bold text-sm leading-none">Alex Rivera</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-label-caps mt-1">Professional Account</p>
+</div>
+<img class="w-10 h-10 rounded-full border-2 border-primary/20" data-alt="A professional headshot of a Hispanic male investor in his late 30s, wearing a charcoal suit and a light blue dress shirt. The lighting is crisp and corporate, with a clean architectural background. The image has a sophisticated, high-end feel consistent with a premium financial application's aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRg7MJBYN3OlqgPY2Koxedt_DNMOq2jIFlWR2odLO7APY1ErSq74iaRiD5F6SjWNOwrxzUSRPSSOdjz4_RUygWpSoHxb9tljFPRO6VaNN8pWiX2BG3sM4i4lL2mNiKDetNC4s98glHxozw1LM_r1rn0bhWYOtVIs-8LB2YzO0egIgaGotJ8Gaf97oRk_KHiJIyIXkE-Dh0_HGoa55v0b-GjS2GTrGQjEregVZzh32L_BEBpULcb-yeTY-Ohb0f7E2p1SlhxMdJ-qb1"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[240px] pt-16 min-h-screen grid-bg">
+<div class="p-8 max-w-[1440px] mx-auto space-y-8">
+<!-- Welcome & Key Action -->
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-headline-md text-3xl font-bold tracking-tight">Stocks Overview</h2>
+<p class="text-on-surface-variant mt-1">Live market data updated 12 seconds ago</p>
+</div>
+<button class="bg-inverse-surface text-primary-fixed px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:shadow-lg active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined">swap_horiz</span>
+                    Trade
+                </button>
+</div>
+<!-- Bento Grid Content -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Market Overview Indices -->
+<div class="col-span-12 lg:col-span-8 space-y-6">
+<div class="grid grid-cols-3 gap-4">
+<!-- S&P 500 -->
+<div class="bg-surface rounded-2xl p-5 border border-outline-variant shadow-sm hover:border-primary/30 transition-all group">
+<div class="flex justify-between items-start mb-4">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant">S&P 500</p>
+<p class="font-data-lg text-2xl font-bold mt-1">5,204.34</p>
+</div>
+<span class="bg-primary/10 text-primary px-2 py-1 rounded text-[11px] font-bold font-mono-data">+1.24%</span>
+</div>
+<div class="h-16 w-full relative overflow-hidden rounded-lg">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 200 60">
+<path d="M0 50 Q 20 40, 40 45 T 80 30 T 120 35 T 160 15 T 200 10" fill="none" stroke="#00D166" stroke-width="2.5" vector-effect="non-scaling-stroke"></path>
+<path d="M0 50 Q 20 40, 40 45 T 80 30 T 120 35 T 160 15 T 200 10 V 60 H 0 Z" fill="url(#grad1)" opacity="0.1"></path>
+<defs>
+<lineargradient id="grad1" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" style="stop-color:#00D166;stop-opacity:1"></stop>
+<stop offset="100%" style="stop-color:#00D166;stop-opacity:0"></stop>
+</lineargradient>
+</defs>
+</svg>
+</div>
+</div>
+<!-- NASDAQ -->
+<div class="bg-surface rounded-2xl p-5 border border-outline-variant shadow-sm hover:border-primary/30 transition-all">
+<div class="flex justify-between items-start mb-4">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant">NASDAQ</p>
+<p class="font-data-lg text-2xl font-bold mt-1">16,384.47</p>
+</div>
+<span class="bg-primary/10 text-primary px-2 py-1 rounded text-[11px] font-bold font-mono-data">+0.98%</span>
+</div>
+<div class="h-16 w-full relative overflow-hidden rounded-lg">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 200 60">
+<path d="M0 45 Q 25 55, 50 35 T 100 40 T 150 20 T 200 15" fill="none" stroke="#00D166" stroke-width="2.5" vector-effect="non-scaling-stroke"></path>
+</svg>
+</div>
+</div>
+<!-- DJIA -->
+<div class="bg-surface rounded-2xl p-5 border border-outline-variant shadow-sm hover:border-secondary/30 transition-all">
+<div class="flex justify-between items-start mb-4">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant">DOW JONES</p>
+<p class="font-data-lg text-2xl font-bold mt-1">39,127.14</p>
+</div>
+<span class="bg-secondary/10 text-secondary px-2 py-1 rounded text-[11px] font-bold font-mono-data">-0.11%</span>
+</div>
+<div class="h-16 w-full relative overflow-hidden rounded-lg">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 200 60">
+<path d="M0 15 Q 30 20, 60 40 T 120 35 T 180 50 T 200 55" fill="none" stroke="#BB0017" stroke-width="2.5" vector-effect="non-scaling-stroke"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- Portfolio Holdings Visualization -->
+<div class="bg-white rounded-3xl border border-outline-variant overflow-hidden relative group">
+<div class="p-6 border-b border-outline-variant flex justify-between items-center bg-surface-bright">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">pie_chart</span>
+<h3 class="font-bold text-lg">Portfolio Distribution</h3>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-2 rounded-full hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<div class="h-[400px] w-full relative">
+<img class="w-full h-full object-cover" data-alt="A clean, high-density dashboard interface displaying complex stock portfolio data. The image shows a primary price chart with a glowing green line, accompanied by multiple mini-widgets containing ticker symbols like AAPL and TSLA. The UI style is minimalist corporate with a focus on neon-accented data visualization against a light, structured background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAOZuiJPX7KuIyk_n3nkf_VrcXyDTYCyIW5pBlo_8aaoIlhyfQ7v2BY6GeKTUWp1RkHiyt4rb5vKueEIwRyRvr_v940CQyQXXH0HpaM40Gmnepjt032vrnHMxREs1FxFTcFmRl5gNIqKW3TdRG3IVLiayxSy9n989EpacOiO2TyHro_k1SkvWMiihrdNvAIYgkS3xW1FnTSq1XKqNBxfQ4aq_G4cDUhlIfzXzMJqe_0GBapv6-W0gjusFxVFN7aCIra-zTC0DxjyTh"/>
+<!-- Overlay Info for better UI integration -->
+<div class="absolute bottom-6 left-6 bg-inverse-surface/90 backdrop-blur-md p-6 rounded-2xl border border-white/10 text-white max-w-sm">
+<div class="flex justify-between items-center mb-2">
+<span class="text-xs font-label-caps opacity-70">TOTAL HOLDINGS</span>
+<span class="bg-primary/20 text-primary-fixed text-[10px] px-2 py-0.5 rounded-full font-bold">ALL-TIME HIGH</span>
+</div>
+<p class="text-4xl font-bold font-headline-md tracking-tight">$842,593.12</p>
+<div class="mt-4 flex items-center gap-4">
+<div class="flex flex-col">
+<span class="text-[10px] opacity-60">DAY CHANGE</span>
+<span class="text-primary-fixed font-bold text-sm">+$14,204.11</span>
+</div>
+<div class="h-8 w-px bg-white/20"></div>
+<div class="flex flex-col">
+<span class="text-[10px] opacity-60">PROFIT/LOSS</span>
+<span class="text-primary-fixed font-bold text-sm">+28.4%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Side: Top Movers & Watchlist -->
+<div class="col-span-12 lg:col-span-4 space-y-6">
+<!-- Top Movers Section -->
+<div class="bg-surface rounded-2xl border border-outline-variant flex flex-col h-full max-h-[600px]">
+<div class="p-6 border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-bold text-lg">Top Movers</h3>
+<div class="flex gap-1">
+<button class="px-3 py-1 bg-primary text-on-primary rounded-full text-[10px] font-bold">GAINER</button>
+<button class="px-3 py-1 bg-surface-container text-on-surface-variant rounded-full text-[10px] font-bold">LOSER</button>
+</div>
+</div>
+<div class="overflow-y-auto flex-1">
+<!-- Mover Item 1 -->
+<div class="p-4 flex items-center justify-between border-b border-outline-variant hover:bg-primary/5 transition-all cursor-pointer group">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center font-bold text-sm group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors">NVDA</div>
+<div>
+<p class="font-bold text-sm">NVIDIA Corp</p>
+<p class="text-xs text-on-surface-variant">Tech / AI</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold font-mono-data text-sm">$894.52</p>
+<p class="text-xs text-primary font-bold">+4.12%</p>
+</div>
+</div>
+<!-- Mover Item 2 -->
+<div class="p-4 flex items-center justify-between border-b border-outline-variant hover:bg-primary/5 transition-all cursor-pointer group">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center font-bold text-sm">TSLA</div>
+<div>
+<p class="font-bold text-sm">Tesla, Inc.</p>
+<p class="text-xs text-on-surface-variant">Auto / Energy</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold font-mono-data text-sm">$175.22</p>
+<p class="text-xs text-primary font-bold">+3.28%</p>
+</div>
+</div>
+<!-- Mover Item 3 -->
+<div class="p-4 flex items-center justify-between border-b border-outline-variant hover:bg-primary/5 transition-all cursor-pointer group">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center font-bold text-sm">PLTR</div>
+<div>
+<p class="font-bold text-sm">Palantir Tech</p>
+<p class="text-xs text-on-surface-variant">Software</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold font-mono-data text-sm">$24.15</p>
+<p class="text-xs text-primary font-bold">+2.94%</p>
+</div>
+</div>
+<!-- Mover Item 4 -->
+<div class="p-4 flex items-center justify-between border-b border-outline-variant hover:bg-primary/5 transition-all cursor-pointer group">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center font-bold text-sm">COIN</div>
+<div>
+<p class="font-bold text-sm">Coinbase Global</p>
+<p class="text-xs text-on-surface-variant">Finance</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold font-mono-data text-sm">$256.71</p>
+<p class="text-xs text-primary font-bold">+2.45%</p>
+</div>
+</div>
+<!-- Mover Item 5 -->
+<div class="p-4 flex items-center justify-between border-b border-outline-variant hover:bg-primary/5 transition-all cursor-pointer group">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center font-bold text-sm">AMD</div>
+<div>
+<p class="font-bold text-sm">Adv Micro Dev</p>
+<p class="text-xs text-on-surface-variant">Hardware</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold font-mono-data text-sm">$180.49</p>
+<p class="text-xs text-primary font-bold">+2.11%</p>
+</div>
+</div>
+</div>
+<div class="p-4">
+<button class="w-full py-2 bg-surface-container-high text-on-surface-variant text-sm font-bold rounded-lg hover:bg-surface-container-highest transition-all">
+                                View Market Scan
+                            </button>
+</div>
+</div>
+<!-- Sector Performance Mini Card -->
+<div class="bg-inverse-surface rounded-2xl p-6 text-white shadow-xl">
+<h3 class="text-sm font-label-caps opacity-60 mb-6">SECTOR HEATMAP</h3>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-[11px] font-bold mb-1.5">
+<span>TECHNOLOGY</span>
+<span class="text-primary-fixed">+2.4%</span>
+</div>
+<div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary-fixed w-[85%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-[11px] font-bold mb-1.5">
+<span>HEALTHCARE</span>
+<span class="text-primary-fixed">+0.8%</span>
+</div>
+<div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary-fixed w-[42%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-[11px] font-bold mb-1.5">
+<span>ENERGY</span>
+<span class="text-secondary-fixed-dim">-1.2%</span>
+</div>
+<div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-secondary-fixed-dim w-[30%]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Detailed Holdings Table -->
+<div class="bg-white rounded-2xl border border-outline-variant shadow-sm overflow-hidden">
+<div class="p-6 border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-bold text-lg">Detailed Positions</h3>
+<div class="flex items-center gap-2">
+<span class="text-xs text-on-surface-variant">Show:</span>
+<select class="bg-surface border-outline-variant rounded-lg text-xs font-bold focus:ring-primary">
+<option>Active Positions</option>
+<option>Past 30 Days</option>
+</select>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface text-on-surface-variant font-label-caps text-label-caps">
+<th class="px-6 py-4">Instrument</th>
+<th class="px-6 py-4">Last Price</th>
+<th class="px-6 py-4">Total Profit</th>
+<th class="px-6 py-4">Market Value</th>
+<th class="px-6 py-4">Allocation</th>
+<th class="px-6 py-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-primary/5 transition-all">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-[10px]">AAPL</div>
+<span class="font-bold text-sm">Apple Inc.</span>
+</div>
+</td>
+<td class="px-6 py-4 font-mono-data text-sm">$172.62</td>
+<td class="px-6 py-4 text-primary font-bold text-sm">+$12,450.00</td>
+<td class="px-6 py-4 font-mono-data text-sm">$84,310.00</td>
+<td class="px-6 py-4">
+<div class="w-24 h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[15%]"></div>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary hover:underline font-bold text-xs">VIEW</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-all">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-on-tertiary-fixed-variant text-white flex items-center justify-center font-bold text-[10px]">AMZN</div>
+<span class="font-bold text-sm">Amazon.com</span>
+</div>
+</td>
+<td class="px-6 py-4 font-mono-data text-sm">$180.38</td>
+<td class="px-6 py-4 text-primary font-bold text-sm">+$8,122.45</td>
+<td class="px-6 py-4 font-mono-data text-sm">$52,110.00</td>
+<td class="px-6 py-4">
+<div class="w-24 h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[8%]"></div>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary hover:underline font-bold text-xs">VIEW</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-all">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-inverse-surface text-white flex items-center justify-center font-bold text-[10px]">META</div>
+<span class="font-bold text-sm">Meta Platforms</span>
+</div>
+</td>
+<td class="px-6 py-4 font-mono-data text-sm">$496.22</td>
+<td class="px-6 py-4 text-secondary font-bold text-sm">-$1,240.10</td>
+<td class="px-6 py-4 font-mono-data text-sm">$32,500.00</td>
+<td class="px-6 py-4">
+<div class="w-24 h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[5%]"></div>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary hover:underline font-bold text-xs">VIEW</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual Toast Notification (Mock Interaction) -->
+<div class="fixed bottom-8 right-8 translate-y-20 opacity-0 transition-all duration-300 z-50" id="toast">
+<div class="bg-inverse-surface text-white p-4 rounded-xl shadow-2xl flex items-center gap-3 border border-white/10">
+<span class="material-symbols-outlined text-primary-fixed">check_circle</span>
+<div>
+<p class="font-bold text-sm">Market Data Synced</p>
+<p class="text-[10px] opacity-70">Ticker stream is currently live.</p>
+</div>
+</div>
+</div>
+<script>
+        // Simple Interaction logic
+        window.addEventListener('load', () => {
+            const toast = document.getElementById('toast');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-20', 'opacity-0');
+            }, 1000);
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 6000);
+        });
+
+        // Add subtle hover glow effect to portfolio card
+        const portfolioCard = document.querySelector('.bg-white.rounded-3xl');
+        portfolioCard.addEventListener('mousemove', (e) => {
+            const rect = portfolioCard.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            portfolioCard.style.setProperty('--mouse-x', `${x}px`);
+            portfolioCard.style.setProperty('--mouse-y', `${y}px`);
+        });
+    </script>
+</body></html>

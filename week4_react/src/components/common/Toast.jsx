@@ -14,11 +14,6 @@ import { useEffect } from 'react';
  *   - onClose (Function): Parent callback function to clear the toast from App state.
  */
 function Toast({ message, type, onClose }) {
-    /**
-     * Hook: useEffect (Auto-Dismiss Timer)
-     * Description: Starts a 3-second timer on mount that invokes the parent onClose
-     *              state reset callback, clearing the active timeout on component unmount.
-     */
     useEffect(() => {
         // Auto-dismiss after 3 seconds
         const timer = setTimeout(() => {
@@ -29,10 +24,27 @@ function Toast({ message, type, onClose }) {
         return () => clearTimeout(timer);
     }, [message, onClose]);
 
+    // Map toast type to corresponding material icon name
+    const getIcon = () => {
+        switch (type) {
+            case 'success':
+                return 'check_circle';
+            case 'warning':
+                return 'warning';
+            case 'error':
+                return 'error';
+            default:
+                return 'info';
+        }
+    };
+
     return (
         <div className={`toast toast-${type}`}>
-            <span>{message}</span>
-            <button className="toast-close" onClick={onClose}>×</button>
+            <span className="material-symbols-outlined toast-icon">{getIcon()}</span>
+            <span className="toast-message">{message}</span>
+            <button className="toast-close" onClick={onClose} aria-label="Close notification">
+                <span className="material-symbols-outlined">close</span>
+            </button>
         </div>
     );
 }

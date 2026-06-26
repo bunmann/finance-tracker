@@ -90,56 +90,66 @@ function TransactionForm({ onTransactionAdded, showToast }) {
     return (
         <form onSubmit={handleSubmit}>
             <h2>Add Transaction</h2>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <div>
-                <label>Amount: </label>
-                <input
-                    type="number"
-                    step="0.01"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    required
-                />
+            {error && <p className="form-error">{error}</p>}
+            
+            <div className="form-grid">
+                <div className="form-group">
+                    <label>Amount</label>
+                    <input
+                        type="number"
+                        step="0.01"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        required
+                        placeholder="0.00"
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label>Description</label>
+                    <input
+                        type="text"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        required
+                        placeholder="e.g. Grocery Store"
+                    />
+                </div>
+
+                <div className="form-grid-two-col">
+                    <div className="form-group">
+                        <label>Type</label>
+                        <select value={type} onChange={(e) => setType(e.target.value)}>
+                            <option value="expense">Expense</option>
+                            <option value="income">Income</option>
+                        </select>
+                    </div>
+
+                    <div className="form-group">
+                        <label>Date</label>
+                        <input
+                            type="date"
+                            value={date}
+                            onChange={(e) => setDate(e.target.value)}
+                        />
+                    </div>
+                </div>
+
+                <div className="form-group">
+                    <label>Category</label>
+                    <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
+                        <option value="">-- None --</option>
+                        {categories.map(cat => (
+                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        ))}
+                    </select>
+                </div>
             </div>
 
-            <div>
-                <label>Description: </label>
-                <input
-                    type="text"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    required
-                />
-            </div>
-
-            <div>
-                <label>Type: </label>
-                <select value={type} onChange={(e) => setType(e.target.value)}>
-                    <option value="expense">Expense</option>
-                    <option value="income">Income</option>
-                </select>
-            </div>
-
-            <div>
-                <label>Date: </label>
-                <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                />
-            </div>
-
-            <div>
-                <label>Category: </label>
-                <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-                    <option value="">-- None --</option>
-                    {categories.map(cat => (
-                        <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
-                </select>
-            </div>
-
-            <button type="submit">Add Transaction</button>
+            <button type="submit" className="btn btn-primary" style={{ marginTop: '16px', width: '100%' }}>
+                <span className="material-symbols-outlined">add_card</span>
+                Add Transaction
+            </button>
         </form>
     );
 }

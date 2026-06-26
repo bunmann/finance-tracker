@@ -139,7 +139,7 @@ function App() {
 
     return (
         <Router>
-            <div className="App">
+            <div className={`App ${!isLoggedIn ? 'logged-out' : ''}`}>
                 <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
                 <main className="main-content">
                     <ErrorBoundary>

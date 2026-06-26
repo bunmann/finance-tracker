@@ -1,0 +1,194 @@
+/* ============================================================================
+// File: Budgets.css
+// Description: Styles for budget tracking lists, progress bars, card actions,
+//              and nested tables.
+// ============================================================================ */
+
+.budget-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.budget-controls label {
+  font-family: var(--font-brand);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+}
+
+
+
+.budget-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gutter);
+  margin-bottom: 32px;
+}
+
+@media (min-width: 900px) {
+  .budget-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.budget-card {
+  background-color: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.budget-card:hover {
+  border-color: var(--primary-container);
+  box-shadow: 0 0 20px rgba(0, 209, 102, 0.08);
+}
+
+.budget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.budget-category {
+  font-family: var(--font-brand);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--on-surface);
+  display: flex;
+  align-items: center;
+}
+
+.expand-arrow {
+  font-size: 10px;
+  color: var(--on-surface-variant);
+}
+
+.budget-amounts {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--on-surface);
+}
+
+/* Progress bar system */
+.progress-bar-container {
+  height: 8px;
+  width: 100%;
+  background-color: var(--surface-container);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+}
+
+.progress-bar-fill.on-track {
+  background-color: var(--primary-container);
+}
+
+.progress-bar-fill.warning {
+  background-color: var(--tertiary-container);
+}
+
+.progress-bar-fill.over-budget {
+  background-color: var(--secondary-container);
+}
+
+/* Budget Footer */
+.budget-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.budget-percentage {
+  font-family: var(--font-brand);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.budget-percentage.on-track {
+  color: var(--primary);
+  background-color: rgba(0, 209, 102, 0.1);
+}
+
+.budget-percentage.warning {
+  color: var(--tertiary);
+  background-color: rgba(246, 165, 0, 0.1);
+}
+
+.budget-percentage.over-budget {
+  color: var(--secondary);
+  background-color: rgba(226, 36, 42, 0.1);
+}
+
+/* Budget Input Editing */
+.budget-input-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--on-surface-variant);
+}
+
+.budget-input-group input {
+  padding: 4px 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-container-lowest);
+  color: var(--on-surface);
+  width: 70px;
+  text-align: right;
+}
+
+.budget-input-group input:focus {
+  border-color: var(--primary-container);
+  box-shadow: 0 0 4px rgba(0, 209, 102, 0.2);
+}
+
+/* Expanded transactions list */
+.budget-card-transactions {
+  margin-top: 16px;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.budget-transactions-divider {
+  height: 1px;
+  background-color: var(--outline-variant);
+  margin-bottom: 12px;
+}
+
+.budget-transactions-title {
+  font-family: var(--font-brand);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--on-surface-variant);
+  margin: 0 0 10px 0;
+}

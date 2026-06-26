@@ -1,0 +1,129 @@
+/* ============================================================================
+// File: Navbar.css
+// Description: Styles for the vertical sidebar navigation used when logged in.
+// ============================================================================ */
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 240px;
+  background-color: var(--inverse-surface);
+  border-right: 1px solid rgba(218, 226, 253, 0.1);
+  display: flex;
+  flex-direction: column;
+  padding: 32px 0;
+  z-index: 50;
+}
+
+.sidebar-brand {
+  padding: 0 24px;
+  margin-bottom: 40px;
+}
+
+.sidebar-brand h1 {
+  font-family: var(--font-brand);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary-container); /* Neon Green */
+  margin: 0;
+}
+
+.sidebar-brand p {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--primary-container);
+  opacity: 0.7;
+  margin: 4px 0 0;
+}
+
+.sidebar-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.sidebar-links a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  color: #bbcbb9; /* outline-variant */
+  text-decoration: none;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-left: 4px solid transparent;
+}
+
+.sidebar-links a:hover {
+  background-color: rgba(0, 209, 102, 0.08);
+  color: var(--primary-container);
+}
+
+.sidebar-links a.active {
+  color: var(--primary-container);
+  background-color: rgba(0, 209, 102, 0.1);
+  border-left-color: var(--primary-container);
+  font-weight: 600;
+}
+
+.sidebar-footer {
+  padding: 0 24px;
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 24px;
+}
+
+.sidebar-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #ffb3ac; /* secondary-fixed-dim */
+  cursor: pointer;
+  padding: 10px 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  transition: color 0.2s;
+}
+
+.sidebar-logout-btn:hover {
+  color: var(--secondary-container);
+}
+
+/* Fallback top navbar layout for non-logged in state (login/signup) */
+.navbar-top {
+  height: 64px;
+  width: 100%;
+  background-color: var(--surface-container-lowest);
+  border-bottom: 1px solid var(--outline-variant);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+}
+
+.navbar-top h1 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.navbar-top-links {
+  display: flex;
+  gap: 16px;
+}
+
+.navbar-top-links a {
+  color: var(--on-surface);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}

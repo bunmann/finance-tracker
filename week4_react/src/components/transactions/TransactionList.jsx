@@ -47,15 +47,17 @@ function TransactionList({ transactions, loading, onDelete, onUpdate, showToast 
     );
 
     return (
-        <div>
-            <h2>Transactions</h2>
-            <TransactionTable
-                transactions={transactions}
-                categories={categories}
-                onDelete={onDelete}
-                onCategoryChange={onUpdate}
-                showToast={showToast}
-            />
+        <div className="page-section">
+            <h2 className="section-title">Transactions Log</h2>
+            <div className="table-container">
+                <TransactionTable
+                    transactions={transactions}
+                    categories={categories}
+                    onDelete={onDelete}
+                    onCategoryChange={onUpdate}
+                    showToast={showToast}
+                />
+            </div>
         </div>
     );
 }

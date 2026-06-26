@@ -38,10 +38,15 @@ def get_price(
     Utilizes the global cache-aside mechanism (PriceCache) and Alpha Vantage quote endpoint.
     """
     price, last_updated, is_stale = get_stock_price(ticker, db)
+    if price is False:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid stock symbol: '{ticker.upper()}'. Please check the ticker name."
+        )
     if price is None:
         raise HTTPException(
             status_code=404,
-            detail=f"Could not fetch price for stock symbol: {ticker.upper()}"
+            detail=f"Failed to fetch price for '{ticker.upper()}' at the moment. Please try again later."
         )
     return {
         "ticker": ticker.upper(),
@@ -257,7 +262,10 @@ def upload_csv(
         # Validate ticker symbol
         price_val, _, _ = get_stock_price(ticker, db)
         if price_val is False:
-            errors.append(f"Row {idx}: Invalid ticker symbol '{ticker}'.")
+            errors.append(f"Row {idx}: Invalid stock symbol '{ticker}'. Please check the ticker name.")
+            continue
+        elif price_val is None:
+            errors.append(f"Row {idx}: Failed to fetch price for '{ticker}' at the moment. Please try again later.")
             continue
 
         # Database processing based on action type
@@ -327,6 +335,11 @@ def buy_stock(
         raise HTTPException(
             status_code=400,
             detail=f"Invalid stock symbol: '{ticker}'. Please check the ticker name."
+        )
+    elif price_val is None:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Failed to fetch price for '{ticker}' at the moment. Please try again later."
         )
 
     shares = Decimal(str(trade.shares))
@@ -435,6 +448,11 @@ def add_to_watchlist(
         raise HTTPException(
             status_code=400,
             detail=f"Invalid stock symbol: '{ticker}'. Please check the ticker name."
+        )
+    elif price_val is None:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Failed to fetch price for '{ticker}' at the moment. Please try again later."
         )
     
     # Check if user is already watching this ticker

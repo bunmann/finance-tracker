@@ -33,32 +33,57 @@ function StockForm({ type, onComplete, showToast }) {
             date: date || null,
         };
 
-        api.post(`/stocks/${type}`, payload)
-            .then(() => {
-                showToast?.(`Successfully logged ${type} transaction for ${payload.ticker}.`, 'success');
-                setTicker('');
-                setShares('');
-                setPrice('');
-                setDate('');
-                onComplete?.();
+        // Double Defensive: Validate ticker symbol via price check endpoint first
+        api.get(`/stocks/price/${payload.ticker}`)
+            .then((res) => {
+                if (res.data.price === false) {
+                    const errorMsg = `Invalid stock symbol: '${payload.ticker}'. Please check the ticker name.`;
+                    setError(errorMsg);
+                    showToast?.(errorMsg, 'error');
+                    setSubmitting(false);
+                    return;
+                }
+
+                // Proceed with logging transaction since ticker is verified
+                api.post(`/stocks/${type}`, payload)
+                    .then(() => {
+                        showToast?.(`Successfully logged ${type} transaction for ${payload.ticker}.`, 'success');
+                        setTicker('');
+                        setShares('');
+                        setPrice('');
+                        setDate('');
+                        onComplete?.();
+                    })
+                    .catch(err => {
+                        console.error(`Error logging ${type} transaction:`, err);
+                        let msg = `Failed to log ${type} transaction.`;
+                        if (err.response?.data?.detail) {
+                            const detail = err.response.data.detail;
+                            if (typeof detail === 'string') {
+                                msg = detail;
+                            } else if (Array.isArray(detail)) {
+                                msg = detail.map(d => `${d.loc.join('.')}: ${d.msg}`).join(', ');
+                            } else {
+                                msg = JSON.stringify(detail);
+                            }
+                        }
+                        setError(msg);
+                        showToast?.(msg, 'error');
+                    })
+                    .finally(() => {
+                        setSubmitting(false);
+                    });
             })
             .catch(err => {
-                console.error(`Error logging ${type} transaction:`, err);
-                let msg = `Failed to log ${type} transaction.`;
+                console.error(`Ticker validation failed:`, err);
+                let errorMsg = `Invalid stock symbol: '${payload.ticker}'. Please check the ticker name.`;
                 if (err.response?.data?.detail) {
-                    const detail = err.response.data.detail;
-                    if (typeof detail === 'string') {
-                        msg = detail;
-                    } else if (Array.isArray(detail)) {
-                        msg = detail.map(d => `${d.loc.join('.')}: ${d.msg}`).join(', ');
-                    } else {
-                        msg = JSON.stringify(detail);
-                    }
+                    errorMsg = err.response.data.detail;
+                } else if (err.message && err.message.toLowerCase().includes('network')) {
+                    errorMsg = `Failed to fetch price for '${payload.ticker}' at the moment. Please try again later.`;
                 }
-                setError(msg);
-                showToast?.(msg, 'error');
-            })
-            .finally(() => {
+                setError(errorMsg);
+                showToast?.(errorMsg, 'error');
                 setSubmitting(false);
             });
     };
@@ -68,52 +93,56 @@ function StockForm({ type, onComplete, showToast }) {
     return (
         <form onSubmit={handleSubmit} className="stock-form">
             <h2>{isBuy ? 'Buy Stock' : 'Sell Stock'}</h2>
-            {error && <div className="error-message" style={{ margin: '0 0 15px 0' }}>{error}</div>}
+            {error && <div className="form-error" style={{ marginBottom: '16px' }}>{error}</div>}
             
-            <div>
-                <label>Ticker: </label>
-                <input
-                    type="text"
-                    placeholder="e.g. AAPL"
-                    value={ticker}
-                    onChange={(e) => setTicker(e.target.value)}
-                    required
-                />
-            </div>
+            <div className="form-grid">
+                <div className="form-group">
+                    <label>Ticker</label>
+                    <input
+                        type="text"
+                        placeholder="e.g. AAPL"
+                        value={ticker}
+                        onChange={(e) => setTicker(e.target.value)}
+                        required
+                    />
+                </div>
 
-            <div>
-                <label>Shares: </label>
-                <input
-                    type="number"
-                    step="any"
-                    min="0.000001"
-                    placeholder="e.g. 10"
-                    value={shares}
-                    onChange={(e) => setShares(e.target.value)}
-                    required
-                />
-            </div>
+                <div className="form-grid-two-col">
+                    <div className="form-group">
+                        <label>Shares</label>
+                        <input
+                            type="number"
+                            step="any"
+                            min="0.000001"
+                            placeholder="e.g. 10"
+                            value={shares}
+                            onChange={(e) => setShares(e.target.value)}
+                            required
+                        />
+                    </div>
 
-            <div>
-                <label>Price ($): </label>
-                <input
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    placeholder="e.g. 150.25"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    required
-                />
-            </div>
+                    <div className="form-group">
+                        <label>Price ($)</label>
+                        <input
+                            type="number"
+                            step="0.01"
+                            min="0.01"
+                            placeholder="e.g. 150.25"
+                            value={price}
+                            onChange={(e) => setPrice(e.target.value)}
+                            required
+                        />
+                    </div>
+                </div>
 
-            <div>
-                <label>Date: </label>
-                <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                />
+                <div className="form-group">
+                    <label>Date</label>
+                    <input
+                        type="date"
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                    />
+                </div>
             </div>
 
             <button 
@@ -121,6 +150,9 @@ function StockForm({ type, onComplete, showToast }) {
                 className={isBuy ? 'btn-buy' : 'btn-sell'} 
                 disabled={submitting}
             >
+                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                    {isBuy ? 'add_shopping_cart' : 'sell'}
+                </span>
                 {submitting ? 'Submitting...' : isBuy ? 'Buy Shares' : 'Sell Shares'}
             </button>
         </form>

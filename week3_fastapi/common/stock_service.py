@@ -111,4 +111,9 @@ def _fetch_price_from_api(ticker: str) -> float | None | bool:
 
     except Exception as e:
         print(f"ERROR: Failed to fetch price from yfinance for {ticker}: {e}")
-        return None
+        # Differentiate network/connection errors from invalid tickers
+        import requests
+        if isinstance(e, (requests.exceptions.ConnectionError, requests.exceptions.Timeout)):
+            return None
+        # Other errors (e.g. KeyError/IndexError/RemoteDataError) suggest the ticker does not exist
+        return False

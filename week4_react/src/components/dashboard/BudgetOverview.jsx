@@ -6,6 +6,9 @@
 import { useState, useEffect } from 'react';
 import api from '../../api';
 import BudgetCard from './BudgetCard';
+import MonthSelect from '../common/MonthSelect';
+import '../../styles/Budgets.css';
+
 
 /**
  * Component: BudgetOverview
@@ -85,28 +88,27 @@ function BudgetOverview({ transactions = [], showToast }) {
     );
 
     return (
-        <div>
-            <h2>Budget Overview</h2>
+        <div className="page-container">
+            <div className="dashboard-header">
+                <h2 className="dashboard-title">Budget Overview</h2>
+                <div className="budget-controls" style={{ margin: 0 }}>
+                    <div className="control-group">
+                        <label>Month</label>
+                        <MonthSelect value={month} onChange={setMonth} />
+                    </div>
 
-            {/* Month/Year selector */}
-            <div className="budget-controls">
-                <label>Month: </label>
-                <select value={month} onChange={(e) => setMonth(parseInt(e.target.value))}>
-                    {[...Array(12)].map((_, i) => (
-                        <option key={i + 1} value={i + 1}>
-                            {new Date(2026, i).toLocaleString('default', { month: 'long' })}
-                        </option>
-                    ))}
-                </select>
-
-                <label> Year: </label>
-                <input
-                    type="number"
-                    value={year}
-                    onChange={(e) => setYear(parseInt(e.target.value))}
-                    min="2020"
-                    max="2030"
-                />
+                    <div className="control-group">
+                        <label>Year</label>
+                        <input
+                            className="year-input"
+                            type="number"
+                            value={year}
+                            onChange={(e) => setYear(parseInt(e.target.value))}
+                            min="2020"
+                            max="2030"
+                        />
+                    </div>
+                </div>
             </div>
 
             {/* Budget cards for each category */}
@@ -132,7 +134,7 @@ function BudgetOverview({ transactions = [], showToast }) {
             </div>
 
             {categories.length === 0 && (
-                <p>No categories yet. Create categories in the Transactions page first.</p>
+                <p className="no-data-message">No categories yet. Create categories in the Transactions page first.</p>
             )}
         </div>
     );

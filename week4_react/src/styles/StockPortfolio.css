@@ -1,0 +1,181 @@
+/* ============================================================================
+// File: StockPortfolio.css
+// Description: Styles for the Stock Portfolio overview, assets tables, trade
+//              forms, and transaction ledgers.
+// ============================================================================ */
+
+.stocks-page {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.portfolio-header {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.portfolio-totals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--gutter);
+}
+
+/* Custom Text Highlighting */
+.gain-text {
+  color: var(--primary) !important;
+  font-weight: 600;
+}
+
+.loss-text {
+  color: var(--secondary) !important;
+  font-weight: 600;
+}
+
+/* Holdings and Trade Ledger custom tables */
+.ticker-cell {
+  font-family: var(--font-brand);
+  font-weight: 700;
+  color: var(--on-surface);
+  letter-spacing: 0.02em;
+}
+
+/* Grid Layout for Buy/Sell Forms */
+.stock-forms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--gutter);
+  align-items: start;
+}
+
+.stock-form {
+  background-color: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stock-form:hover {
+  border-color: var(--primary-container);
+  box-shadow: 0 0 20px rgba(0, 209, 102, 0.08);
+}
+
+.stock-form h2 {
+  font-family: var(--font-brand);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--on-surface);
+  margin: 0 0 8px 0;
+}
+
+.stock-form div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stock-form label {
+  font-family: var(--font-brand);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+}
+
+/* Buy & Sell Button styles */
+.btn-buy,
+.btn-sell {
+  font-family: var(--font-brand);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.btn-buy {
+  background-color: var(--primary-container);
+  color: var(--inverse-surface);
+}
+
+.btn-buy:hover:not(:disabled) {
+  filter: brightness(1.1);
+  box-shadow: 0 0 12px rgba(0, 209, 102, 0.3);
+}
+
+.btn-sell {
+  background-color: var(--secondary-container);
+  color: var(--on-secondary-container);
+}
+
+.btn-sell:hover:not(:disabled) {
+  filter: brightness(1.1);
+  box-shadow: 0 0 12px rgba(226, 36, 42, 0.3);
+}
+
+.btn-buy:disabled,
+.btn-sell:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Trade Ledger card styles */
+.stock-transactions {
+  background-color: var(--surface-container-lowest);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--outline-variant);
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  margin-top: 24px;
+}
+
+.stock-transactions:hover {
+  border-color: var(--primary-container);
+  box-shadow: 0 0 20px rgba(0, 209, 102, 0.08);
+}
+
+.stock-transactions h3 {
+  font-family: var(--font-brand);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--on-surface);
+  margin: 0 0 20px 0;
+}
+
+/* Badge for transaction actions */
+.transaction-type-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.transaction-type-badge.type-buy {
+  background-color: rgba(0, 209, 102, 0.15);
+  color: var(--primary);
+}
+
+.transaction-type-badge.type-sell {
+  background-color: rgba(255, 59, 59, 0.15);
+  color: var(--secondary);
+}

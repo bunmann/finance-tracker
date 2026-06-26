@@ -79,8 +79,8 @@ function TransactionTable({
                     <tr key={t.id}>
                         <td>{t.date}</td>
                         <td>{t.description}</td>
-                        <td style={{ textAlign: 'right', fontWeight: '500' }}>
-                            ${Number(t.amount).toFixed(2)}
+                        <td className={`amount-cell ${t.type === 'income' ? 'amount-gain' : 'amount-loss'}`} style={{ textAlign: 'right' }}>
+                            {t.type === 'income' ? '+' : '-'}${Number(Math.abs(t.amount)).toFixed(2)}
                         </td>
                     </tr>
                 )}
@@ -106,9 +106,9 @@ function TransactionTable({
             defaultSort={{ key: 'date', direction: 'asc' }}
             renderRow={(t) => (
                 <tr key={t.id}>
-                    <td>{t.id}</td>
+                    <td style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--on-surface-variant)' }}>#{t.id}</td>
                     <td>{t.date}</td>
-                    <td>{t.description}</td>
+                    <td style={{ fontWeight: '500' }}>{t.description}</td>
                     <td>
                         {t.type === 'expense' ? (
                             <select
@@ -127,10 +127,21 @@ function TransactionTable({
                             <span className="income-category-label">Income</span>
                         )}
                     </td>
-                    <td>{t.type}</td>
-                    <td>${Number(t.amount).toFixed(2)}</td>
                     <td>
-                        <button onClick={() => handleDelete(t.id)}>
+                        <span className={`chip ${t.type === 'income' ? 'chip-gain' : 'chip-loss'}`}>
+                            {t.type}
+                        </span>
+                    </td>
+                    <td className={`amount-cell ${t.type === 'income' ? 'amount-gain' : 'amount-loss'}`}>
+                        {t.type === 'income' ? '+' : '-'}${Number(Math.abs(t.amount)).toFixed(2)}
+                    </td>
+                    <td>
+                        <button 
+                            className="btn btn-secondary" 
+                            style={{ padding: '6px 12px', fontSize: '11px', textTransform: 'none', border: '1px solid var(--secondary-container)', color: 'var(--secondary)' }}
+                            onClick={() => handleDelete(t.id)}
+                        >
+                            <span className="material-symbols-outlined" style={{ fontSize: '14px', marginRight: '4px' }}>delete</span>
                             Delete
                         </button>
                     </td>

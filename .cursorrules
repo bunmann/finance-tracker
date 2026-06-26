@@ -8,52 +8,27 @@ This is a Personal Finance and Stock Portfolio Tracker application.
 - Backend: FastAPI, SQLAlchemy (SQLite), Pydantic
 - Frontend: React (Vite), vanilla CSS, Axios
 
+# CRITICAL REDESIGN GUARDRAILS
+> [!IMPORTANT]
+> **1. NO BACKEND MODIFICATIONS**: Do not touch, edit, or modify any Python/SQL files inside `week3_fastapi/**` during the frontend styling phase.
+> **2. NO CORE JSX LOGIC MODIFICATIONS**: Do not edit, remove, or modify any React hooks (`useState`, `useEffect`, custom hooks), API query requests, form submission logic, or state management variables inside the `.jsx` files. All JSX modifications must be strictly limited to wrapping layout classes, HTML visual tags, and visual animations.
+
 # Execution Boundaries
 - **No Automatic Installations**: Never run installation commands (e.g., `pip install`, `npm install`) or external download commands. Always instruct the user to run them in their terminal.
 - **Git Actions**: Do not run `git commit` or push commands directly. The user will handle commits and version control.
 
-# Lesson Tracking & Logging Protocols
-Whenever a new lesson from the roadmap is started or wrapped up, the agent must execute these specific logging steps:
-- **Lesson Start**:
-  - Begin the response with the exact greeting: **"Welcome back David"** as the first words.
-  - Immediately log the start time by appending a placeholder row in `.lessons/time_tracking.md` (e.g., `| Date | Lesson Name | Start Time | In Progress | - | - |`).
-- **Lesson Completion & Wrap-Up**:
-  - **CRITICAL / STRICT BOUNDARY**: Under NO circumstances should the agent ever declare a lesson complete, calculate final durations, or write final session logs/metrics on its own. The agent must wait for the user to explicitly state: "I am done with this lesson", "wrap up this lesson", or provide a similar explicit finalization instruction. Simply completing the coding tasks or running tests does NOT imply the lesson is finished.
-  - Calculate elapsed time between start and end.
-  - Count the number of user prompts sent since the start time of the lesson from the local conversation transcript (`.system_generated/logs/transcript.jsonl`).
-  - Mark the lesson complete (`✅`, with duration and completion date) in `.lessons/project_roadmap.md`.
-  - Replace the placeholder row in `.lessons/time_tracking.md` with final metrics, and append a detailed session log summarizing completed time, duration, prompt counts, and key concepts learned.
-  - Present a formatted summary of the completed lesson and direct the user to run `git commit` manually.
+# Lesson Tracking & Architecture References
+- **Lesson Protocols**: For starting or ending a lesson, you must strictly follow the rules in [.lessons/lesson_protocol.md](file:///Users/david/Documents/PG/Finance%20Project/.lessons/lesson_protocol.md).
+- **Codebase Mappings**: For details on folder maps and separation of concerns, see [.lessons/architecture.md](file:///Users/david/Documents/PG/Finance%20Project/.lessons/architecture.md).
 
-# Agent Workflow & Artifact Lifecycle
-Before making any file changes or writing code, the agent must adhere to a structured three-step lifecycle:
-1. **Planning**:
-   - Research the files, dependencies, and requirements.
-   - Create or update the **Implementation Plan** (`implementation_plan.md` in the artifacts folder).
-   - **Gated Transition Constraint**: Stop the turn immediately after presenting or updating the plan. Do **NOT** invoke any codebase file modifications (e.g. `write_to_file` or `replace_file_content` on project files) in the same turn that the plan is created or updated. The agent must wait for explicit user approval in the next prompt before transitioning to the Execution state.
-2. **Execution (Act-Observe-Refine)**:
-   - Create a task checklist (`task.md` in the artifacts folder) using `[ ]`, `[/]`, and `[x]`.
-   - Update this checklist continuously as steps are completed.
-   - Run the code in the iterative **Act-Observe-Refine** loop to resolve any compiler or runtime errors.
-3. **Walkthrough & Verification**:
-   - Provide a final **Walkthrough Guide** (`walkthrough.md` in the artifacts folder) summarizing what was done and detailing manual/automated verification steps.
-
-# Agent Execution Loop (Act-Observe-Refine)
-When executing approved plans, the agent must operate in a rigorous feedback loop:
-- **Act**: 
-  - Write or modify code in clean, logical segments. 
-  - Adhere strictly to the codebase structure, styling conventions, and file headers.
-- **Observe**: 
-  - Proactively run terminal scripts, API checks, or validation commands to test changes.
-  - Inspect server runtime logs, syntax errors, and compiler/linter warnings.
-  - Verify that changes did not break existing features.
-- **Refine**: 
-  - If errors are found, analyze the root cause, modify the code, and re-test. Repeat until correct.
-  - Refactor redundant code or duplicate helpers into clean, modular abstractions rather than taking shortcuts.
-  - Defensively handle edge cases (e.g. API failures, null responses, bad user inputs).
+# Agent Workflow & Lifecycle
+Before making any codebase changes, adhere to the three-step lifecycle:
+1. **Planning**: Research files and update the Implementation Plan (`implementation_plan.md` in the artifacts folder). Stop the turn immediately after presenting/updating the plan and wait for explicit user approval before execution.
+2. **Execution**: Track progress in `task.md` (using `[ ]`, `[/]`, `[x]`) and run the Act-Observe-Refine loop to test changes.
+3. **Walkthrough**: Update `walkthrough.md` with final changes and verification steps.
 
 # File Header Comments
-Every new code file added or existing file modified significantly must include a unified visual header block at the top:
+Every new code file added or existing file modified significantly must include a unified header:
 - For Python (`#`):
   ```python
   # ============================================================================
@@ -64,46 +39,33 @@ Every new code file added or existing file modified significantly must include a
 - For JS/JSX/CSS (`//` or `/* */`):
   ```javascript
   // ============================================================================
-  // File: filename.jsx
+  # File: filename.jsx
   // Description: brief explanation of what the code does
   // ============================================================================
   ```
 
 # Code Quality & Logic Guidelines
-- **Commentary & Documentation**: 
-  - Every function, method, and class must have descriptive comments/docstrings above it outlining its purpose, parameters, and return types (using Python docstrings or JSDoc format).
-  - Use inline comments strategically to explain the **why** behind complex or non-obvious blocks of code rather than restating **what** the syntax does.
-- **Precision with Money**: Never use float representations for money. Always use `Numeric` (FastAPI/SQLAlchemy) or exact decimal rounding configurations to avoid floating-point errors.
-- **No Placeholders**: Write fully functional, production-ready code blocks without `TODO` placeholders in final code (router skeletons are an exception during initial planning).
-- **Separation of Concerns**: Keep database models, validation schemas, router endpoints, and presentation logic separated. Do not duplicate price data or static values across tables. Use a cache-aside pattern with fallback handling (graceful degradation) for external APIs.
-- **Teaching Style**: Prioritize explaining the *why* of coding patterns over just the *what*. Use clear, step-by-step logic.
+- **Precision with Money**: Never use float representations for money. Always use `Numeric` (FastAPI/SQLAlchemy) or exact decimal rounding configurations.
+- **Commentary**: Document function signatures and explain the **why** behind complex blocks rather than restating syntax.
+- **No Placeholders**: Write fully functional, production-ready code blocks without `TODO` placeholders.
 
-# Design & Aesthetic Guidelines
-- **Visual Excellence**: Avoid simple browser defaults or plain primary colors (e.g., basic red, blue, green). Use harmonious HSL palettes, smooth gradients, and sleek dark modes.
-- **Typography**: Prefer modern Google Fonts (e.g., Inter, Outfit, Roboto) over default system sans-serif fonts.
-- **Interactions**: Implement hover effects, responsive layout transitions, and subtle micro-animations for high-fidelity interactive elements.
+# Design & Aesthetic Guidelines (Veridian Flow: Pro Edition)
+- **Visual Excellence**:
+  - High-contrast, desktop-first layout. Use clean borders (`1px solid #E2E8F0`) and tonal depth layers instead of heavy box-shadows.
+  - Active elements use a subtle `4px` blur glow in primary Neon Green (`#00D166`) at `20%` opacity.
+  - Hover states on data tables must highlight rows in a soft `5%` green tint.
+- **Strict Color Tokens**:
+  - **Primary**: Neon Green (`#00D166` / `#006D32`) for gains, positive growth, success states, and primary button backgrounds (with navy text).
+  - **Secondary**: Performance Red (`#FF3B3B` / `#BB0017`) for losses, downward trends, and error states.
+  - **Tertiary**: Cautionary Orange (`#FFAB00` / `#825500`) for warnings, pending, or volatility states.
+  - **Neutral**: Deep Navy (`#0F172A` / `#131B2E`) for sidebars, main headings, dark-mode tables, and standard text color.
+  - **Surface/Background**: Ghost Gray (`#F8FAFC` / `#FAF8FF`) as the default body background.
+- **Typography**:
+  - Headings, Caps, and Large Metric labels must use **Space Grotesk** (sizes: `48px` display, `24px` headline, `20px` data, `11px` caps).
+  - Body copy, settings, and descriptions must use **Inter** (sizes: `14px` base / `12px` small).
+  - Tabular financial digits, prices, percentages, and amounts must use **JetBrains Mono** to guarantee vertical alignment of numeric columns.
+- **Layout & Structure**:
+  - Use a fixed `240px` Global Sidebar (Deep Navy background `#0F172A`).
+  - Follow the **ROUND_EIGHT** shape principle: standard components (inputs, buttons, cards) use an `8px` radius; dashboard containers/widgets use `16px`; tags and pills use `24px`.
+  - Maintain high-density table rows at `40px` height.
 - **Tailwind CSS**: Do not use Tailwind CSS unless explicitly requested by the user. Prefer vanilla CSS.
-
-# Codebase Architecture & File Mappings
-
-| Folder Path | Target Files / Subdirectories | Responsibility / Separation of Concerns |
-| :--- | :--- | :--- |
-| **`week3_fastapi/`** | `main.py` | Entry point: configures CORS, registers global middlewares, and mounts routers. |
-| | `database.py` | Connection layer: initializes engine, sessionmaker, and database dependency. |
-| | `models.py` | Data Definition layer: defines SQLAlchemy schemas and relationships (database tables). |
-| | `schemas.py` | Validation layer: defines Pydantic network request inputs and API response structures. |
-| | `stock_service.py` | Core Stock Logic: Handles fetching live stock prices and cache-aside lookup logic. |
-| | `categorization.py` | Classification logic: runs the cascading rule match and keyword auto-categorization. |
-| | `utils.py` | Shared Helpers: Contains standalone functions like datetime parsing. |
-| | `routers/` | Endpoint definition: split by domain (e.g. `auth.py`, `transactions.py`, `stocks.py`). |
-| **`week4_react/src/`** | `main.jsx` & `App.jsx` | UI entry and base layout wrapper (Routing context, core state coordination). |
-| | `api.js` | Network layer: centralized Axios interceptors for auth tokens and request headers. |
-| | `index.css` & `App.css` | Styling layer: global variables (HSL color tokens, layouts, base animations). |
-| | `hooks/` | Custom Hooks: isolates visual rendering from data manipulation logic (e.g., `useSortableData.js`). |
-| | `components/` | Modular component views structured by sub-domain. |
-| | `components/auth/` | Auth components: user login, signup pages, and routing guards. |
-| | `components/common/` | Reusable UI components: custom notifications (toast), modals, sortable table headers. |
-| | `components/dashboard/` | High-level statistics components: charts, budget overview widgets, summaries. |
-| | `components/transactions/` | Ledger management: data forms, transaction grid tables, category assignment controls. |
-| | `components/stocks/` | (Future) Stock tracker pages: buy/sell panels, watchlist grids, sector competency charts. |
-

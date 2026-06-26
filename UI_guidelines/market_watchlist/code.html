@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CapitalPulse | Market Discovery</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#634000",
+                        "surface-dim": "#d2d9f4",
+                        "outline-variant": "#bbcbb9",
+                        "on-surface": "#131b2e",
+                        "on-primary-fixed-variant": "#005224",
+                        "surface-container-low": "#f2f3ff",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#30e375",
+                        "secondary-fixed-dim": "#ffb3ac",
+                        "on-secondary-fixed": "#410003",
+                        "primary": "#006d32",
+                        "surface-bright": "#faf8ff",
+                        "tertiary": "#825500",
+                        "tertiary-fixed-dim": "#ffb950",
+                        "on-error": "#ffffff",
+                        "secondary": "#bb0017",
+                        "surface-variant": "#dae2fd",
+                        "on-surface-variant": "#3c4a3d",
+                        "on-secondary-container": "#fffbff",
+                        "secondary-container": "#e2242a",
+                        "background": "#faf8ff",
+                        "on-tertiary-fixed": "#291800",
+                        "on-secondary-fixed-variant": "#930010",
+                        "surface-container-highest": "#dae2fd",
+                        "on-primary-fixed": "#00210b",
+                        "on-tertiary-fixed-variant": "#624000",
+                        "on-error-container": "#93000a",
+                        "outline": "#6c7b6c",
+                        "tertiary-fixed": "#ffddb3",
+                        "secondary-fixed": "#ffdad6",
+                        "primary-container": "#00d166",
+                        "on-primary-container": "#005324",
+                        "on-background": "#131b2e",
+                        "inverse-surface": "#283044",
+                        "surface-container": "#eaedff",
+                        "tertiary-container": "#f6a500",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#e2e7ff",
+                        "inverse-primary": "#30e375",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-on-surface": "#eef0ff",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#006d32",
+                        "surface": "#faf8ff",
+                        "primary-fixed": "#64ff92",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "density-tight": "4px",
+                        "margin-desktop": "32px",
+                        "container-max": "1440px",
+                        "gutter": "16px",
+                        "density-comfortable": "12px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Space Grotesk"],
+                        "body-md": ["Inter"],
+                        "display-lg": ["Space Grotesk"],
+                        "body-sm": ["Inter"],
+                        "mono-data": ["JetBrains Mono"],
+                        "data-lg": ["Space Grotesk"],
+                        "label-caps": ["Space Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "mono-data": ["13px", { "lineHeight": "18px", "fontWeight": "500" }],
+                        "data-lg": ["20px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+        }
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-primary-container selection:text-on-primary-container overflow-hidden">
+<!-- Global SideNavBar (From JSON) -->
+<aside class="w-[240px] h-full fixed left-0 top-0 bg-[#0F172A] border-r border-outline-variant flex flex-col py-margin-desktop z-50">
+<div class="px-6 mb-10">
+<h1 class="text-headline-md font-headline-md font-bold text-primary-container">CapitalPulse</h1>
+<p class="text-label-caps font-label-caps text-surface-dim/60 tracking-widest mt-1 uppercase">Market Live</p>
+</div>
+<nav class="flex-1 px-3 space-y-1">
+<!-- Market Overview is active -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary-container/10 text-primary-container border-r-4 border-primary-container transition-transform active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined text-[20px]">monitoring</span>
+<span class="text-label-caps font-label-caps uppercase tracking-wider">Market Overview</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-surface-bright hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+<span class="text-label-caps font-label-caps uppercase tracking-wider">Portfolio</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-surface-bright hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+<span class="text-label-caps font-label-caps uppercase tracking-wider">Watchlist</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-surface-bright hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">notifications_active</span>
+<span class="text-label-caps font-label-caps uppercase tracking-wider">Alerts</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-surface-bright hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span class="text-label-caps font-label-caps uppercase tracking-wider">Settings</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<button class="w-full py-3 bg-primary-container text-on-primary-container font-headline-md rounded-lg flex items-center justify-center gap-2 hover:brightness-110 transition-all shadow-lg shadow-primary-container/20">
+<span class="material-symbols-outlined">bolt</span>
+                Execute Trade
+            </button>
+<div class="mt-6 pt-6 border-t border-white/10">
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-surface-bright transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">help</span>
+<span class="text-label-caps font-label-caps">Help Center</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- TopAppBar (From JSON) -->
+<header class="fixed top-0 right-0 w-[calc(100%-240px)] h-16 bg-surface border-b border-outline-variant flex items-center justify-between px-gutter ml-[240px] z-40">
+<div class="flex items-center gap-8">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 w-80 text-body-md focus:ring-2 focus:ring-primary-container focus:bg-white transition-all" placeholder="Search markets, news, tickers..." type="text"/>
+</div>
+<div class="flex items-center gap-6">
+<span class="text-mono-data font-mono-data text-primary font-bold">S&amp;P 500 +1.2%</span>
+<span class="text-mono-data font-mono-data text-primary font-bold">NASDAQ +0.8%</span>
+<span class="text-mono-data font-mono-data text-secondary font-bold">DJIA -0.2%</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</button>
+<div class="flex items-center gap-3 pl-4 border-l border-outline-variant">
+<div class="text-right">
+<p class="text-body-sm font-bold text-on-surface leading-none">Alex Morgan</p>
+<p class="text-[10px] text-on-surface-variant tracking-tighter uppercase font-label-caps">Pro Trader</p>
+</div>
+<div class="w-8 h-8 rounded-full overflow-hidden border-2 border-primary-container">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a financial trader in a minimalist modern office setting with blurred trading terminals in the background. The aesthetic is clean, high-contrast light mode with professional lighting that highlights sharp features and corporate confidence." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6Cv2uiDi-FiRY1NkLsqRV3WPUFkmW_JSN3E70VyJ2J0I-e1MyAJn3wL6FQ9XJW3AUTlAp7zFg1FBrLvz6SXWoEwd-91d6mDDazGKE_uwtLdN0EDZb-IKQc1XbzH90xdd_i4y34u_BuutlFzx0frUFU83-zuuyweThvzQmWhnUodayAsqadtBCNeyhbjajKj4-9shPXvUiFIQTux9mnpiLLbOTvM8qTgZF80OIQl6TEKAC5yPVpRc5DfIqANUJAVQFAvRuoHGFEJ2g"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[240px] mt-16 p-margin-desktop h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar bg-surface-bright/50">
+<div class="max-w-[1440px] mx-auto space-y-8">
+<!-- Page Header -->
+<div class="flex justify-between items-end">
+<div>
+<h2 class="text-display-lg font-display-lg text-on-surface">Market Discovery</h2>
+<p class="text-body-md text-on-surface-variant">Real-time surveillance of global liquidity and momentum.</p>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2 rounded-lg border border-outline flex items-center gap-2 hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+<span class="text-label-caps">Filter</span>
+</button>
+<button class="px-4 py-2 rounded-lg border border-outline flex items-center gap-2 hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span class="text-label-caps">Export</span>
+</button>
+</div>
+</div>
+<!-- Top Movers Grid -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-headline-md font-headline-md flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                        Top Movers
+                    </h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+<!-- Gainers -->
+<div class="bg-white p-4 rounded-xl border border-outline-variant hover:border-primary-container transition-all group cursor-pointer relative overflow-hidden">
+<div class="flex justify-between items-start mb-3">
+<span class="px-2 py-1 bg-primary-container/10 text-on-primary-container text-[10px] font-bold rounded uppercase tracking-tighter">Big Gainer</span>
+<span class="material-symbols-outlined text-primary-container text-[20px]">trending_up</span>
+</div>
+<p class="text-label-caps text-on-surface-variant">NVIDIA CORP</p>
+<h4 class="text-data-lg font-data-lg font-bold text-on-surface">$NVDA</h4>
+<div class="flex items-baseline gap-2 mt-2">
+<span class="text-headline-md text-primary font-bold">+8.42%</span>
+<span class="text-body-sm text-primary">+$12.40</span>
+</div>
+</div>
+<div class="bg-white p-4 rounded-xl border border-outline-variant hover:border-primary-container transition-all group cursor-pointer">
+<div class="flex justify-between items-start mb-3">
+<span class="px-2 py-1 bg-primary-container/10 text-on-primary-container text-[10px] font-bold rounded uppercase tracking-tighter">Momentum</span>
+<span class="material-symbols-outlined text-primary-container text-[20px]">trending_up</span>
+</div>
+<p class="text-label-caps text-on-surface-variant">TESLA INC</p>
+<h4 class="text-data-lg font-data-lg font-bold text-on-surface">$TSLA</h4>
+<div class="flex items-baseline gap-2 mt-2">
+<span class="text-headline-md text-primary font-bold">+5.11%</span>
+<span class="text-body-sm text-primary">+$10.20</span>
+</div>
+</div>
+<!-- Losers (High Impact) -->
+<div class="bg-secondary-container p-4 rounded-xl border border-secondary text-white hover:brightness-110 transition-all group cursor-pointer shadow-lg shadow-secondary/20">
+<div class="flex justify-between items-start mb-3">
+<span class="px-2 py-1 bg-white/20 text-white text-[10px] font-bold rounded uppercase tracking-tighter">Big Loser</span>
+<span class="material-symbols-outlined text-white text-[20px]">trending_down</span>
+</div>
+<p class="text-label-caps text-white/80">META PLATFORMS</p>
+<h4 class="text-data-lg font-data-lg font-bold text-white">$META</h4>
+<div class="flex items-baseline gap-2 mt-2">
+<span class="text-headline-md font-bold">-12.80%</span>
+<span class="text-body-sm text-white/90">-$42.15</span>
+</div>
+</div>
+<div class="bg-white p-4 rounded-xl border border-outline-variant hover:border-secondary transition-all group cursor-pointer">
+<div class="flex justify-between items-start mb-3">
+<span class="px-2 py-1 bg-secondary/10 text-secondary text-[10px] font-bold rounded uppercase tracking-tighter">Pullback</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">trending_down</span>
+</div>
+<p class="text-label-caps text-on-surface-variant">NETFLIX INC</p>
+<h4 class="text-data-lg font-data-lg font-bold text-on-surface">$NFLX</h4>
+<div class="flex items-baseline gap-2 mt-2">
+<span class="text-headline-md text-secondary font-bold">-4.25%</span>
+<span class="text-body-sm text-secondary">-$15.30</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Middle Section: Treemap & Filters -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Trending Sectors Chart Placeholder -->
+<div class="lg:col-span-2 bg-white p-6 rounded-xl border border-outline-variant">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-data-lg font-data-lg">Trending Sectors</h3>
+<div class="flex gap-2">
+<span class="flex items-center gap-1 text-[10px] font-bold text-on-surface-variant uppercase"><span class="w-2 h-2 rounded-full bg-primary-container"></span> Bullish</span>
+<span class="flex items-center gap-1 text-[10px] font-bold text-on-surface-variant uppercase"><span class="w-2 h-2 rounded-full bg-secondary"></span> Bearish</span>
+</div>
+</div>
+<!-- Mock Treemap -->
+<div class="grid grid-cols-12 grid-rows-2 h-48 gap-1">
+<div class="col-span-7 row-span-2 bg-primary-container/20 border border-primary-container/40 p-3 flex flex-col justify-between hover:bg-primary-container/30 transition-colors cursor-pointer group">
+<span class="text-label-caps font-bold text-on-primary-container">TECHNOLOGY</span>
+<div class="flex justify-between items-end">
+<span class="text-display-lg font-bold text-primary">+3.8%</span>
+<span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+<div class="col-span-5 row-span-1 bg-secondary/10 border border-secondary/20 p-3 flex flex-col justify-between hover:bg-secondary/20 transition-colors cursor-pointer">
+<span class="text-label-caps font-bold text-secondary">FINANCE</span>
+<span class="text-headline-md font-bold text-secondary">-1.2%</span>
+</div>
+<div class="col-span-3 row-span-1 bg-primary-container/10 border border-primary-container/20 p-3 flex flex-col justify-between hover:bg-primary-container/20 transition-colors cursor-pointer">
+<span class="text-label-caps font-bold text-on-surface-variant">ENERGY</span>
+<span class="text-headline-md font-bold text-primary">+0.9%</span>
+</div>
+<div class="col-span-2 row-span-1 bg-surface-container p-3 flex flex-col justify-between border border-outline-variant">
+<span class="text-label-caps font-bold text-on-surface-variant">UTIL</span>
+<span class="text-headline-md font-bold">0.0%</span>
+</div>
+</div>
+</div>
+<!-- Quick Filters -->
+<div class="bg-[#0F172A] text-white p-6 rounded-xl shadow-xl">
+<h3 class="text-data-lg font-data-lg mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container">tune</span>
+                        Watchlist Filters
+                    </h3>
+<div class="space-y-6">
+<div>
+<label class="text-label-caps text-surface-dim/60 mb-2 block uppercase">Primary Sector</label>
+<div class="flex flex-wrap gap-2">
+<button class="px-3 py-1.5 rounded bg-primary-container text-on-primary-container text-body-sm font-bold">All</button>
+<button class="px-3 py-1.5 rounded bg-white/5 hover:bg-white/10 text-body-sm transition-colors">Technology</button>
+<button class="px-3 py-1.5 rounded bg-white/5 hover:bg-white/10 text-body-sm transition-colors">Energy</button>
+<button class="px-3 py-1.5 rounded bg-white/5 hover:bg-white/10 text-body-sm transition-colors">Healthcare</button>
+<button class="px-3 py-1.5 rounded bg-white/5 hover:bg-white/10 text-body-sm transition-colors">Finance</button>
+</div>
+</div>
+<div>
+<label class="text-label-caps text-surface-dim/60 mb-2 block uppercase">Price Range</label>
+<div class="grid grid-cols-2 gap-3">
+<input class="bg-white/5 border-white/10 rounded px-3 py-2 text-body-sm focus:ring-1 focus:ring-primary-container" placeholder="Min $" type="text"/>
+<input class="bg-white/5 border-white/10 rounded px-3 py-2 text-body-sm focus:ring-1 focus:ring-primary-container" placeholder="Max $" type="text"/>
+</div>
+</div>
+<button class="w-full py-3 bg-white/10 hover:bg-white/20 rounded-lg text-label-caps font-bold transition-all flex items-center justify-center gap-2">
+                            Reset All Parameters
+                        </button>
+</div>
+</div>
+</section>
+<!-- Main Watchlist Table -->
+<section class="bg-white rounded-xl border border-outline-variant overflow-hidden shadow-sm">
+<div class="px-6 py-4 border-b border-outline-variant flex items-center justify-between">
+<h3 class="text-data-lg font-data-lg">Market Surveillance Table</h3>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 text-body-sm text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                            Live Data Flowing
+                        </div>
+<div class="h-4 w-[1px] bg-outline-variant"></div>
+<span class="text-mono-data text-on-surface-variant uppercase">Updated: 14:42:05 ET</span>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low">
+<th class="px-6 py-4 text-label-caps text-on-surface-variant font-bold border-b border-outline-variant">Ticker</th>
+<th class="px-6 py-4 text-label-caps text-on-surface-variant font-bold border-b border-outline-variant">Company Name</th>
+<th class="px-6 py-4 text-label-caps text-on-surface-variant font-bold border-b border-outline-variant">Price</th>
+<th class="px-6 py-4 text-label-caps text-on-surface-variant font-bold border-b border-outline-variant">Change ($)</th>
+<th class="px-6 py-4 text-label-caps text-on-surface-variant font-bold border-b border-outline-variant">Change (%)</th>
+<th class="px-6 py-4 text-label-caps text-on-surface-variant font-bold border-b border-outline-variant">Market Cap</th>
+<th class="px-6 py-4 text-label-caps text-on-surface-variant font-bold border-b border-outline-variant text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Row 1 -->
+<tr class="hover:bg-primary-container/5 transition-colors cursor-pointer group">
+<td class="px-6 py-4"><span class="bg-surface-container-high px-2 py-1 rounded font-mono-data font-bold">AAPL</span></td>
+<td class="px-6 py-4 font-body-md font-medium">Apple Inc.</td>
+<td class="px-6 py-4 font-mono-data">$189.43</td>
+<td class="px-6 py-4 text-primary font-mono-data">+$2.12</td>
+<td class="px-6 py-4">
+<span class="bg-primary-container/10 text-primary px-2 py-1 rounded-full text-body-sm font-bold">+1.12%</span>
+</td>
+<td class="px-6 py-4 font-mono-data text-on-surface-variant">2.98T</td>
+<td class="px-6 py-4 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">star</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-primary-container/5 transition-colors cursor-pointer group">
+<td class="px-6 py-4"><span class="bg-surface-container-high px-2 py-1 rounded font-mono-data font-bold">MSFT</span></td>
+<td class="px-6 py-4 font-body-md font-medium">Microsoft Corp.</td>
+<td class="px-6 py-4 font-mono-data">$412.55</td>
+<td class="px-6 py-4 text-secondary font-mono-data">-$5.40</td>
+<td class="px-6 py-4">
+<span class="bg-secondary/10 text-secondary px-2 py-1 rounded-full text-body-sm font-bold">-1.34%</span>
+</td>
+<td class="px-6 py-4 font-mono-data text-on-surface-variant">3.05T</td>
+<td class="px-6 py-4 text-right">
+<button class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-primary-container/5 transition-colors cursor-pointer group">
+<td class="px-6 py-4"><span class="bg-surface-container-high px-2 py-1 rounded font-mono-data font-bold">GOOGL</span></td>
+<td class="px-6 py-4 font-body-md font-medium">Alphabet Inc.</td>
+<td class="px-6 py-4 font-mono-data">$152.26</td>
+<td class="px-6 py-4 text-primary font-mono-data">+$0.88</td>
+<td class="px-6 py-4">
+<span class="bg-primary-container/10 text-primary px-2 py-1 rounded-full text-body-sm font-bold">+0.58%</span>
+</td>
+<td class="px-6 py-4 font-mono-data text-on-surface-variant">1.92T</td>
+<td class="px-6 py-4 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">star</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-primary-container/5 transition-colors cursor-pointer group">
+<td class="px-6 py-4"><span class="bg-surface-container-high px-2 py-1 rounded font-mono-data font-bold">AMZN</span></td>
+<td class="px-6 py-4 font-body-md font-medium">Amazon.com Inc.</td>
+<td class="px-6 py-4 font-mono-data">$178.22</td>
+<td class="px-6 py-4 text-secondary font-mono-data">-$2.15</td>
+<td class="px-6 py-4">
+<span class="bg-secondary/10 text-secondary px-2 py-1 rounded-full text-body-sm font-bold">-1.20%</span>
+</td>
+<td class="px-6 py-4 font-mono-data text-on-surface-variant">1.84T</td>
+<td class="px-6 py-4 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">star</button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-primary-container/5 transition-colors cursor-pointer group">
+<td class="px-6 py-4"><span class="bg-surface-container-high px-2 py-1 rounded font-mono-data font-bold">BRK.B</span></td>
+<td class="px-6 py-4 font-body-md font-medium">Berkshire Hathaway</td>
+<td class="px-6 py-4 font-mono-data">$405.10</td>
+<td class="px-6 py-4 text-on-surface-variant font-mono-data">$0.00</td>
+<td class="px-6 py-4">
+<span class="bg-surface-container text-on-surface-variant px-2 py-1 rounded-full text-body-sm font-bold">0.00%</span>
+</td>
+<td class="px-6 py-4 font-mono-data text-on-surface-variant">870.4B</td>
+<td class="px-6 py-4 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">star</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="px-6 py-4 bg-surface-container-lowest flex items-center justify-between">
+<span class="text-body-sm text-on-surface-variant">Showing 1-10 of 250 assets</span>
+<div class="flex gap-2">
+<button class="p-2 rounded hover:bg-surface-container transition-colors disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="px-3 py-1 rounded bg-primary-container text-on-primary-container font-bold text-body-sm">1</button>
+<button class="px-3 py-1 rounded hover:bg-surface-container text-body-sm">2</button>
+<button class="px-3 py-1 rounded hover:bg-surface-container text-body-sm">3</button>
+<button class="p-2 rounded hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Detailed Stock Drawer (Interaction Placeholder) -->
+<div class="fixed right-0 top-0 h-full w-[380px] bg-white border-l border-outline-variant shadow-2xl translate-x-full transition-transform duration-300 z-[60]" id="detail-drawer">
+<div class="p-6 h-full flex flex-col">
+<div class="flex items-center justify-between mb-8">
+<button class="p-2 hover:bg-surface-container rounded-full transition-colors" onclick="toggleDrawer()">
+<span class="material-symbols-outlined">close</span>
+</button>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-surface-container rounded-full">
+<span class="material-symbols-outlined">add_circle</span>
+</button>
+<button class="p-2 hover:bg-surface-container rounded-full">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</div>
+<div class="flex-1 space-y-6">
+<div>
+<h3 class="text-label-caps text-on-surface-variant">Technology • NASDAQ</h3>
+<h2 class="text-display-lg font-display-lg mt-1">$NVDA</h2>
+<p class="text-headline-md font-headline-md">NVIDIA Corporation</p>
+</div>
+<div class="bg-primary-container/5 p-4 rounded-xl border border-primary-container/20">
+<div class="flex justify-between items-end mb-2">
+<span class="text-display-lg font-bold text-primary">$894.40</span>
+<span class="text-headline-md text-primary font-bold">+8.42%</span>
+</div>
+<div class="h-2 w-full bg-outline-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-4/5"></div>
+</div>
+<div class="flex justify-between mt-1 text-[10px] text-on-surface-variant font-bold uppercase">
+<span>Day Low: $820.10</span>
+<span>Day High: $910.40</span>
+</div>
+</div>
+<div class="space-y-4">
+<h4 class="text-label-caps font-bold border-b border-outline-variant pb-2">Key Metrics</h4>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<p class="text-label-caps text-on-surface-variant">P/E Ratio</p>
+<p class="text-body-md font-bold">74.22</p>
+</div>
+<div>
+<p class="text-label-caps text-on-surface-variant">Div Yield</p>
+<p class="text-body-md font-bold">0.02%</p>
+</div>
+<div>
+<p class="text-label-caps text-on-surface-variant">Volume</p>
+<p class="text-body-md font-bold">42.1M</p>
+</div>
+<div>
+<p class="text-label-caps text-on-surface-variant">Beta</p>
+<p class="text-body-md font-bold">1.75</p>
+</div>
+</div>
+</div>
+<div class="p-4 bg-surface-container rounded-xl border border-outline-variant">
+<h4 class="text-label-caps font-bold mb-2">Analyst Sentiment</h4>
+<div class="flex gap-1 h-2 rounded-full overflow-hidden mb-3">
+<div class="h-full bg-primary-container w-[70%]"></div>
+<div class="h-full bg-tertiary-container w-[20%]"></div>
+<div class="h-full bg-secondary w-[10%]"></div>
+</div>
+<p class="text-body-sm">70% of analysts rate this as a <span class="font-bold text-primary">Strong Buy</span>.</p>
+</div>
+</div>
+<button class="w-full py-4 bg-primary-container text-on-primary-container font-headline-md rounded-xl hover:brightness-110 transition-all shadow-xl shadow-primary-container/20 mt-6">
+                Open Trade Position
+            </button>
+</div>
+</div>
+<!-- Scripts -->
+<script>
+        function toggleDrawer() {
+            const drawer = document.getElementById('detail-drawer');
+            drawer.classList.toggle('translate-x-full');
+        }
+
+        // Simulating row click to open drawer
+        document.querySelectorAll('tbody tr').forEach(row => {
+            row.addEventListener('click', () => {
+                toggleDrawer();
+            });
+        });
+
+        // Simple ticker update simulation
+        setInterval(() => {
+            const tickers = document.querySelectorAll('.font-mono-data');
+            tickers.forEach(ticker => {
+                if (Math.random() > 0.7) {
+                    ticker.classList.add('opacity-50');
+                    setTimeout(() => ticker.classList.remove('opacity-50'), 200);
+                }
+            });
+        }, 3000);
+    </script>
+</body></html>

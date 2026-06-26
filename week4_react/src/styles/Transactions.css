@@ -1,0 +1,317 @@
+/* ============================================================================
+// File: Transactions.css
+// Description: Layout and widget styles for the Transactions management view.
+// ============================================================================ */
+
+.transactions-page {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.transactions-forms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--gutter);
+  align-items: start;
+}
+
+/* Forms and CSV Cards */
+.transactions-page form,
+.csv-upload {
+  background-color: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.transactions-page form:hover,
+.csv-upload:hover {
+  border-color: var(--primary-container);
+  box-shadow: 0 0 20px rgba(0, 209, 102, 0.08);
+}
+
+.transactions-page form h2,
+.csv-upload h2 {
+  font-family: var(--font-brand);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--on-surface);
+  margin: 0 0 8px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Form Fields Layout */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 600px) {
+  .form-grid-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-family: var(--font-brand);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+}
+
+.form-error {
+  color: var(--secondary);
+  background-color: rgba(226, 36, 42, 0.05);
+  border: 1px solid rgba(226, 36, 42, 0.15);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 13px;
+  margin: 0;
+}
+
+/* CSV Upload Box styling */
+.csv-description {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--on-surface-variant);
+  line-height: 1.5;
+  background-color: var(--surface-container-low);
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--outline-variant);
+}
+
+.csv-upload-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.csv-upload-controls input[type="file"] {
+  border: 1px dashed var(--outline-variant);
+  padding: 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  background-color: var(--surface-container-low);
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+
+.csv-upload-controls input[type="file"]::file-selector-button {
+  background-color: var(--inverse-surface);
+  color: var(--on-primary);
+  border: none;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-brand);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-right: 12px;
+  cursor: pointer;
+}
+
+.csv-upload-controls input[type="file"]::file-selector-button:hover {
+  background-color: var(--primary);
+}
+
+.upload-btn {
+  font-family: var(--font-brand);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  background-color: var(--primary-container);
+  color: var(--inverse-surface);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.upload-btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+  box-shadow: 0 0 12px rgba(0, 209, 102, 0.3);
+}
+
+.upload-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Import Results Badge Grid */
+.import-results {
+  border-top: 1px solid var(--outline-variant);
+  padding-top: 16px;
+  margin-top: 8px;
+}
+
+.import-results h3 {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: var(--on-surface);
+}
+
+.result-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.result-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--outline-variant);
+  background-color: var(--surface-container-low);
+  text-align: center;
+}
+
+.result-stat.success {
+  border-color: rgba(0, 209, 102, 0.2);
+  background-color: rgba(0, 209, 102, 0.05);
+}
+.result-stat.success .stat-number {
+  color: var(--primary);
+}
+
+.result-stat.warning {
+  border-color: rgba(246, 165, 0, 0.2);
+  background-color: rgba(246, 165, 0, 0.05);
+}
+.result-stat.warning .stat-number {
+  color: var(--tertiary);
+}
+
+.result-stat.error {
+  border-color: rgba(226, 36, 42, 0.2);
+  background-color: rgba(226, 36, 42, 0.05);
+}
+.result-stat.error .stat-number {
+  color: var(--secondary);
+}
+
+.stat-number {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--on-surface-variant);
+  margin-top: 4px;
+}
+
+.error-details {
+  margin-top: 12px;
+  font-family: var(--font-body);
+  font-size: 12px;
+}
+
+.error-details h4 {
+  font-size: 12px;
+  margin: 0 0 6px 0;
+  color: var(--secondary);
+}
+
+.error-details ul {
+  margin: 0;
+  padding-left: 16px;
+  color: var(--on-surface-variant);
+}
+
+.error-details li {
+  margin-bottom: 4px;
+}
+
+/* Category select in tables */
+.category-select {
+  padding: 4px 8px;
+  background-color: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--on-surface);
+}
+
+.category-select:focus {
+  border-color: var(--primary-container);
+}
+
+.income-category-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--primary);
+  letter-spacing: 0.05em;
+}
+
+/* Empty Table States */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  background-color: var(--surface-container-lowest);
+  border: 1px dashed var(--outline-variant);
+  border-radius: var(--radius-xl);
+  color: var(--on-surface-variant);
+  margin: 24px 0;
+}
+
+.empty-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+
+.empty-state h3 {
+  font-family: var(--font-brand);
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: var(--on-surface);
+}
+
+.empty-state p {
+  font-size: 13px;
+  margin: 0;
+  color: var(--on-surface-variant);
+}
+
+.no-transactions-text {
+  text-align: center;
+  padding: 24px;
+  color: var(--on-surface-variant);
+  font-style: italic;
+  font-size: 13px;
+}

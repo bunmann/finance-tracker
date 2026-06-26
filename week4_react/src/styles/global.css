@@ -1,0 +1,405 @@
+/* ============================================================================
+// File: global.css
+// Description: Global classes, layouts, scrollbars, tables, and button tokens.
+// ============================================================================ */
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Neon Glow Active State */
+.neon-glow:hover {
+  box-shadow: 0 0 15px rgba(0, 209, 102, 0.2);
+}
+
+/* Base Headings styling */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-brand);
+  color: var(--on-surface);
+  margin-top: 0;
+}
+
+h1 {
+  font-size: 48px;
+  line-height: 56px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+}
+
+/* Premium Layout Panels & Cards */
+.card,
+.widget {
+  background-color: var(--surface-container-lowest);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--outline-variant);
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.card:hover,
+.widget:hover {
+  border-color: var(--primary-container);
+  box-shadow: 0 0 15px rgba(0, 209, 102, 0.1);
+}
+
+/* Custom Interactive Form Fields */
+input,
+select {
+  font-family: var(--font-body);
+  font-size: 14px;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  background-color: var(--surface-container-lowest);
+  color: var(--on-surface);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23131b2e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+  padding-right: 28px !important;
+}
+
+input:focus,
+select:focus {
+  border-color: var(--primary-container);
+  box-shadow: 0 0 8px rgba(0, 209, 102, 0.2);
+}
+
+/* Buttons System */
+.btn {
+  font-family: var(--font-brand);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background-color: var(--primary-container);
+  color: var(--inverse-surface);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 0 12px rgba(0, 209, 102, 0.3);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 1px solid var(--inverse-surface);
+  color: var(--inverse-surface);
+}
+
+.btn-secondary:hover {
+  background-color: rgba(15, 23, 42, 0.05);
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
+.btn-danger {
+  background-color: var(--secondary-container);
+  color: var(--on-secondary-container);
+}
+
+.btn-danger:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 0 12px rgba(226, 36, 42, 0.3);
+}
+
+/* Data Tables */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-lg);
+  background-color: var(--surface-container-lowest);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th {
+  font-family: var(--font-brand);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+  background-color: var(--surface-container-low);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+td {
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--outline-variant);
+  color: var(--on-surface);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover td {
+  background-color: rgba(0, 209, 102, 0.03);
+}
+
+/* Numeric Formatting */
+.amount-cell {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.amount-gain {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.amount-loss {
+  color: var(--secondary);
+  font-weight: 600;
+}
+
+/* Icons styling */
+.material-symbols-outlined {
+  vertical-align: middle;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Compact trend chips */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.chip-gain {
+  background-color: rgba(0, 209, 102, 0.15);
+  color: var(--primary);
+}
+
+.chip-loss {
+  background-color: rgba(255, 59, 59, 0.15);
+  color: var(--secondary);
+}
+
+/* Shared Page Header Controls (Dashboard and Budgets) */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.dashboard-title {
+  margin: 0;
+  font-family: var(--font-brand);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--on-surface);
+}
+
+.dashboard-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.control-group label {
+  font-family: var(--font-brand);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+}
+
+.control-group select {
+  padding: 8px 12px;
+  background-color: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--on-surface);
+  width: 110px;
+}
+
+.control-group input {
+  padding: 8px 12px;
+  background-color: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--on-surface);
+  width: 80px;
+}
+
+/* Snug sizing overrides for date/period selectors */
+.month-select {
+  padding: 8px 24px 8px 8px !important; /* snugs the text to the left, leaves room for arrow */
+}
+
+.year-input {
+  width: 80px !important;
+  min-width: 80px !important;
+}
+
+/* Toast Notification System */
+.toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-radius: var(--radius-lg);
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--outline-variant);
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  min-width: 300px;
+  max-width: 450px;
+  animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.toast-message {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--on-surface);
+  flex: 1;
+}
+
+.toast-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  padding: 4px;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: opacity 0.2s, background-color 0.2s;
+}
+
+.toast-close:hover {
+  opacity: 1;
+  background-color: var(--surface-container-low);
+}
+
+.toast-close span {
+  font-size: 16px;
+}
+
+/* Toast Type Accent Color Schemes */
+.toast-success {
+  border-left: 4px solid var(--primary-container);
+}
+.toast-success .toast-icon {
+  color: var(--primary);
+}
+
+.toast-warning {
+  border-left: 4px solid var(--tertiary-container);
+}
+.toast-warning .toast-icon {
+  color: var(--tertiary);
+}
+
+.toast-error {
+  border-left: 4px solid var(--secondary-container);
+}
+.toast-error .toast-icon {
+  color: var(--secondary);
+}

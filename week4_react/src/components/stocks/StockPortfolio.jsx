@@ -11,6 +11,7 @@ import BrokerageCsvUpload from './BrokerageCsvUpload';
 import StockHoldings from './StockHoldings';
 import StockForm from './StockForm';
 import StockTransactions from './StockTransactions';
+import '../../styles/StockPortfolio.css';
 
 /**
  * Component: StockPortfolio
@@ -61,7 +62,7 @@ function StockPortfolio({ showToast }) {
     }
 
     return (
-        <div className="stocks-page">
+        <div className="stocks-page page-container">
             <div className="portfolio-header">
                 <h2>📈 Stock Portfolio</h2>
                 
@@ -70,7 +71,7 @@ function StockPortfolio({ showToast }) {
                     <AlertBanner 
                         type="warning" 
                         message={portfolio.warning} 
-                        icon="⚠️" 
+                        icon="warning" 
                     />
                 )}
 
@@ -118,4 +119,4 @@ function StockPortfolio({ showToast }) {
     );
 }
 
-export default StockPortfolio;
+    export default StockPortfolio;

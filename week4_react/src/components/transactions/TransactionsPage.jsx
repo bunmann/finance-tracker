@@ -1,6 +1,7 @@
 import TransactionForm from './TransactionForm';
 import TransactionCsvUpload from './TransactionCsvUpload';
 import TransactionList from './TransactionList';
+import '../../styles/Transactions.css';
 
 /**
  * Component: TransactionsPage

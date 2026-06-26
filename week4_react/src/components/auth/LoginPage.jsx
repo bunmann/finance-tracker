@@ -6,6 +6,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../api';
+import '../../styles/Auth.css';
 
 /**
  * Component: LoginPage
