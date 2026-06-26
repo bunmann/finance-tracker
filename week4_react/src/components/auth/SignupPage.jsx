@@ -60,7 +60,7 @@ function SignupPage() {
     };
 
     return (
-        <div className="auth-container">
+        <div className="auth-container signup-page">
             <div className="auth-card">
                 <h2>Sign Up</h2>
                 {error && <p className="error-message">{error}</p>}

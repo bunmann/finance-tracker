@@ -47,7 +47,7 @@ function BudgetCard({ category, spent, transactions, month, year, onBudgetUpdate
     };
 
     return (
-        <div className="budget-card">
+        <div className={`budget-card ${getProgressColor(percentage)}`}>
             <div 
                 className="budget-header clickable"
                 onClick={() => setIsExpanded(!isExpanded)}

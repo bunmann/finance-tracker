@@ -2,7 +2,7 @@
 // File: Dashboard.jsx
 // Description: Displays monthly financial summaries and spending breakdown charts.
 // ============================================================================
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import api from '../../api';
 import MetricCard from '../common/MetricCard';
@@ -28,6 +28,7 @@ function Dashboard({ transactions, showToast }) {
     const [year, setYear] = useState(today.getFullYear());
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const prevPeriodRef = useRef({ month, year });
 
     /**
      * Hook: useEffect (Dashboard Data Loader)
@@ -35,7 +36,13 @@ function Dashboard({ transactions, showToast }) {
      *              from the database whenever the month, year, or transaction list changes.
      */
     useEffect(() => {
-        setLoading(true);
+        const prev = prevPeriodRef.current;
+        const periodChanged = prev.month !== month || prev.year !== year;
+        if (periodChanged || !dashboardData) {
+            setLoading(true);
+            prevPeriodRef.current = { month, year };
+        }
+
         api.get(`/dashboard?month=${month}&year=${year}`)
             .then(response => {
                 setDashboardData(response.data);

@@ -4,7 +4,7 @@
 //              and structures the overall page layouts.
 // ============================================================================
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from './api';
 import Navbar from './components/common/Navbar';
 import Dashboard from './components/dashboard/Dashboard';
@@ -37,9 +37,9 @@ function App() {
      *   - type (String): Toast style variant ('success', 'error', 'warning').
      * Passed to: Child components (Dashboard, TransactionForm, TransactionList, BudgetOverview)
      */
-    const showToast = (message, type = 'success') => {
+    const showToast = useCallback((message, type = 'success') => {
         setToast({ message, type });
-    };
+    }, []);
 
     /**
      * Hook: useEffect (Initial Transaction Loader)
@@ -172,14 +172,14 @@ function App() {
                         </Routes>
                     </ErrorBoundary>
                 </main>
-                {toast && (
-                    <Toast
-                        message={toast.message}
-                        type={toast.type}
-                        onClose={() => setToast(null)}
-                    />
-                )}
             </div>
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                />
+            )}
         </Router>
     );
 }

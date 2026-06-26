@@ -51,7 +51,7 @@ function LoginPage({ onLogin }) {
     };
 
     return (
-        <div className="auth-container">
+        <div className="auth-container login-page">
             <div className="auth-card">
                 <h2>Login</h2>
                 {error && <p className="error-message">{error}</p>}

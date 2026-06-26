@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login | CapitalPulse Pro Edition</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Space+Grotesk:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary": "#825500",
+                    "secondary-container": "#e2242a",
+                    "secondary-fixed-dim": "#ffb3ac",
+                    "primary-container": "#00d166",
+                    "on-tertiary-fixed": "#291800",
+                    "on-primary": "#ffffff",
+                    "inverse-primary": "#30e375",
+                    "on-tertiary-fixed-variant": "#624000",
+                    "on-surface-variant": "#3c4a3d",
+                    "surface-variant": "#dae2fd",
+                    "on-primary-fixed-variant": "#005224",
+                    "on-primary-container": "#005324",
+                    "on-secondary": "#ffffff",
+                    "on-surface": "#131b2e",
+                    "on-background": "#131b2e",
+                    "on-secondary-fixed-variant": "#930010",
+                    "outline": "#6c7b6c",
+                    "secondary": "#bb0017",
+                    "on-error-container": "#93000a",
+                    "surface-container-highest": "#dae2fd",
+                    "surface-container-low": "#f2f3ff",
+                    "on-secondary-fixed": "#410003",
+                    "on-error": "#ffffff",
+                    "primary": "#006d32",
+                    "on-primary-fixed": "#00210b",
+                    "surface-container-lowest": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed": "#64ff92",
+                    "tertiary-container": "#f6a500",
+                    "tertiary-fixed": "#ffddb3",
+                    "tertiary-fixed-dim": "#ffb950",
+                    "on-tertiary-container": "#634000",
+                    "inverse-surface": "#283044",
+                    "surface-container": "#eaedff",
+                    "background": "#faf8ff",
+                    "outline-variant": "#bbcbb9",
+                    "surface-container-high": "#e2e7ff",
+                    "surface-bright": "#faf8ff",
+                    "inverse-on-surface": "#eef0ff",
+                    "surface-dim": "#d2d9f4",
+                    "primary-fixed-dim": "#30e375",
+                    "error": "#ba1a1a",
+                    "surface-tint": "#006d32",
+                    "surface": "#faf8ff",
+                    "secondary-fixed": "#ffdad6",
+                    "on-secondary-container": "#fffbff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "unit": "4px",
+                    "density-comfortable": "12px",
+                    "density-tight": "4px",
+                    "margin-desktop": "32px",
+                    "container-max": "1440px"
+            },
+            "fontFamily": {
+                    "label-caps": ["Space Grotesk"],
+                    "mono-data": ["JetBrains Mono"],
+                    "body-md": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "data-lg": ["Space Grotesk"],
+                    "headline-md": ["Space Grotesk"],
+                    "display-lg": ["Space Grotesk"]
+            },
+            "fontSize": {
+                    "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "mono-data": ["13px", {"lineHeight": "18px", "fontWeight": "500"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                    "data-lg": ["20px", {"lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .animate-glow {
+            animation: glow 4s ease-in-out infinite alternate;
+        }
+        @keyframes glow {
+            from { box-shadow: 0 0 5px rgba(0, 209, 102, 0.1); }
+            to { box-shadow: 0 0 20px rgba(0, 209, 102, 0.3); }
+        }
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus {
+            -webkit-text-fill-color: #ffffff;
+            -webkit-box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.05) inset;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+    </style>
+</head>
+<body class="bg-inverse-surface font-body-md text-on-primary antialiased selection:bg-primary-container selection:text-on-primary-container overflow-hidden">
+<!-- Full-page background with dark overlay -->
+<div class="fixed inset-0 z-0">
+<div class="absolute inset-0 bg-gradient-to-br from-black/80 via-black/40 to-black/90 z-10"></div>
+<img alt="Lush ancient forest with a flowing river" class="w-full h-full object-cover grayscale-[20%] opacity-80" src="https://lh3.googleusercontent.com/aida/AP1WRLvMcFhHblg4BknDFOA0PVFyGsN89snwU8d2Xox0cNB1RiXGUpAZNJO6IpLhWuYBJ9cEL_yJM7XLR9axdaYYiJuF1GzGN37PKR2jSzurTIaDpzfqZtqwV-L_8nAHqzzxpXG45zJFVUzT-ETwvKqTszlN4b0cDjfYKpYNIa22kVutr3lZRT2au0UKHtXF_7uMLJtpDLdPS0NxNcMM_OgU697qV8hmNzdZj1TH0vQz33Va2NGmrvO9Ky9ujpld"/>
+</div>
+<!-- Branding Layer -->
+<div class="absolute top-12 left-12 z-20 hidden lg:block">
+<div class="flex flex-col gap-2">
+<span class="font-headline-md text-headline-md font-bold tracking-tighter text-primary-container">CapitalPulse</span>
+<span class="font-label-caps text-label-caps uppercase tracking-[0.2em] text-white/60">Pro Edition</span>
+</div>
+</div>
+<!-- Login Container -->
+<main class="relative z-30 min-h-screen flex items-center justify-center px-gutter">
+<div class="max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 items-center gap-12 lg:gap-24">
+<!-- Marketing/Statement Side -->
+<div class="hidden md:flex flex-col gap-6 text-left">
+<h1 class="font-display-lg text-display-lg leading-[1.1] text-white">
+                    Master the <span class="text-primary-container">Flow</span> of Capital
+                </h1>
+<p class="font-body-md text-body-md text-white/70 max-w-sm leading-relaxed">
+                    Access institutional-grade monitoring and predictive liquidity analysis within a serene, high-precision environment.
+                </p>
+<div class="flex items-center gap-4 mt-4">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-inverse-surface bg-slate-800 flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-[16px] text-primary-container">verified_user</span>
+</div>
+<div class="w-8 h-8 rounded-full border-2 border-inverse-surface bg-slate-800 flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-[16px] text-primary-container">monitoring</span>
+</div>
+</div>
+<span class="font-label-caps text-label-caps text-white/50">Trusted by 10k+ Analysts</span>
+</div>
+</div>
+<!-- Login Card Side -->
+<div class="glass-panel p-8 md:p-12 rounded-xl animate-glow w-full max-w-md mx-auto">
+<div class="flex flex-col gap-8">
+<div class="space-y-2">
+<h2 class="font-headline-md text-headline-md text-white">Identity Access</h2>
+<p class="font-body-sm text-body-sm text-white/60">Secure gateway for authorized professionals.</p>
+</div>
+<!-- Social Login -->
+<div class="grid grid-cols-2 gap-4">
+<button class="flex items-center justify-center gap-3 py-3 px-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-all group">
+<span class="material-symbols-outlined text-[20px] text-white/80 group-hover:text-white">fingerprint</span>
+<span class="font-label-caps text-label-caps text-white/80">SSO</span>
+</button>
+<button class="flex items-center justify-center gap-3 py-3 px-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-all group">
+<span class="material-symbols-outlined text-[20px] text-white/80 group-hover:text-white">shield</span>
+<span class="font-label-caps text-label-caps text-white/80">Vault</span>
+</button>
+</div>
+<div class="relative flex items-center justify-center">
+<div class="w-full border-t border-white/10"></div>
+<span class="absolute px-4 bg-transparent backdrop-blur-md text-white/30 font-label-caps text-[10px]">OR TERMINAL KEY</span>
+</div>
+<!-- Form -->
+<form class="flex flex-col gap-6" onsubmit="event.preventDefault();">
+<div class="space-y-4">
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-white/60 ml-1" for="email">Work Email</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary-container transition-colors">alternate_email</span>
+<input class="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-11 pr-4 text-white placeholder:text-white/20 focus:ring-1 focus:ring-primary-container focus:border-primary-container transition-all outline-none" id="email" placeholder="name@firm.com" type="email"/>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-center px-1">
+<label class="font-label-caps text-label-caps text-white/60" for="password">Credential</label>
+<a class="text-[11px] font-medium text-primary-container hover:underline" href="#">Lost access?</a>
+</div>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary-container transition-colors">lock</span>
+<input class="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-11 pr-4 text-white placeholder:text-white/20 focus:ring-1 focus:ring-primary-container focus:border-primary-container transition-all outline-none" id="password" placeholder="••••••••" type="password"/>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<input class="w-4 h-4 rounded border-white/20 bg-white/5 text-primary-container focus:ring-primary-container focus:ring-offset-0" id="remember" type="checkbox"/>
+<label class="font-body-sm text-body-sm text-white/50 select-none" for="remember">Persistent session on this terminal</label>
+</div>
+<button class="w-full bg-primary-container hover:bg-primary-container/90 text-on-primary-container font-label-caps text-label-caps py-4 rounded-lg flex items-center justify-center gap-2 transition-all transform active:scale-[0.98]" type="submit">
+                            Establish Connection
+                            <span class="material-symbols-outlined text-[18px]">arrow_right_alt</span>
+</button>
+</form>
+<div class="text-center">
+<p class="font-body-sm text-body-sm text-white/40">New to CapitalPulse? <a class="text-white hover:text-primary-container transition-colors font-semibold" href="#">Sign Up</a></p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Stats / Atmospheric Layer -->
+<footer class="fixed bottom-8 left-0 right-0 z-30 px-gutter hidden lg:block">
+<div class="max-w-[1440px] mx-auto flex justify-between items-end border-t border-white/5 pt-6">
+<div class="flex gap-8">
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-white/40 mb-1">SYSTEM LATENCY</span>
+<span class="font-mono-data text-mono-data text-primary-container">12ms <span class="text-white/20 text-[10px]">STABLE</span></span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-white/40 mb-1">ENCRYPTION</span>
+<span class="font-mono-data text-mono-data text-white/80">AES-256-GCM</span>
+</div>
+</div>
+<div class="flex gap-4">
+<span class="font-label-caps text-[10px] text-white/40">© 2024 CAPITALPULSE FINANCIAL GROUP. ALL FLOWS MONITORED.</span>
+</div>
+</div>
+</footer>
+<!-- Interactive Background Particles (CSS/JS) -->
+<div class="fixed inset-0 z-15 pointer-events-none opacity-30" id="particle-container"></div>
+<script>
+        // Simple particle effect for "Atmospheric Momentum"
+        const container = document.getElementById('particle-container');
+        const particleCount = 25;
+
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            const size = Math.random() * 2 + 1;
+            particle.className = 'absolute bg-primary-container rounded-full';
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            particle.style.opacity = Math.random() * 0.5 + 0.1;
+            
+            // Animation
+            const duration = Math.random() * 15 + 10;
+            const delay = Math.random() * -20;
+            particle.style.animation = `float ${duration}s linear ${delay}s infinite`;
+            
+            container.appendChild(particle);
+        }
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes float {
+                0% { transform: translateY(0) translateX(0); opacity: 0; }
+                10% { opacity: 0.4; }
+                90% { opacity: 0.4; }
+                100% { transform: translateY(-100vh) translateX(${Math.random() * 50 - 25}px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body></html>

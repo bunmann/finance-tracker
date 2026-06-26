@@ -14,81 +14,7 @@
   margin-bottom: 32px;
 }
 
-.summary-card {
-  background-color: var(--surface-container-lowest);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--outline-variant);
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-}
-
-.summary-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: var(--outline-variant);
-  transition: background-color 0.2s;
-}
-
-.summary-card:hover {
-  border-color: var(--primary-container);
-  box-shadow: 0 0 20px rgba(0, 209, 102, 0.08);
-}
-
-.summary-card h3 {
-  font-family: var(--font-brand);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--on-surface-variant);
-  margin: 0 0 12px 0;
-}
-
-.summary-card .amount {
-  font-family: var(--font-mono);
-  font-size: 24px;
-  font-weight: 700;
-  margin: 0;
-  color: var(--on-surface);
-}
-
-/* Metric Colors */
-.summary-card:has(.income)::before {
-  background: var(--primary-container);
-}
-.summary-card .amount.income {
-  color: var(--primary);
-}
-
-.summary-card:has(.expense)::before {
-  background: var(--secondary-container);
-}
-.summary-card .amount.expense {
-  color: var(--secondary);
-}
-
-.summary-card:has(.savings-positive)::before {
-  background: var(--primary-container);
-}
-.summary-card .amount.savings-positive {
-  color: var(--primary);
-}
-
-.summary-card:has(.savings-negative)::before {
-  background: var(--secondary-container);
-}
-.summary-card .amount.savings-negative {
-  color: var(--secondary);
-}
+/* Base summary card layout and metric color styles moved to global.css */
 
 /* Budget Alert Banners */
 .budget-alerts-container {
@@ -134,8 +60,8 @@
 }
 
 .dashboard-chart-card:hover {
-  border-color: var(--primary-container);
-  box-shadow: 0 0 20px rgba(0, 209, 102, 0.08);
+  border-color: #94a3b8;
+  box-shadow: 0 0 20px rgba(15, 23, 42, 0.08);
 }
 
 .dashboard-chart-card h3 {

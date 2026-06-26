@@ -62,8 +62,8 @@
 }
 
 .stock-form:hover {
-  border-color: var(--primary-container);
-  box-shadow: 0 0 20px rgba(0, 209, 102, 0.08);
+  border-color: #94a3b8;
+  box-shadow: 0 0 20px rgba(15, 23, 42, 0.08);
 }
 
 .stock-form h2 {
@@ -147,8 +147,8 @@
 }
 
 .stock-transactions:hover {
-  border-color: var(--primary-container);
-  box-shadow: 0 0 20px rgba(0, 209, 102, 0.08);
+  border-color: #94a3b8;
+  box-shadow: 0 0 20px rgba(15, 23, 42, 0.08);
 }
 
 .stock-transactions h3 {

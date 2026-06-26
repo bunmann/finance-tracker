@@ -47,8 +47,23 @@
 }
 
 .budget-card:hover {
+  border-color: #94a3b8;
+  box-shadow: 0 0 20px rgba(15, 23, 42, 0.08);
+}
+
+.budget-card.on-track:hover {
   border-color: var(--primary-container);
   box-shadow: 0 0 20px rgba(0, 209, 102, 0.08);
+}
+
+.budget-card.warning:hover {
+  border-color: var(--tertiary-container);
+  box-shadow: 0 0 20px rgba(246, 165, 0, 0.08);
+}
+
+.budget-card.over-budget:hover {
+  border-color: var(--secondary-container);
+  box-shadow: 0 0 20px rgba(226, 36, 42, 0.08);
 }
 
 .budget-header {
@@ -162,8 +177,8 @@
 }
 
 .budget-input-group input:focus {
-  border-color: var(--primary-container);
-  box-shadow: 0 0 4px rgba(0, 209, 102, 0.2);
+  border-color: #94a3b8;
+  box-shadow: 0 0 4px rgba(15, 23, 42, 0.08);
 }
 
 /* Expanded transactions list */

@@ -1,141 +1,370 @@
 /* ============================================================================
-// File: Auth.css
-// Description: Custom glassmorphism layout and styling for login and signup views.
-// ============================================================================ */
+File: Auth.css
+Description: Custom styles for Login (fullscreen glassmorphism) and Signup (split layout) views.
+============================================================================ */
 
+/* Global container reset for auth flows overlaying navbar */
 .auth-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 40px 16px;
-}
-
-.auth-card {
-  background-color: var(--surface-container-lowest);
-  border: 1px solid var(--outline-variant);
-  border-radius: var(--radius-xxl);
-  padding: 40px 32px;
-  width: 100%;
-  max-width: 420px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.auth-card::before {
-  content: '';
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 100;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* ============================================================================
+   1. LOGIN PAGE: Fullscreen Nature Glassmorphism
+   ============================================================================ */
+.auth-container.login-page {
+  align-items: center;
+  justify-content: center;
+  background-image: linear-gradient(rgba(15, 23, 42, 0.45), rgba(15, 23, 42, 0.45)), url('/background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-family: var(--font-body);
+}
+
+.auth-container.login-page .auth-card {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--radius-xxl); /* 24px */
+  padding: 48px 40px;
   width: 100%;
-  height: 6px;
-  background: linear-gradient(90deg, var(--primary-container), var(--surface-tint));
+  max-width: 440px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
-.auth-card:hover {
-  border-color: var(--primary-container);
-  box-shadow: 0 0 30px rgba(0, 209, 102, 0.06);
+.auth-container.login-page .auth-card:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
 }
 
-.auth-card h2 {
+.auth-container.login-page .auth-card h2 {
   font-family: var(--font-brand);
   font-size: 28px;
   font-weight: 700;
-  color: var(--on-surface);
-  margin-bottom: 24px;
+  color: var(--inverse-surface);
   text-align: center;
+  margin: 0;
+  letter-spacing: -0.02em;
 }
 
-.auth-card form {
+.auth-container.login-page .auth-card form {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.auth-card form > div {
+.auth-container.login-page .auth-card form > div {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
-.auth-card label {
+.auth-container.login-page .auth-card label {
   font-family: var(--font-brand);
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.05em;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--on-surface-variant);
 }
 
-.auth-card input {
+.auth-container.login-page .auth-card input {
   width: 100%;
   padding: 12px 16px;
+  font-family: var(--font-body);
   font-size: 14px;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-md); /* 8px */
+  background-color: rgba(255, 255, 255, 0.6);
+  color: var(--on-surface);
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
-.auth-card button[type="submit"] {
+.auth-container.login-page .auth-card input:focus {
+  border-color: var(--primary-container);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(0, 209, 102, 0.2);
+}
+
+.auth-container.login-page .auth-card button[type="submit"] {
   font-family: var(--font-brand);
   font-size: 13px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: 12px;
-  border-radius: var(--radius-md);
-  background-color: var(--primary-container);
-  color: var(--inverse-surface);
+  padding: 14px;
+  border-radius: var(--radius-md); /* 8px */
+  background-color: var(--primary-container); /* Neon Green */
+  color: var(--inverse-surface); /* Navy text */
   border: none;
   cursor: pointer;
-  transition: all 0.2s;
-  margin-top: 10px;
+  transition: all 0.2s ease;
+  margin-top: 8px;
 }
 
-.auth-card button[type="submit"]:hover {
-  filter: brightness(1.1);
-  box-shadow: 0 0 12px rgba(0, 209, 102, 0.3);
+.auth-container.login-page .auth-card button[type="submit"]:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 0 12px rgba(0, 209, 102, 0.35);
 }
 
-.auth-card button[type="submit"]:active {
+.auth-container.login-page .auth-card button[type="submit"]:active {
   transform: scale(0.98);
 }
 
-.auth-switch {
-  margin-top: 24px;
+.auth-container.login-page .auth-card .auth-switch {
+  margin: 0;
   text-align: center;
   font-family: var(--font-body);
   font-size: 13px;
   color: var(--on-surface-variant);
 }
 
-.auth-switch a {
+.auth-container.login-page .auth-card .auth-switch a {
   color: var(--primary);
   text-decoration: none;
   font-weight: 600;
+  transition: color 0.2s;
 }
 
-.auth-switch a:hover {
+.auth-container.login-page .auth-card .auth-switch a:hover {
+  color: var(--primary-container);
   text-decoration: underline;
 }
 
+
+/* ============================================================================
+   2. SIGNUP PAGE: Split Screen Layout
+   ============================================================================ */
+.auth-container.signup-page {
+  justify-content: flex-end;
+  align-items: center;
+  background-color: var(--background);
+  font-family: var(--font-body);
+}
+
+/* Left side background image */
+.auth-container.signup-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background-image: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.65)), url('/background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-right: 1px solid var(--outline-variant);
+}
+
+/* Left side branding & subtitle */
+.auth-container.signup-page::after {
+  content: 'Veridian Finance\A\A Master the Flow of Capital.';
+  white-space: pre-wrap;
+  position: absolute;
+  left: 8%;
+  top: 40%;
+  width: 35%;
+  font-family: var(--font-brand);
+  font-size: 32px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.3;
+  z-index: 10;
+  letter-spacing: -0.02em;
+}
+
+/* Right side content card */
+.auth-container.signup-page .auth-card {
+  width: 50%;
+  height: 100%;
+  background-color: var(--surface-container-lowest);
+  border: none;
+  border-left: 1px solid var(--outline-variant);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 60px 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; /* Center contents horizontally */
+  gap: 28px;
+  box-shadow: -10px 0 30px rgba(15, 23, 42, 0.04);
+  z-index: 5;
+  box-sizing: border-box;
+}
+
+/* Keep form contents constrained to a professional, readable width */
+.auth-container.signup-page .auth-card > * {
+  width: 100%;
+  max-width: 380px;
+}
+
+.auth-container.signup-page .auth-card h2 {
+  font-family: var(--font-brand);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--inverse-surface);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.auth-container.signup-page .auth-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-container.signup-page .auth-card form > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-container.signup-page .auth-card label {
+  font-family: var(--font-brand);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--on-surface-variant);
+}
+
+.auth-container.signup-page .auth-card input {
+  width: 100%;
+  padding: 12px 16px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-md); /* 8px */
+  background-color: var(--surface-container-low);
+  color: var(--on-surface);
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.auth-container.signup-page .auth-card input:focus {
+  border-color: var(--primary-container);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(0, 209, 102, 0.2);
+}
+
+.auth-container.signup-page .auth-card button[type="submit"] {
+  font-family: var(--font-brand);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 14px;
+  border-radius: var(--radius-md); /* 8px */
+  background-color: var(--primary-container); /* Neon Green */
+  color: var(--inverse-surface); /* Navy text */
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 10px;
+}
+
+.auth-container.signup-page .auth-card button[type="submit"]:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 0 12px rgba(0, 209, 102, 0.35);
+}
+
+.auth-container.signup-page .auth-card button[type="submit"]:active {
+  transform: scale(0.98);
+}
+
+.auth-container.signup-page .auth-card .auth-switch {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--on-surface-variant);
+}
+
+.auth-container.signup-page .auth-card .auth-switch a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.auth-container.signup-page .auth-card .auth-switch a:hover {
+  color: var(--primary-container);
+  text-decoration: underline;
+}
+
+/* Responsive breakpoint for split screen */
+@media (max-width: 768px) {
+  .auth-container.signup-page::before {
+    display: none;
+  }
+  .auth-container.signup-page::after {
+    display: none;
+  }
+  .auth-container.signup-page {
+    justify-content: center;
+    background-image: linear-gradient(rgba(15, 23, 42, 0.45), rgba(15, 23, 42, 0.45)), url('/background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .auth-container.signup-page .auth-card {
+    width: 100%;
+    height: auto;
+    max-width: 440px;
+    border-radius: var(--radius-xxl);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    padding: 48px 40px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* ============================================================================
+   3. MESSAGES (Shared error and success alerts)
+   ============================================================================ */
 .error-message {
   color: var(--secondary);
-  background-color: rgba(226, 36, 42, 0.05);
-  border: 1px solid rgba(226, 36, 42, 0.15);
+  background-color: rgba(226, 36, 42, 0.06);
+  border: 1px solid rgba(226, 36, 42, 0.2);
   border-radius: var(--radius-md);
   padding: 12px 16px;
   font-size: 13px;
-  margin: 0 0 20px 0;
+  margin: 0;
   text-align: center;
+  font-family: var(--font-body);
 }
 
 .success-message {
   color: var(--primary);
-  background-color: rgba(0, 209, 102, 0.05);
-  border: 1px solid rgba(0, 209, 102, 0.15);
+  background-color: rgba(0, 209, 102, 0.06);
+  border: 1px solid rgba(0, 209, 102, 0.2);
   border-radius: var(--radius-md);
   padding: 12px 16px;
   font-size: 13px;
-  margin: 0 0 20px 0;
+  margin: 0;
   text-align: center;
+  font-family: var(--font-body);
 }

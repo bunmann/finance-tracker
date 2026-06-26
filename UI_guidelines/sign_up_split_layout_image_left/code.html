@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login | CapitalPulse Pro Edition</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Space+Grotesk:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary": "#825500",
+                    "secondary-container": "#e2242a",
+                    "secondary-fixed-dim": "#ffb3ac",
+                    "primary-container": "#00d166",
+                    "on-tertiary-fixed": "#291800",
+                    "on-primary": "#ffffff",
+                    "inverse-primary": "#30e375",
+                    "on-tertiary-fixed-variant": "#624000",
+                    "on-surface-variant": "#3c4a3d",
+                    "surface-variant": "#dae2fd",
+                    "on-primary-fixed-variant": "#005224",
+                    "on-primary-container": "#005324",
+                    "on-secondary": "#ffffff",
+                    "on-surface": "#131b2e",
+                    "on-background": "#131b2e",
+                    "on-secondary-fixed-variant": "#930010",
+                    "outline": "#6c7b6c",
+                    "secondary": "#bb0017",
+                    "on-error-container": "#93000a",
+                    "surface-container-highest": "#dae2fd",
+                    "surface-container-low": "#f2f3ff",
+                    "on-secondary-fixed": "#410003",
+                    "on-error": "#ffffff",
+                    "primary": "#006d32",
+                    "on-primary-fixed": "#00210b",
+                    "surface-container-lowest": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed": "#64ff92",
+                    "tertiary-container": "#f6a500",
+                    "tertiary-fixed": "#ffddb3",
+                    "tertiary-fixed-dim": "#ffb950",
+                    "on-tertiary-container": "#634000",
+                    "inverse-surface": "#283044",
+                    "surface-container": "#eaedff",
+                    "background": "#faf8ff",
+                    "outline-variant": "#bbcbb9",
+                    "surface-container-high": "#e2e7ff",
+                    "surface-bright": "#faf8ff",
+                    "inverse-on-surface": "#eef0ff",
+                    "surface-dim": "#d2d9f4",
+                    "primary-fixed-dim": "#30e375",
+                    "error": "#ba1a1a",
+                    "surface-tint": "#006d32",
+                    "surface": "#faf8ff",
+                    "secondary-fixed": "#ffdad6",
+                    "on-secondary-container": "#fffbff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "unit": "4px",
+                    "density-comfortable": "12px",
+                    "density-tight": "4px",
+                    "margin-desktop": "32px",
+                    "container-max": "1440px"
+            },
+            "fontFamily": {
+                    "label-caps": ["Space Grotesk"],
+                    "mono-data": ["JetBrains Mono"],
+                    "body-md": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "data-lg": ["Space Grotesk"],
+                    "headline-md": ["Space Grotesk"],
+                    "display-lg": ["Space Grotesk"]
+            },
+            "fontSize": {
+                    "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "mono-data": ["13px", {"lineHeight": "18px", "fontWeight": "500"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                    "data-lg": ["20px", {"lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #faf8ff;
+            color: #131b2e;
+            overflow: hidden;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .animate-subtle-glow {
+            animation: subtle-glow 3s infinite alternate;
+        }
+        @keyframes subtle-glow {
+            from { box-shadow: 0 0 0px rgba(0, 209, 102, 0); }
+            to { box-shadow: 0 0 15px rgba(0, 209, 102, 0.2); }
+        }
+        .split-layout-shadow {
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md h-screen flex items-center justify-center p-0 md:p-8">
+<main class="w-full h-full max-w-container-max bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col md:flex-row split-layout-shadow">
+<!-- Left Side: Brand Messaging & Imagery -->
+<section class="relative w-full md:w-1/2 h-64 md:h-full bg-inverse-surface overflow-hidden">
+<!-- Background Image -->
+<img alt="Nature backdrop" class="absolute inset-0 w-full h-full object-cover opacity-80" src="https://lh3.googleusercontent.com/aida/AP1WRLvMcFhHblg4BknDFOA0PVFyGsN89snwU8d2Xox0cNB1RiXGUpAZNJO6IpLhWuYBJ9cEL_yJM7XLR9axdaYYiJuF1GzGN37PKR2jSzurTIaDpzfqZtqwV-L_8nAHqzzxpXG45zJFVUzT-ETwvKqTszlN4b0cDjfYKpYNIa22kVutr3lZRT2au0UKHtXF_7uMLJtpDLdPS0NxNcMM_OgU697qV8hmNzdZj1TH0vQz33Va2NGmrvO9Ky9ujpld"/>
+<!-- Overlay Content -->
+<div class="absolute inset-0 bg-gradient-to-t from-inverse-surface via-transparent to-transparent opacity-60"></div>
+<div class="relative h-full flex flex-col justify-between p-margin-desktop z-10">
+<!-- Brand Header -->
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md text-on-primary tracking-tight">CapitalPulse</h1>
+<p class="font-label-caps text-label-caps text-primary-fixed uppercase opacity-80">Pro Edition</p>
+</div>
+</div>
+<!-- Messaging -->
+<div class="max-w-md">
+<h2 class="font-display-lg text-display-lg text-on-primary mb-4 leading-tight">Master the Flow of Capital</h2>
+<p class="font-body-md text-body-md text-on-primary-fixed-variant opacity-90 mb-8 leading-relaxed">
+                        Precision monitoring and algorithmic insights designed for the modern institutional trader. Experience the market's natural rhythm.
+                    </p>
+<!-- Security Badge -->
+<div class="inline-flex items-center gap-3 bg-inverse-surface/40 backdrop-blur-md border border-outline/30 px-4 py-3 rounded-lg animate-subtle-glow">
+<span class="material-symbols-outlined text-primary-fixed" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<div>
+<p class="font-label-caps text-label-caps text-on-primary">Enterprise Grade Security</p>
+<p class="text-[10px] text-on-primary/60">256-bit AES Encryption Active</p>
+</div>
+</div>
+</div>
+<!-- Footer Accents -->
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 text-on-primary/60">
+<span class="material-symbols-outlined text-[18px]">public</span>
+<span class="font-label-caps text-[10px]">GLOBAL ACCESS</span>
+</div>
+<div class="flex items-center gap-2 text-on-primary/60">
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+<span class="font-label-caps text-[10px]">ULTRA-LOW LATENCY</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Side: Login Form -->
+<section class="w-full md:w-1/2 h-full bg-surface-container-lowest flex items-center justify-center p-8 md:p-12 overflow-y-auto">
+<div class="w-full max-w-sm">
+<div class="mb-10">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Create Your Pro Account</h3>
+<p class="font-body-md text-on-surface-variant">Join the elite network of institutional traders.</p>
+</div>
+<!-- Social Logins -->
+<div class="grid grid-cols-2 gap-4 mb-8">
+<button class="flex items-center justify-center gap-2 py-3 px-4 border border-outline-variant rounded-lg hover:bg-surface-container-low transition-all duration-200 group">
+<img alt="Google" class="w-5 h-5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBm7nowlLfV6qNVM7GAXPvQOvbD__BH2p17to1e9DNy7PVCoLGKHFK0jceja0Bc-srg7wPE6_MT2bn_2GoyymZyh7wFbO5idC6sHH8QQgSQdNzNHW36-_jAEBk8eUG_WxZcYcxAsqk_LB5kOa1z1xTygqL7v-SetKevkkf9Pk6USmeSfNP4cGAszTXBbcBQILvbVC-NlzRJtPcJP9axp2ssmfnc9xf33JzA1KVpzP0vHm8NLD0ChTfVROAieAucZWVcWBO5SMqmF-KK"/>
+<span class="font-body-sm font-semibold">Google</span>
+</button>
+<button class="flex items-center justify-center gap-2 py-3 px-4 border border-outline-variant rounded-lg hover:bg-surface-container-low transition-all duration-200 group">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+<span class="font-body-sm font-semibold">SAML SSO</span>
+</button>
+</div>
+<div class="relative flex items-center gap-4 mb-8">
+<div class="flex-grow border-t border-outline-variant"></div>
+<span class="font-label-caps text-label-caps text-outline">OR CONTINUE WITH</span>
+<div class="flex-grow border-t border-outline-variant"></div>
+</div>
+<!-- Standard Form -->
+<form class="space-y-6" onsubmit="return false;">
+<div class="space-y-1.5"><label class="font-label-caps text-label-caps text-on-surface-variant" for="name">FULL NAME</label><div class="relative"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">person</span><input class="w-full pl-10 pr-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md" id="name" placeholder="John Doe" type="text"/></div></div><div class="space-y-1.5">
+<label class="font-label-caps text-label-caps text-on-surface-variant" for="email">WORK EMAIL</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">mail</span>
+<input class="w-full pl-10 pr-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md" id="email" placeholder="name@company.com" type="email"/>
+</div>
+</div>
+<div class="space-y-1.5">
+<div class="flex justify-between items-center">
+<label class="font-label-caps text-label-caps text-on-surface-variant" for="password">PASSWORD</label>
+<a class="font-label-caps text-[10px] text-primary hover:underline" href="#">FORGOT?</a>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">lock</span>
+<input class="w-full pl-10 pr-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md" id="password" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<div class="flex items-center gap-3 py-2">
+<input class="w-4 h-4 text-primary bg-surface-container-lowest border-outline-variant rounded focus:ring-primary" id="remember" type="checkbox"/>
+<label class="font-body-sm text-on-surface-variant select-none" for="remember">Remember this device for 30 days</label>
+</div>
+<button class="w-full py-4 bg-primary text-on-primary font-body-md font-semibold rounded-lg hover:bg-primary/90 active:scale-[0.98] transition-all duration-200 shadow-lg shadow-primary/20">Create Account</button>
+</form>
+<!-- Footer Links -->
+<div class="mt-10 pt-8 border-t border-outline-variant text-center">
+<p class="font-body-sm text-on-surface-variant">Already have an account? <a class="text-primary font-semibold hover:underline" href="#">Login</a></p>
+</div>
+<div class="mt-12 flex justify-center gap-6 opacity-40">
+<span class="font-label-caps text-[9px]">PRIVACY</span>
+<span class="font-label-caps text-[9px]">TERMS</span>
+<span class="font-label-caps text-[9px]">COMPLIANCE</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Micro-interaction Script -->
+<script>
+        // Subtle focus effects for a "Modern Corporate" feel
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.querySelector('.material-symbols-outlined').style.color = '#006d32';
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.querySelector('.material-symbols-outlined').style.color = '#6c7b6c';
+            });
+        });
+
+        // Simple button active state visual
+        const mainBtn = document.querySelector('button.bg-primary');
+        mainBtn.addEventListener('mousedown', () => mainBtn.classList.add('scale-[0.98]'));
+        mainBtn.addEventListener('mouseup', () => mainBtn.classList.remove('scale-[0.98]'));
+    </script>
+</body></html>

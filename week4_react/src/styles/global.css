@@ -65,8 +65,91 @@ h2 {
 
 .card:hover,
 .widget:hover {
+  border-color: #94a3b8;
+  box-shadow: 0 0 15px rgba(15, 23, 42, 0.08);
+}
+
+/* Base Metric Summary Card Layout (Shared across Dashboard/Stocks) */
+.summary-card {
+  background-color: var(--surface-container-lowest);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--outline-variant);
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.summary-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--outline-variant);
+  transition: background-color 0.2s;
+}
+
+.summary-card h3 {
+  font-family: var(--font-brand);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+  margin: 0 0 12px 0;
+}
+
+.summary-card .amount {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--on-surface);
+}
+
+/* Default / Neutral Summary Card Hover */
+.summary-card:hover {
+  border-color: #94a3b8;
+  box-shadow: 0 0 20px rgba(15, 23, 42, 0.08);
+}
+
+/* Metric Colors: Income / Positive / Gains */
+.summary-card:has(.income)::before,
+.summary-card:has(.savings-positive)::before,
+.summary-card:has(.gain-text)::before {
+  background: var(--primary-container);
+}
+.summary-card .amount.income,
+.summary-card .amount.savings-positive {
+  color: var(--primary);
+}
+.summary-card:has(.income):hover,
+.summary-card:has(.savings-positive):hover,
+.summary-card:has(.gain-text):hover {
   border-color: var(--primary-container);
-  box-shadow: 0 0 15px rgba(0, 209, 102, 0.1);
+  box-shadow: 0 0 20px rgba(0, 209, 102, 0.08);
+}
+
+/* Metric Colors: Expense / Negative / Losses */
+.summary-card:has(.expense)::before,
+.summary-card:has(.savings-negative)::before,
+.summary-card:has(.loss-text)::before {
+  background: var(--secondary-container);
+}
+.summary-card .amount.expense,
+.summary-card .amount.savings-negative {
+  color: var(--secondary);
+}
+.summary-card:has(.expense):hover,
+.summary-card:has(.savings-negative):hover,
+.summary-card:has(.loss-text):hover {
+  border-color: var(--secondary-container);
+  box-shadow: 0 0 20px rgba(226, 36, 42, 0.08);
 }
 
 /* Custom Interactive Form Fields */
@@ -96,8 +179,8 @@ select {
 
 input:focus,
 select:focus {
-  border-color: var(--primary-container);
-  box-shadow: 0 0 8px rgba(0, 209, 102, 0.2);
+  border-color: #94a3b8;
+  box-shadow: 0 0 8px rgba(15, 23, 42, 0.08);
 }
 
 /* Buttons System */
@@ -196,7 +279,7 @@ tr:last-child td {
 }
 
 tr:hover td {
-  background-color: rgba(0, 209, 102, 0.03);
+  background-color: rgba(148, 163, 184, 0.06);
 }
 
 /* Numeric Formatting */
@@ -316,7 +399,7 @@ tr:hover td {
 /* Toast Notification System */
 .toast {
   position: fixed;
-  top: 24px;
+  bottom: 24px;
   right: 24px;
   z-index: 9999;
   display: flex;
@@ -338,7 +421,7 @@ tr:hover td {
 @keyframes toastSlideIn {
   from {
     opacity: 0;
-    transform: translateY(-20px) scale(0.95);
+    transform: translateY(20px) scale(0.95);
   }
   to {
     opacity: 1;
