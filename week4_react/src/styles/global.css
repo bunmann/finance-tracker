@@ -124,10 +124,12 @@ h2 {
 .summary-card:has(.gain-text)::before {
   background: var(--primary-container);
 }
+
 .summary-card .amount.income,
 .summary-card .amount.savings-positive {
   color: var(--primary);
 }
+
 .summary-card:has(.income):hover,
 .summary-card:has(.savings-positive):hover,
 .summary-card:has(.gain-text):hover {
@@ -141,10 +143,12 @@ h2 {
 .summary-card:has(.loss-text)::before {
   background: var(--secondary-container);
 }
+
 .summary-card .amount.expense,
 .summary-card .amount.savings-negative {
   color: var(--secondary);
 }
+
 .summary-card:has(.expense):hover,
 .summary-card:has(.savings-negative):hover,
 .summary-card:has(.loss-text):hover {
@@ -388,7 +392,8 @@ tr:hover td {
 
 /* Snug sizing overrides for date/period selectors */
 .month-select {
-  padding: 8px 24px 8px 8px !important; /* snugs the text to the left, leaves room for arrow */
+  padding: 8px 24px 8px 8px !important;
+  /* snugs the text to the left, leaves room for arrow */
 }
 
 .year-input {
@@ -423,6 +428,7 @@ tr:hover td {
     opacity: 0;
     transform: translateY(20px) scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -469,6 +475,7 @@ tr:hover td {
 .toast-success {
   border-left: 4px solid var(--primary-container);
 }
+
 .toast-success .toast-icon {
   color: var(--primary);
 }
@@ -476,6 +483,7 @@ tr:hover td {
 .toast-warning {
   border-left: 4px solid var(--tertiary-container);
 }
+
 .toast-warning .toast-icon {
   color: var(--tertiary);
 }
@@ -483,6 +491,7 @@ tr:hover td {
 .toast-error {
   border-left: 4px solid var(--secondary-container);
 }
+
 .toast-error .toast-icon {
   color: var(--secondary);
 }

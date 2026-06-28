@@ -63,20 +63,21 @@ function StockPortfolio({ showToast }) {
 
     return (
         <div className="stocks-page page-container">
-            <div className="portfolio-header">
-                <h2>📈 Stock Portfolio</h2>
-                
-                {/* Warning Banner */}
-                {portfolio?.warning && (
-                    <AlertBanner 
-                        type="warning" 
-                        message={portfolio.warning} 
-                        icon="warning" 
-                    />
-                )}
+            <div className="dashboard-header">
+                <h2 className="dashboard-title">Stock Portfolio</h2>
+            </div>
+            
+            {/* Warning Banner */}
+            {portfolio?.warning && (
+                <AlertBanner 
+                    type="warning" 
+                    message={portfolio.warning} 
+                    icon="warning" 
+                />
+            )}
 
-                {portfolio && (
-                    <div className="portfolio-totals">
+            {portfolio && (
+                <div className="portfolio-totals">
                         <MetricCard
                             title="Total Value"
                             value={portfolio.total_value}
@@ -99,7 +100,6 @@ function StockPortfolio({ showToast }) {
                         />
                     </div>
                 )}
-            </div>
 
             {/* Holdings Table */}
             <StockHoldings holdings={portfolio?.holdings} />

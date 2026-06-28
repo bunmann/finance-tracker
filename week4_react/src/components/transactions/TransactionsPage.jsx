@@ -26,7 +26,10 @@ function TransactionsPage({
     showToast 
 }) {
     return (
-        <div className="transactions-page">
+        <div className="transactions-page page-container">
+            <div className="dashboard-header">
+                <h2 className="dashboard-title">Transaction Overview</h2>
+            </div>
             <div className="transactions-forms">
                 <TransactionForm
                     onTransactionAdded={(tx) => {

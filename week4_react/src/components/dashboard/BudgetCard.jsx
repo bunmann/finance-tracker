@@ -87,8 +87,20 @@ function BudgetCard({ category, spent, transactions, month, year, onBudgetUpdate
                     <input
                         type="number"
                         defaultValue={budget}
-                        onBlur={(e) => onBudgetUpdate(category.id, e.target.value)}
+                        onBlur={(e) => {
+                            const parsed = parseFloat(e.target.value);
+                            // Fallback validation: if a user bypasses keyboard blocks via copy-paste,
+                            // coerce negative numbers or NaN inputs to 0, and update the visual DOM value.
+                            const sanitizedValue = isNaN(parsed) || parsed < 0 ? 0 : parsed;
+                            e.target.value = sanitizedValue; // Reset visual DOM value if corrected
+                            onBudgetUpdate(category.id, sanitizedValue);
+                        }}
                         onKeyDown={(e) => {
+                            // Block typing negative sign ('-') and scientific exponent ('e')
+                            // to prevent users from inputting negative budgets via keyboard.
+                            if (e.key === '-' || e.key === 'e') {
+                                e.preventDefault();
+                            }
                             if (e.key === 'Enter') {
                                 e.target.blur();
                             }

@@ -90,6 +90,26 @@ function App() {
     };
 
     /**
+     * Hook: useEffect (Global 401 Interceptor)
+     * Description: Mounts a global Axios response interceptor to detect 401 Unauthorized
+     *              responses (e.g. expired tokens) and trigger automatic logout.
+     */
+    useEffect(() => {
+        const interceptor = api.interceptors.response.use(
+            (response) => response,
+            (error) => {
+                if (error.response && error.response.status === 401) {
+                    handleLogout();
+                }
+                return Promise.reject(error);
+            }
+        );
+        return () => {
+            api.interceptors.response.eject(interceptor);
+        };
+    }, []);
+
+    /**
      * Function: handleTransactionAdded
      * Description: Dynamically appends a newly created transaction directly to 
      *              local state to prevent needing a full API page refresh.

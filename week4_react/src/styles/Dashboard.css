@@ -70,22 +70,6 @@
   font-weight: 600;
   margin: 0 0 20px 0;
   color: var(--on-surface);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.dashboard-chart-card h3::after {
-  content: 'more_horiz';
-  font-family: 'Material Symbols Outlined';
-  font-size: 20px;
-  color: var(--on-surface-variant);
-  cursor: pointer;
-  opacity: 0.6;
-}
-
-.dashboard-chart-card h3:hover::after {
-  opacity: 1;
 }
 
 .no-data-message {

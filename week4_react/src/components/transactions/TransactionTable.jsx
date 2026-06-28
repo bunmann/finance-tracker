@@ -89,7 +89,6 @@ function TransactionTable({
     }
 
     const fullColumns = [
-        { label: 'ID', key: 'id' },
         { label: 'Date', key: 'date' },
         { label: 'Description', key: 'description' },
         { label: 'Category', key: 'category' },
@@ -106,7 +105,6 @@ function TransactionTable({
             defaultSort={{ key: 'date', direction: 'asc' }}
             renderRow={(t) => (
                 <tr key={t.id}>
-                    <td style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--on-surface-variant)' }}>#{t.id}</td>
                     <td>{t.date}</td>
                     <td style={{ fontWeight: '500' }}>{t.description}</td>
                     <td>
