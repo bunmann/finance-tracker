@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import api from '../../api';
 import MetricCard from '../common/MetricCard';
+import { CURRENCY } from '../../utils/config';
 import AlertBanner from '../common/AlertBanner';
 import BrokerageCsvUpload from './BrokerageCsvUpload';
 import StockHoldings from './StockHoldings';
@@ -66,41 +67,41 @@ function StockPortfolio({ showToast }) {
     return (
         <div className="stocks-page page-container">
             <div className="dashboard-header">
-                <h2 className="dashboard-title">Stock Portfolio</h2>
+                <h2 className="dashboard-title">Stock Portfolio ({CURRENCY})</h2>
             </div>
-            
+
             {/* Warning Banner */}
             {portfolio?.warning && (
-                <AlertBanner 
-                    type="warning" 
-                    message={portfolio.warning} 
-                    icon="warning" 
+                <AlertBanner
+                    type="warning"
+                    message={portfolio.warning}
+                    icon="warning"
                 />
             )}
 
             {portfolio && (
-                <motion.div 
+                <motion.div
                     className="portfolio-totals"
                     variants={staggerContainer}
                     initial="initial"
                     animate="animate"
                 >
                     <MetricCard
-                        title="Total Value"
+                        title={`Total Value (${CURRENCY})`}
                         value={portfolio.total_value}
                     />
                     <MetricCard
-                        title="Total Cost"
+                        title={`Total Cost (${CURRENCY})`}
                         value={portfolio.total_cost}
                     />
                     <MetricCard
-                        title="Total P&L"
+                        title={`Total P&L (${CURRENCY})`}
                         value={portfolio.total_gain}
                         className={gainClass}
                         prefix={portfolio.total_gain !== null && portfolio.total_gain >= 0 ? '+$' : '$'}
                     />
                     <MetricCard
-                        title="Realized P&L"
+                        title={`Realized P&L (${CURRENCY})`}
                         value={portfolio.total_realized_gain}
                         className={portfolio.total_realized_gain >= 0 ? 'gain-text' : 'loss-text'}
                         prefix={portfolio.total_realized_gain !== null && portfolio.total_realized_gain >= 0 ? '+$' : '$'}
@@ -126,4 +127,4 @@ function StockPortfolio({ showToast }) {
     );
 }
 
-    export default StockPortfolio;
+export default StockPortfolio;

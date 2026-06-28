@@ -7,6 +7,7 @@ import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { motion } from 'framer-motion';
 import api from '../../api';
 import MetricCard from '../common/MetricCard';
+import { CURRENCY } from '../../utils/config';
 import AlertBanner from '../common/AlertBanner';
 import MonthSelect from '../common/MonthSelect';
 import { staggerContainer } from '../../utils/animations';
@@ -79,7 +80,7 @@ function Dashboard({ transactions, showToast }) {
         <div className="page-container">
             {/* Header controls bar */}
             <div className="dashboard-header">
-                <h2 className="dashboard-title">Dashboard Overview</h2>
+                <h2 className="dashboard-title">Dashboard Overview ({CURRENCY})</h2>
                 <div className="dashboard-controls">
                     <div className="control-group">
                         <label>Month</label>
@@ -101,24 +102,24 @@ function Dashboard({ transactions, showToast }) {
             </div>
 
             {/* Summary Cards */}
-            <motion.div 
+            <motion.div
                 className="summary-cards"
                 variants={staggerContainer}
                 initial="initial"
                 animate="animate"
             >
                 <MetricCard
-                    title="Monthly Income"
+                    title={`Monthly Income (${CURRENCY})`}
                     value={dashboardData.total_income}
                     className="income"
                 />
                 <MetricCard
-                    title="Monthly Expenses"
+                    title={`Monthly Expenses (${CURRENCY})`}
                     value={dashboardData.total_expense}
                     className="expense"
                 />
                 <MetricCard
-                    title="Net Savings"
+                    title={`Net Savings (${CURRENCY})`}
                     value={dashboardData.net_savings}
                     className={dashboardData.net_savings >= 0 ? 'savings-positive' : 'savings-negative'}
                 />
@@ -147,7 +148,7 @@ function Dashboard({ transactions, showToast }) {
 
             {/* Pie Chart — Spending by Category */}
             <div className="dashboard-chart-card">
-                <h3>Spending by Category</h3>
+                <h3>Spending by Category ({CURRENCY})</h3>
                 {dashboardData.by_category.length > 0 ? (
                     <div style={{ width: '100%', height: 320 }}>
                         <ResponsiveContainer width="100%" height="100%">

@@ -8,14 +8,15 @@ This is a Personal Finance and Stock Portfolio Tracker application.
 - Backend: FastAPI, SQLAlchemy (SQLite), Pydantic
 - Frontend: React (Vite), vanilla CSS, Axios
 
-# CRITICAL REDESIGN GUARDRAILS
-> [!IMPORTANT]
-> **1. NO BACKEND MODIFICATIONS**: Do not touch, edit, or modify any Python/SQL files inside `week3_fastapi/**` during the frontend styling phase.
-> **2. NO CORE JSX LOGIC MODIFICATIONS**: Do not edit, remove, or modify any React hooks (`useState`, `useEffect`, custom hooks), API query requests, form submission logic, or state management variables inside the `.jsx` files. All JSX modifications must be strictly limited to wrapping layout classes, HTML visual tags, and visual animations.
+# 3-Tier Context Hierarchy
+To prevent hallucination, visual regression, and code-drift:
+* **Tier 1 (Global Context)**: This `.cursorrules` file. Governs stack standards, aesthetic specs, and agent workflows.
+* **Tier 2 (Module Context)**: Folder-specific `structure.md` files. Backend rules live in `week3_fastapi/structure.md`; Frontend rules live in `week4_react/structure.md`.
+* **Tier 3 (Task Context)**: Just-in-time session prompts, plans, and checklist logs.
 
 # Execution Boundaries
 - **No Automatic Installations**: Never run installation commands (e.g., `pip install`, `npm install`) or external download commands. Always instruct the user to run them in their terminal.
-- **Git Actions**: Do not run `git commit` or push commands directly. The user will handle commits and version control.
+- **Git Actions**: Do not run `git commit` or push commands directly unless explicitly requested by the user.
 
 # Lesson Tracking & Architecture References
 - **Lesson Protocols**: For starting or ending a lesson, you must strictly follow the rules in [.lessons/lesson_protocol.md](file:///Users/david/Documents/PG/Finance%20Project/.lessons/lesson_protocol.md).

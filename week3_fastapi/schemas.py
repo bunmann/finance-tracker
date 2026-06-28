@@ -53,3 +53,28 @@ class WatchlistCreate(BaseModel):
 
 class SectorCompetenceCreate(BaseModel):
     sector: str = Field(..., min_length=1, max_length=100, description="Sector name")
+
+
+# ============================================================================
+# Quantitative Algorithmic Screener Schemas
+# ============================================================================
+
+class ScreenerRequest(BaseModel):
+    min_fcf_growth: Optional[float] = Field(default=0.20, description="Minimum Free Cash Flow growth rate (0.20 is 20%)")
+    min_profit_margin: Optional[float] = Field(default=0.15, description="Minimum Net Profit Margin (0.15 is 15%)")
+    max_debt_equity: Optional[float] = Field(default=1.0, description="Maximum Debt-to-Equity ratio")
+    max_pe: Optional[float] = Field(default=25.0, description="Maximum trailing Price-to-Earnings ratio")
+    circle_of_competence_only: Optional[bool] = Field(default=False, description="Filter for sectors in user's circle of competence")
+
+
+class ScreenerResponseItem(BaseModel):
+    ticker: str
+    name: str
+    sector: str
+    price: float
+    pe: Optional[float]
+    fcf_growth: Optional[float]
+    profit_margin: Optional[float]
+    debt_to_equity: Optional[float]
+    performance_30d: float
+    relative_strength: float

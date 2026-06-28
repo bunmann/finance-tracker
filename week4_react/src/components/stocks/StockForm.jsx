@@ -4,6 +4,7 @@
 // ============================================================================
 import { useState } from 'react';
 import api from '../../api';
+import { CURRENCY } from '../../utils/config';
 
 /**
  * Component: StockForm
@@ -122,7 +123,7 @@ function StockForm({ type, onComplete, showToast }) {
                     </div>
 
                     <div className="form-group">
-                        <label>Price ($)</label>
+                        <label>Price ({CURRENCY})</label>
                         <input
                             type="number"
                             step="0.01"

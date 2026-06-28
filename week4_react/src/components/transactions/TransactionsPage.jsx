@@ -2,6 +2,7 @@ import TransactionForm from './TransactionForm';
 import TransactionCsvUpload from './TransactionCsvUpload';
 import TransactionList from './TransactionList';
 import '../../styles/Transactions.css';
+import { CURRENCY } from '../../utils/config';
 
 /**
  * Component: TransactionsPage
@@ -28,7 +29,7 @@ function TransactionsPage({
     return (
         <div className="transactions-page page-container">
             <div className="dashboard-header">
-                <h2 className="dashboard-title">Transaction Overview</h2>
+                <h2 className="dashboard-title">Transaction Overview ({CURRENCY})</h2>
             </div>
             <div className="transactions-forms">
                 <TransactionForm

@@ -23,6 +23,38 @@ router = APIRouter(
 )
 
 
+def _get_cad_price(ticker: str, raw_price: float | None, db: Session) -> float | None:
+    """
+    Private helper to convert stock prices from USD to CAD if the ticker is a US stock.
+    Tickers ending in .TO or .V are traded in CAD, so no conversion is needed.
+    """
+    if raw_price is None or raw_price is False:
+        return raw_price
+
+    # Check system currency configuration (e.g. from .env file or default)
+    # If the portfolio is configured as USD, bypass any CAD conversions.
+    import os
+    target_currency = os.getenv("CURRENCY", "CAD").upper().strip()
+    if target_currency != "CAD":
+        return raw_price
+        
+    ticker_clean = ticker.upper().strip()
+    # Canadian exchanges (.TO for TSX, .V for TSXV) and currency tickers like USDCAD=X don't need conversion.
+    if ticker_clean.endswith(".TO") or ticker_clean.endswith(".V") or "CAD" in ticker_clean:
+        return raw_price
+
+    # Fetch USDCAD exchange rate using cache-aside stock service
+    try:
+        rate, _, _ = get_stock_price("USDCAD=X", db)
+        if rate is not None and rate is not False and rate > 0:
+            return float(raw_price) * float(rate)
+    except Exception:
+        pass
+
+    # Standard fallback rate (1.37 CAD/USD) if exchange query fails
+    return float(raw_price) * 1.37
+
+
 # ============================================================================
 # 1. Market Data & Pricing
 # ============================================================================
@@ -48,9 +80,10 @@ def get_price(
             status_code=404,
             detail=f"Failed to fetch price for '{ticker.upper()}' at the moment. Please try again later."
         )
+    price_cad = _get_cad_price(ticker, price, db)
     return {
         "ticker": ticker.upper(),
-        "price": price,
+        "price": price_cad,
         "last_updated": last_updated.isoformat() if last_updated else None,
         "is_stale": is_stale
     }
@@ -87,8 +120,9 @@ def get_portfolio(
 
     for holding in holdings:
         price, last_updated, is_stale = get_stock_price(holding.ticker, db)
+        price_cad = _get_cad_price(holding.ticker, price, db)
         
-        market_value = Decimal(str(price)) * holding.shares if price is not None else None
+        market_value = Decimal(str(price_cad)) * holding.shares if price_cad is not None else None
         cost_basis = holding.avg_cost * holding.shares
         unrealized_gain = market_value - cost_basis if market_value is not None else None
         gain_percent = (unrealized_gain / cost_basis * 100) if unrealized_gain is not None and cost_basis else None
@@ -97,7 +131,7 @@ def get_portfolio(
             "ticker": holding.ticker,
             "shares": float(holding.shares),
             "avg_cost": float(holding.avg_cost),
-            "current_price": float(price) if price is not None else None,
+            "current_price": float(price_cad) if price_cad is not None else None,
             "last_updated": last_updated.isoformat() if last_updated else None,
             "is_stale": is_stale,
             "market_value": float(market_value) if market_value is not None else None,
@@ -498,10 +532,11 @@ def get_watchlist(
     watchlist_enriched = []
     for item in items:
         price, last_updated, is_stale = get_stock_price(item.ticker, db)
+        price_cad = _get_cad_price(item.ticker, price, db)
         watchlist_enriched.append({
             "id": item.id,
             "ticker": item.ticker,
-            "current_price": float(price) if price is not None else None,
+            "current_price": float(price_cad) if price_cad is not None else None,
             "last_updated": last_updated.isoformat() if last_updated else None,
             "is_stale": is_stale
         })

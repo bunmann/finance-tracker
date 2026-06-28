@@ -40,7 +40,7 @@ function StockHoldings({ holdings = [] }) {
                             const pnlClass = h.unrealized_gain !== null ? (isGain ? 'gain-text' : 'loss-text') : '';
                             const isPercentGain = h.gain_percent >= 0;
                             const percentClass = h.gain_percent !== null ? (isPercentGain ? 'gain-text' : 'loss-text') : '';
-                            
+
                             return (
                                 <>
                                     <td className="ticker-cell">{h.ticker}</td>

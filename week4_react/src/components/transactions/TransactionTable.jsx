@@ -134,8 +134,8 @@ function TransactionTable({
                         {t.type === 'income' ? '+' : '-'}${Number(Math.abs(t.amount)).toFixed(2)}
                     </td>
                     <td>
-                        <button 
-                            className="btn btn-secondary" 
+                        <button
+                            className="btn btn-secondary"
                             style={{ padding: '6px 12px', fontSize: '11px', textTransform: 'none', border: '1px solid var(--secondary-container)', color: 'var(--secondary)' }}
                             onClick={() => handleDelete(t.id)}
                         >

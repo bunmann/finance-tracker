@@ -8,6 +8,7 @@ import api from '../../api';
 import BudgetCard from './BudgetCard';
 import MonthSelect from '../common/MonthSelect';
 import '../../styles/Budgets.css';
+import { CURRENCY } from '../../utils/config';
 
 
 /**
@@ -90,7 +91,7 @@ function BudgetOverview({ transactions = [], showToast }) {
     return (
         <div className="page-container">
             <div className="dashboard-header">
-                <h2 className="dashboard-title">Budget Overview</h2>
+                <h2 className="dashboard-title">Budget Overview ({CURRENCY})</h2>
                 <div className="budget-controls" style={{ margin: 0 }}>
                     <div className="control-group">
                         <label>Month</label>

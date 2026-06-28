@@ -4,6 +4,7 @@
 // ============================================================================
 import { useState, useEffect } from 'react';
 import api from '../../api';
+import { CURRENCY } from '../../utils/config';
 
 /**
  * Component: TransactionForm
@@ -94,7 +95,7 @@ function TransactionForm({ onTransactionAdded, showToast }) {
             
             <div className="form-grid">
                 <div className="form-group">
-                    <label>Amount</label>
+                    <label>Amount ({CURRENCY})</label>
                     <input
                         type="number"
                         step="0.01"
