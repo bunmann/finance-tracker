@@ -34,6 +34,7 @@ function StockHoldings({ holdings = [] }) {
                         columns={columns}
                         tableClass="holdings-table"
                         defaultSort={{ key: 'ticker', direction: 'asc' }}
+                        rowKey="ticker"
                         renderRow={(h) => {
                             const isGain = h.unrealized_gain >= 0;
                             const pnlClass = h.unrealized_gain !== null ? (isGain ? 'gain-text' : 'loss-text') : '';
@@ -41,7 +42,7 @@ function StockHoldings({ holdings = [] }) {
                             const percentClass = h.gain_percent !== null ? (isPercentGain ? 'gain-text' : 'loss-text') : '';
                             
                             return (
-                                <tr key={h.ticker}>
+                                <>
                                     <td className="ticker-cell">{h.ticker}</td>
                                     <td className="amount-cell">{fmt(h.shares, 4)}</td>
                                     <td className="amount-cell">${h.avg_cost.toFixed(2)}</td>
@@ -57,7 +58,7 @@ function StockHoldings({ holdings = [] }) {
                                             ? `${h.gain_percent >= 0 ? '+' : ''}${h.gain_percent.toFixed(2)}%`
                                             : '—'}
                                     </td>
-                                </tr>
+                                </>
                             );
                         }}
                     />

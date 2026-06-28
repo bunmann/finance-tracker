@@ -4,7 +4,9 @@
 //              inline budget update, and a collapsible transaction list.
 // ============================================================================
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import TransactionTable from '../transactions/TransactionTable';
+import { accordionCollapse } from '../../utils/animations';
 
 /**
  * Component: BudgetCard
@@ -112,22 +114,31 @@ function BudgetCard({ category, spent, transactions, month, year, onBudgetUpdate
             </div>
 
             {/* Collapsible Transactions Dropdown */}
-            {isExpanded && (
-                <div className="budget-card-transactions">
-                    <div className="budget-transactions-divider"></div>
-                    <h4 className="budget-transactions-title">
-                        Transactions in {new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' })}
-                    </h4>
-                    {catTransactions.length === 0 ? (
-                        <p className="no-transactions-text">No transactions logged under this category for this period.</p>
-                    ) : (
-                        <TransactionTable
-                            transactions={catTransactions}
-                            isMini={true}
-                        />
-                    )}
-                </div>
-            )}
+            <AnimatePresence>
+                {isExpanded && (
+                    <motion.div 
+                        className="budget-card-transactions"
+                        variants={accordionCollapse}
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                        style={{ overflow: 'hidden' }}
+                    >
+                        <div className="budget-transactions-divider"></div>
+                        <h4 className="budget-transactions-title">
+                            Transactions in {new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' })}
+                        </h4>
+                        {catTransactions.length === 0 ? (
+                            <p className="no-transactions-text">No transactions logged under this category for this period.</p>
+                        ) : (
+                            <TransactionTable
+                                transactions={catTransactions}
+                                isMini={true}
+                            />
+                        )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

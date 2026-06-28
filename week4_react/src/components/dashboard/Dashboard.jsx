@@ -4,10 +4,12 @@
 // ============================================================================
 import { useState, useEffect, useRef } from 'react';
 import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { motion } from 'framer-motion';
 import api from '../../api';
 import MetricCard from '../common/MetricCard';
 import AlertBanner from '../common/AlertBanner';
 import MonthSelect from '../common/MonthSelect';
+import { staggerContainer } from '../../utils/animations';
 import '../../styles/Dashboard.css';
 
 // Colors for the pie chart slices
@@ -99,7 +101,12 @@ function Dashboard({ transactions, showToast }) {
             </div>
 
             {/* Summary Cards */}
-            <div className="summary-cards">
+            <motion.div 
+                className="summary-cards"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+            >
                 <MetricCard
                     title="Monthly Income"
                     value={dashboardData.total_income}
@@ -115,7 +122,7 @@ function Dashboard({ transactions, showToast }) {
                     value={dashboardData.net_savings}
                     className={dashboardData.net_savings >= 0 ? 'savings-positive' : 'savings-negative'}
                 />
-            </div>
+            </motion.div>
 
             {/* Budget Alerts */}
             {activeAlerts.length > 0 && (

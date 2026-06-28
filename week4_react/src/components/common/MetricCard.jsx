@@ -12,6 +12,9 @@
  *   - prefix (String): Optional symbol before the value (e.g., "$"). Defaults to "$".
  *   - className (String): Optional CSS class to style the card value container.
  */
+import { motion } from 'framer-motion';
+import { fadeInUp } from '../../utils/animations';
+
 function MetricCard({ title, value, prefix = '$', className = '' }) {
     const renderValue = () => {
         if (value === null || value === undefined) {
@@ -27,12 +30,12 @@ function MetricCard({ title, value, prefix = '$', className = '' }) {
     };
 
     return (
-        <div className="summary-card">
+        <motion.div className="summary-card" variants={fadeInUp}>
             <h3>{title}</h3>
             <p className={`amount ${className}`}>
                 {renderValue()}
             </p>
-        </div>
+        </motion.div>
     );
 }
 

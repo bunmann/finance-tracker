@@ -4,6 +4,7 @@
 //              and transaction history.
 // ============================================================================
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import api from '../../api';
 import MetricCard from '../common/MetricCard';
 import AlertBanner from '../common/AlertBanner';
@@ -11,6 +12,7 @@ import BrokerageCsvUpload from './BrokerageCsvUpload';
 import StockHoldings from './StockHoldings';
 import StockForm from './StockForm';
 import StockTransactions from './StockTransactions';
+import { staggerContainer } from '../../utils/animations';
 import '../../styles/StockPortfolio.css';
 
 /**
@@ -77,29 +79,34 @@ function StockPortfolio({ showToast }) {
             )}
 
             {portfolio && (
-                <div className="portfolio-totals">
-                        <MetricCard
-                            title="Total Value"
-                            value={portfolio.total_value}
-                        />
-                        <MetricCard
-                            title="Total Cost"
-                            value={portfolio.total_cost}
-                        />
-                        <MetricCard
-                            title="Total P&L"
-                            value={portfolio.total_gain}
-                            className={gainClass}
-                            prefix={portfolio.total_gain !== null && portfolio.total_gain >= 0 ? '+$' : '$'}
-                        />
-                        <MetricCard
-                            title="Realized P&L"
-                            value={portfolio.total_realized_gain}
-                            className={portfolio.total_realized_gain >= 0 ? 'gain-text' : 'loss-text'}
-                            prefix={portfolio.total_realized_gain !== null && portfolio.total_realized_gain >= 0 ? '+$' : '$'}
-                        />
-                    </div>
-                )}
+                <motion.div 
+                    className="portfolio-totals"
+                    variants={staggerContainer}
+                    initial="initial"
+                    animate="animate"
+                >
+                    <MetricCard
+                        title="Total Value"
+                        value={portfolio.total_value}
+                    />
+                    <MetricCard
+                        title="Total Cost"
+                        value={portfolio.total_cost}
+                    />
+                    <MetricCard
+                        title="Total P&L"
+                        value={portfolio.total_gain}
+                        className={gainClass}
+                        prefix={portfolio.total_gain !== null && portfolio.total_gain >= 0 ? '+$' : '$'}
+                    />
+                    <MetricCard
+                        title="Realized P&L"
+                        value={portfolio.total_realized_gain}
+                        className={portfolio.total_realized_gain >= 0 ? 'gain-text' : 'loss-text'}
+                        prefix={portfolio.total_realized_gain !== null && portfolio.total_realized_gain >= 0 ? '+$' : '$'}
+                    />
+                </motion.div>
+            )}
 
             {/* Holdings Table */}
             <StockHoldings holdings={portfolio?.holdings} />

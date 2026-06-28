@@ -3,6 +3,8 @@
 // Description: Renders a temporary auto-dismissing feedback banner.
 // ============================================================================
 import { useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { toastAnimation } from '../../utils/animations';
 
 /**
  * Component: Toast
@@ -22,7 +24,7 @@ function Toast({ message, type, onClose }) {
 
         // Cleanup: cancel timer if Toast unmounts early
         return () => clearTimeout(timer);
-    }, [message, onClose]);
+    }, [message]);
 
     // Map toast type to corresponding material icon name
     const getIcon = () => {
@@ -39,13 +41,19 @@ function Toast({ message, type, onClose }) {
     };
 
     return (
-        <div className={`toast toast-${type}`}>
+        <motion.div 
+            className={`toast toast-${type}`}
+            variants={toastAnimation}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+        >
             <span className="material-symbols-outlined toast-icon">{getIcon()}</span>
             <span className="toast-message">{message}</span>
             <button className="toast-close" onClick={onClose} aria-label="Close notification">
                 <span className="material-symbols-outlined">close</span>
             </button>
-        </div>
+        </motion.div>
     );
 }
 

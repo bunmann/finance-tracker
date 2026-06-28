@@ -76,13 +76,13 @@ function TransactionTable({
                 tableClass="mini-transactions-table"
                 defaultSort={{ key: 'date', direction: 'asc' }}
                 renderRow={(t) => (
-                    <tr key={t.id}>
+                    <>
                         <td>{t.date}</td>
                         <td>{t.description}</td>
                         <td className={`amount-cell ${t.type === 'income' ? 'amount-gain' : 'amount-loss'}`} style={{ textAlign: 'right' }}>
                             {t.type === 'income' ? '+' : '-'}${Number(Math.abs(t.amount)).toFixed(2)}
                         </td>
-                    </tr>
+                    </>
                 )}
             />
         );
@@ -104,7 +104,7 @@ function TransactionTable({
             categories={categories}
             defaultSort={{ key: 'date', direction: 'asc' }}
             renderRow={(t) => (
-                <tr key={t.id}>
+                <>
                     <td>{t.date}</td>
                     <td style={{ fontWeight: '500' }}>{t.description}</td>
                     <td>
@@ -143,7 +143,7 @@ function TransactionTable({
                             Delete
                         </button>
                     </td>
-                </tr>
+                </>
             )}
         />
     );

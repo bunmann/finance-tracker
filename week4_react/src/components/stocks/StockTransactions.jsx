@@ -67,7 +67,7 @@ function StockTransactions({ refreshTrigger, showToast }) {
                         renderRow={(tx) => {
                             const isBuy = tx.type === 'buy';
                             return (
-                                <tr key={tx.id}>
+                                <>
                                     <td>{tx.date}</td>
                                     <td className="ticker-cell">{tx.ticker}</td>
                                     <td>
@@ -78,7 +78,7 @@ function StockTransactions({ refreshTrigger, showToast }) {
                                     <td className="amount-cell" style={{ textAlign: 'right' }}>{parseFloat(Number(tx.shares).toFixed(4))}</td>
                                     <td className="amount-cell" style={{ textAlign: 'right' }}>${Number(tx.price).toFixed(2)}</td>
                                     <td className="amount-cell" style={{ textAlign: 'right', fontWeight: '600' }}>${Number(tx.total).toFixed(2)}</td>
-                                </tr>
+                                </>
                             );
                         }}
                     />

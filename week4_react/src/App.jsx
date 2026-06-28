@@ -3,25 +3,17 @@
 // Description: Main frontend React component that sets up routing, handles state,
 //              and structures the overall page layouts.
 // ============================================================================
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { useState, useEffect, useCallback } from 'react';
 import api from './api';
-import Navbar from './components/common/Navbar';
-import Dashboard from './components/dashboard/Dashboard';
-import TransactionsPage from './components/transactions/TransactionsPage';
-import LoginPage from './components/auth/LoginPage';
-import SignupPage from './components/auth/SignupPage';
-import BudgetOverview from './components/dashboard/BudgetOverview';
-import StockPortfolio from './components/stocks/StockPortfolio';
-import Toast from './components/common/Toast';
-import ErrorBoundary from './components/common/ErrorBoundary';
+import AppContent from './AppContent';
 import './App.css';
 
 /**
  * Component: App
  * Description: The main application root component that initializes global state,
- *              coordinates page routing, manages authentication status, handles 
- *              outbound API syncs, and displays toasts.
+ *              coordinates page routing, manages authentication status, and handles 
+ *              outbound API syncs.
  */
 function App() {
     const [transactions, setTransactions] = useState([]);
@@ -159,47 +151,20 @@ function App() {
 
     return (
         <Router>
-            <div className={`App ${!isLoggedIn ? 'logged-out' : ''}`}>
-                <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
-                <main className="main-content">
-                    <ErrorBoundary>
-                        <Routes>
-                            {isLoggedIn ? (
-                                <>
-                                    <Route path="/" element={<Dashboard transactions={transactions} showToast={showToast} />} />
-                                    <Route path="/transactions" element={
-                                        <TransactionsPage
-                                            transactions={transactions}
-                                            loading={loading}
-                                            onTransactionAdded={handleTransactionAdded}
-                                            onTransactionDeleted={handleTransactionDeleted}
-                                            onTransactionUpdated={handleTransactionUpdated}
-                                            onTransactionImportComplete={handleTransactionImportComplete}
-                                            showToast={showToast}
-                                        />
-                                    } />
-                                    <Route path="/budgets" element={<BudgetOverview transactions={transactions} showToast={showToast} />} />
-                                    <Route path="/stocks" element={<StockPortfolio showToast={showToast} />} />
-                                    <Route path="*" element={<Navigate to="/" />} />
-                                </>
-                            ) : (
-                                <>
-                                    <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
-                                    <Route path="/signup" element={<SignupPage />} />
-                                    <Route path="*" element={<Navigate to="/login" />} />
-                                </>
-                            )}
-                        </Routes>
-                    </ErrorBoundary>
-                </main>
-            </div>
-            {toast && (
-                <Toast
-                    message={toast.message}
-                    type={toast.type}
-                    onClose={() => setToast(null)}
-                />
-            )}
+            <AppContent
+                transactions={transactions}
+                loading={loading}
+                isLoggedIn={isLoggedIn}
+                handleLogin={handleLogin}
+                handleLogout={handleLogout}
+                handleTransactionAdded={handleTransactionAdded}
+                handleTransactionDeleted={handleTransactionDeleted}
+                handleTransactionUpdated={handleTransactionUpdated}
+                handleTransactionImportComplete={handleTransactionImportComplete}
+                showToast={showToast}
+                toast={toast}
+                setToast={setToast}
+            />
         </Router>
     );
 }

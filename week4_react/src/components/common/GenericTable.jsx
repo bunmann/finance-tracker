@@ -1,12 +1,14 @@
 // ============================================================================
 // File: GenericTable.jsx
-// Description: Reusable sortable table container.
+// Description: Reusable sortable table container with layout transitions.
 // ============================================================================
+import { motion, AnimatePresence } from 'framer-motion';
 import useSortableData from '../../hooks/useSortableData';
+import { tableRowAnimation } from '../../utils/animations';
 
 /**
  * Component: GenericTable
- * Description: Renders a reusable table shell with sortable column headers.
+ * Description: Renders a reusable table shell with sortable column headers and layout transitions.
  * Props:
  *   - data (Array): Array of records to display.
  *   - columns (Array): Configurations for columns: { label, key, align }.
@@ -16,6 +18,7 @@ import useSortableData from '../../hooks/useSortableData';
  *   - defaultSort (Object): Default sorting config { key, direction }.
  *   - tableClass (String): Optional CSS class to apply to the table element.
  *   - categories (Array): Optional list of categories for sorting by category name.
+ *   - rowKey (String): Property name to use as React key. Defaults to 'id'.
  */
 function GenericTable({
     data = [],
@@ -23,7 +26,8 @@ function GenericTable({
     renderRow,
     defaultSort = null,
     tableClass = '',
-    categories = []
+    categories = [],
+    rowKey = 'id'
 }) {
     // Apply sorting logic using our custom hook
     const { items: sortedItems, requestSort, sortConfig } = useSortableData(
@@ -76,7 +80,23 @@ function GenericTable({
                 </tr>
             </thead>
             <tbody>
-                {sortedItems.map(item => renderRow(item))}
+                <AnimatePresence initial={false}>
+                    {sortedItems.map((item, index) => {
+                        const key = item[rowKey] || index;
+                        return (
+                            <motion.tr
+                                key={key}
+                                variants={tableRowAnimation}
+                                initial="initial"
+                                animate="animate"
+                                exit="exit"
+                                layout
+                            >
+                                {renderRow(item)}
+                            </motion.tr>
+                        );
+                    })}
+                </AnimatePresence>
             </tbody>
         </table>
     );
