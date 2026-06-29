@@ -2,7 +2,7 @@
 // File: StockHoldings.jsx
 // Description: Renders the active stock holdings table with sortable columns.
 // ============================================================================
-import GenericTable from '../common/GenericTable';
+import GenericTable from '../common/data-display/GenericTable';
 
 /**
  * Component: StockHoldings

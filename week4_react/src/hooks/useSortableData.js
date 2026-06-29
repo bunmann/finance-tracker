@@ -39,26 +39,23 @@ function useSortableData(items, config = null, categories = []) {
                 if (aVal === undefined || aVal === null) aVal = '';
                 if (bVal === undefined || bVal === null) bVal = '';
 
-                // Handle numeric values
-                // Handle numeric values
-                const numericKeys = ['amount', 'id', 'shares', 'price', 'total', 'avg_cost', 'market_value', 'unrealized_gain', 'gain_percent'];
-                if (numericKeys.includes(sortConfig.key)) {
-                    const aNum = parseFloat(aVal) || 0;
-                    const bNum = parseFloat(bVal) || 0;
+                // Protocol 1: Automatic Duck-Typing (Dynamic Numeric Detection)
+                // Inspect cell values at runtime. If values parse cleanly as numbers, sort mathematically.
+                const isANum = typeof aVal === 'number' || (aVal !== '' && aVal !== '—' && !isNaN(Number(aVal)));
+                const isBNum = typeof bVal === 'number' || (bVal !== '' && bVal !== '—' && !isNaN(Number(bVal)));
+
+                if (isANum || isBNum) {
+                    const aNum = isANum ? Number(aVal) : -Infinity;
+                    const bNum = isBNum ? Number(bVal) : -Infinity;
                     return sortConfig.direction === 'asc' ? aNum - bNum : bNum - aNum;
                 }
 
-                // Default string comparison (case-insensitive)
-                const aStr = String(aVal).toLowerCase();
-                const bStr = String(bVal).toLowerCase();
-
-                if (aStr < bStr) {
-                    return sortConfig.direction === 'asc' ? -1 : 1;
-                }
-                if (aStr > bStr) {
-                    return sortConfig.direction === 'asc' ? 1 : -1;
-                }
-                return 0;
+                // Fallback: Case-insensitive string comparison using localeCompare
+                const aStr = String(aVal);
+                const bStr = String(bVal);
+                return sortConfig.direction === 'asc'
+                    ? aStr.localeCompare(bStr, undefined, { sensitivity: 'base' })
+                    : bStr.localeCompare(aStr, undefined, { sensitivity: 'base' });
             });
         }
         return sortableItems;

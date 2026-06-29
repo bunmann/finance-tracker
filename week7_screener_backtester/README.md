@@ -17,11 +17,11 @@ Welcome to Week 7. In this phase, we transition from basic CRUD asset management
   - [x] Implement unified multi-strategy quantitative scan engine `POST /screener/scan` covering watchlist, holdings, and general recommendations.
   - [x] Calculate recent 30-day price trends and compare them against quarterly fundamental growth rates.
   - [x] Flag price-to-fundamental divergence alerts.
-- [ ] **Task 3: Frontend: Screener & Anomalies Dashboard**
-  - [ ] Create `StockScreener.jsx` to render the unified screener control panel.
-  - [ ] Build the Anomaly Alerts panel showcasing real-time price divergence warnings.
-  - [ ] Integrate a results table with sorting, sector badges, "In Circle of Competence" highlights, and Cross-Sectional relative rankings.
-  - [ ] Connect routes in `App.jsx` and add sidebar navigation links in `Navbar.jsx`.
+- [x] **Task 3: Frontend: Screener & Anomalies Dashboard**
+  - [x] Create `StockScreener.jsx` to render the unified screener control panel.
+  - [x] Build the Anomaly Alerts panel showcasing real-time price divergence warnings.
+  - [x] Integrate a results table with sorting, sector badges, "In Circle of Competence" highlights, and Cross-Sectional relative rankings.
+  - [x] Connect routes in `App.jsx` and add sidebar navigation links in `Navbar.jsx`.
 
 ### 📊 Feature 2: Systematic Backtester Framework
 - [ ] **Task 4: Backend: Python Backtester Engine**

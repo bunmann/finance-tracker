@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react';
 import api from '../../api';
 import BudgetCard from './BudgetCard';
-import MonthSelect from '../common/MonthSelect';
+import MonthSelect from '../common/inputs/MonthSelect';
 import '../../styles/Budgets.css';
 import { CURRENCY } from '../../utils/config';
 

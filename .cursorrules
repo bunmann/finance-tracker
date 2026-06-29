@@ -27,6 +27,7 @@ Before making any codebase changes, adhere to the three-step lifecycle:
 1. **Planning**: Research files and update the Implementation Plan (`implementation_plan.md` in the artifacts folder). Stop the turn immediately after presenting/updating the plan and wait for explicit user approval before execution.
 2. **Execution**: Track progress in `task.md` (using `[ ]`, `[/]`, `[x]`) and run the Act-Observe-Refine loop to test changes.
 3. **Walkthrough**: Update `walkthrough.md` with final changes and verification steps.
+4. **Git Commits**: Never execute git commit commands automatically. You must only stage and commit changes when the user explicitly requests it in their prompt.
 
 # File Header Comments
 Every new code file added or existing file modified significantly must include a unified header:

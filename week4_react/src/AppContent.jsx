@@ -5,15 +5,16 @@
 // ============================================================================
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import Navbar from './components/common/Navbar';
+import Navbar from './components/common/layout/Navbar';
 import Dashboard from './components/dashboard/Dashboard';
 import TransactionsPage from './components/transactions/TransactionsPage';
 import LoginPage from './components/auth/LoginPage';
 import SignupPage from './components/auth/SignupPage';
-import BudgetOverview from './components/dashboard/BudgetOverview';
+import BudgetOverview from './components/budgets/BudgetOverview';
 import StockPortfolio from './components/stocks/StockPortfolio';
-import Toast from './components/common/Toast';
-import ErrorBoundary from './components/common/ErrorBoundary';
+import StockScreener from './components/screener/StockScreener';
+import Toast from './components/common/feedback/Toast';
+import ErrorBoundary from './components/common/feedback/ErrorBoundary';
 import { pageTransition } from './utils/animations';
 
 /**
@@ -72,6 +73,11 @@ function AppContent({
                                     <Route path="/stocks" element={
                                         <motion.div {...pageTransition}>
                                             <StockPortfolio showToast={showToast} />
+                                        </motion.div>
+                                    } />
+                                    <Route path="/screener" element={
+                                        <motion.div {...pageTransition}>
+                                            <StockScreener showToast={showToast} />
                                         </motion.div>
                                     } />
                                     <Route path="*" element={<Navigate to="/" />} />

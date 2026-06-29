@@ -3,7 +3,7 @@
 // Description: Application header navigation sidebar providing links to main views.
 // ============================================================================
 import { NavLink, Link } from 'react-router-dom';
-import '../../styles/Navbar.css';
+import '../../../styles/Navbar.css';
 
 /**
  * Component: Navbar
@@ -50,6 +50,10 @@ function Navbar({ isLoggedIn, onLogout }) {
                 <NavLink to="/stocks" className={({ isActive }) => isActive ? 'active' : ''}>
                     <span className="material-symbols-outlined">monitoring</span>
                     <span>Stocks</span>
+                </NavLink>
+                <NavLink to="/screener" className={({ isActive }) => isActive ? 'active' : ''}>
+                    <span className="material-symbols-outlined">saved_search</span>
+                    <span>Screener</span>
                 </NavLink>
             </nav>
             <div className="sidebar-footer">

@@ -13,7 +13,7 @@
  *   - className (String): Optional CSS class to style the card value container.
  */
 import { motion } from 'framer-motion';
-import { fadeInUp } from '../../utils/animations';
+import { fadeInUp } from '../../../utils/animations';
 
 function MetricCard({ title, value, prefix = '$', className = '' }) {
     const renderValue = () => {

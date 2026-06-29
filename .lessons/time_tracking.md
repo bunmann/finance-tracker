@@ -32,6 +32,8 @@ This file contains detailed metrics and time-tracking logs for each lesson compl
 * Note: Completed Task 1 backend screener, including yfinance YoY cash flow growth, sector competence filters, relative strength cross-sectional ranking, USDCAD dynamic conversions, CAD localization settings, and dynamic CSV importer warnings.
 | Jun 28, 2026 | Week 7 — Task 2: Anomalous Price Action | 07:15 PM | 08:15 PM | 1h 0m | 13 |
 * Note: Completed Task 2 backend scan engine, refactoring QoQ revenue and 30-day price metrics into shared helper functions, and implementing the unified multi-strategy grouped-response endpoint POST /screener/scan.
+| Jun 29, 2026 | Week 7 — Task 3: Screener & Anomalies UI | 01:41 PM | 03:50 PM | 2h 9m | 17 |
+
 
 ---
 
@@ -278,3 +280,16 @@ This file contains detailed metrics and time-tracking logs for each lesson compl
   - Implementing price-to-fundamental divergence logic (QoQ Revenue Growth > 10% AND 30-day price correction < -10%) representing a bullish "Value Gap" mean-reversion signal.
   - Applying Circle of Competence active sector filters to general recommendations while keeping active portfolio holdings alerts unfiltered.
   - Refactoring pricing and statement parsers into reusable, private helper functions (`_calculate_30d_return` and `_calculate_qoq_revenue_growth`).
+
+### 📅 Week 7 — Task 3: Screener & Anomalies Dashboard (Frontend)
+- **Date Completed**: Jun 29, 2026
+- **Time Window**: 01:41 PM – 03:50 PM EDT
+- **Total Duration**: 2 hours, 9 minutes
+- **Number of Prompts**: 17
+- **Key Concepts Learned**:
+  - Designing a unified quantitative terminal (`StockScreener.jsx`) utilizing multi-tab navigation to transition smoothly between market-wide momentum scans and portfolio divergence alerts.
+  - Organizing complex React UI hierarchies into modular presenter directories (`src/components/screener/`) and standardizing empty states (`EmptyState.jsx`) across all table views.
+  - Implementing dynamic sidebar adaptation where parameter sliders appear or hide based on active strategy requirements.
+  - Upgrading table sorting hooks (`useSortableData.js`) from hardcoded whitelist checks to Protocol 1 runtime Duck-Typing (`!isNaN(Number(aVal))`).
+  - Refactoring monolithic components (`Dashboard.jsx`) into clean Container / Presenter architecture (`DashboardView.jsx`) for symmetrical state separation across all 5 app tabs.
+

@@ -4,7 +4,7 @@
 // ============================================================================
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { toastAnimation } from '../../utils/animations';
+import { toastAnimation } from '../../../utils/animations';
 
 /**
  * Component: Toast

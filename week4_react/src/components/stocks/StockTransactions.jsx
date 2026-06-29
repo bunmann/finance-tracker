@@ -5,7 +5,7 @@
 // ============================================================================
 import { useState, useEffect } from 'react';
 import api from '../../api';
-import GenericTable from '../common/GenericTable';
+import GenericTable from '../common/data-display/GenericTable';
 
 /**
  * Component: StockTransactions

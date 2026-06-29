@@ -6,9 +6,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import api from '../../api';
-import MetricCard from '../common/MetricCard';
+import MetricCard from '../common/data-display/MetricCard';
 import { CURRENCY } from '../../utils/config';
-import AlertBanner from '../common/AlertBanner';
+import AlertBanner from '../common/feedback/AlertBanner';
 import BrokerageCsvUpload from './BrokerageCsvUpload';
 import StockHoldings from './StockHoldings';
 import StockForm from './StockForm';

@@ -157,7 +157,7 @@ h2 {
 }
 
 /* Custom Interactive Form Fields */
-input,
+input:not([type="range"]),
 select {
   font-family: var(--font-body);
   font-size: 14px;
@@ -181,7 +181,7 @@ select {
   padding-right: 28px !important;
 }
 
-input:focus,
+input:not([type="range"]):focus,
 select:focus {
   border-color: #94a3b8;
   box-shadow: 0 0 8px rgba(15, 23, 42, 0.08);

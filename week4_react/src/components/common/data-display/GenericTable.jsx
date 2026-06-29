@@ -3,8 +3,8 @@
 // Description: Reusable sortable table container with layout transitions.
 // ============================================================================
 import { motion, AnimatePresence } from 'framer-motion';
-import useSortableData from '../../hooks/useSortableData';
-import { tableRowAnimation } from '../../utils/animations';
+import useSortableData from '../../../hooks/useSortableData';
+import { tableRowAnimation } from '../../../utils/animations';
 
 /**
  * Component: GenericTable
@@ -27,7 +27,8 @@ function GenericTable({
     defaultSort = null,
     tableClass = '',
     categories = [],
-    rowKey = 'id'
+    rowKey = 'id',
+    rowClassName = () => ''
 }) {
     // Apply sorting logic using our custom hook
     const { items: sortedItems, requestSort, sortConfig } = useSortableData(
@@ -86,6 +87,7 @@ function GenericTable({
                         return (
                             <motion.tr
                                 key={key}
+                                className={rowClassName(item)}
                                 variants={tableRowAnimation}
                                 initial="initial"
                                 animate="animate"

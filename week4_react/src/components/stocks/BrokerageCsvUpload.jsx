@@ -1,4 +1,4 @@
-import CsvImporter from '../common/CsvImporter';
+import CsvImporter from '../common/inputs/CsvImporter';
 import { CURRENCY } from '../../utils/config';
 
 /**

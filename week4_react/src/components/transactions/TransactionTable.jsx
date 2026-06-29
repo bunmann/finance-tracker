@@ -4,7 +4,7 @@
 //              Leverages GenericTable to handle sorting and base table shell markup.
 // ============================================================================
 import api from '../../api';
-import GenericTable from '../common/GenericTable';
+import GenericTable from '../common/data-display/GenericTable';
 
 /**
  * Component: TransactionTable
