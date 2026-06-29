@@ -235,6 +235,9 @@ def run_multi_strategy_scan(
     # Sort momentum quality results by relative strength (highest momentum first)
     momentum_quality_list.sort(key=lambda x: x.relative_strength, reverse=True)
 
+    # Sort value gap alerts by 30-day return ascending (largest price correction/biggest discount first)
+    value_gap_list.sort(key=lambda x: x.performance_30d)
+
     return MultiStrategyScanResponse(
         momentum_quality=momentum_quality_list,
         value_gap=value_gap_list
