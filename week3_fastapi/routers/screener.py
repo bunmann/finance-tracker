@@ -202,7 +202,14 @@ def run_multi_strategy_scan(
             ))
 
         # --- Strategy 2: Value Gap (Divergence Anomaly) ---
-        if item["qoq_revenue_growth"] is not None and item["performance_30d"] is not None:
+        qualifies_value_gap = True
+        
+        # If circle of competence is active, restrict new recommendations to those sectors
+        if req.circle_of_competence_only and item["source"] == "recommendation":
+            if item["sector"].strip().lower() not in allowed_sectors:
+                qualifies_value_gap = False
+
+        if qualifies_value_gap and item["qoq_revenue_growth"] is not None and item["performance_30d"] is not None:
             if item["qoq_revenue_growth"] > 0.10 and item["performance_30d"] < -0.10:
                 growth_pct = item["qoq_revenue_growth"] * 100.0
                 return_pct = item["performance_30d"] * 100.0
