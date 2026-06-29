@@ -78,6 +78,8 @@ class ScreenerResponseItem(BaseModel):
     debt_to_equity: Optional[float]
     performance_30d: float
     relative_strength: float
+    source: str
+    message: str
 
 
 class AnomalyResponseItem(BaseModel):

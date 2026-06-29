@@ -188,6 +188,10 @@ def run_multi_strategy_scan(
                 qualifies_momentum = False
 
         if qualifies_momentum:
+            fcf_pct = item["fcf_growth"] * 100.0 if item["fcf_growth"] is not None else 0.0
+            rs_rank_pct = 100.0 - item["relative_strength"]
+            msg = f"{item['ticker']} - Top {rs_rank_pct:.1f}% relative strength momentum leader with {fcf_pct:.1f}% FCF growth"
+            
             momentum_quality_list.append(ScreenerResponseItem(
                 ticker=item["ticker"],
                 name=item["name"],
@@ -198,7 +202,9 @@ def run_multi_strategy_scan(
                 profit_margin=item["profit_margin"],
                 debt_to_equity=item["debt_to_equity"],
                 performance_30d=item["performance_30d"],
-                relative_strength=item["relative_strength"]
+                relative_strength=item["relative_strength"],
+                source=item["source"],
+                message=msg
             ))
 
         # --- Strategy 2: Value Gap (Divergence Anomaly) ---
