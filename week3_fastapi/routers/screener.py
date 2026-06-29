@@ -4,13 +4,13 @@
 #              calculates cross-sectional relative strength momentum.
 # ============================================================================
 import yfinance as yf
-from typing import List
+from typing import List, Optional, Tuple
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from auth import get_current_user
 import models
-from schemas import ScreenerRequest, ScreenerResponseItem
+from schemas import ScreenerRequest, ScreenerResponseItem, AnomalyResponseItem, MultiStrategyScanResponse
 
 router = APIRouter(
     prefix="/screener",
@@ -38,19 +38,49 @@ else:
         "FM.TO", "TECK-B.TO", "WCN.TO", "GIB-A.TO", "H.TO"
     ]
 
-@router.post("/run", response_model=List[ScreenerResponseItem])
-def run_screener(
+# # ----------------------------------------------------------------------------
+# Function: run_multi_strategy_scan
+# Description: Gathers watchlist and holdings database items, combines them with
+#              general market baseline tickers, calculates relative strength
+#              percentiles, evaluates momentum quality and divergence value gap
+#              logic, and returns strategy-grouped lists.
+# Parameters:
+#   - req (ScreenerRequest): Parameter sliders and limits for momentum quality.
+#   - db (Session): The database session dependency.
+#   - current_user (User): The currently authenticated user.
+# Returns:
+#   - MultiStrategyScanResponse: Grouped response of triggered candidates.
+# ----------------------------------------------------------------------------
+@router.post("/scan", response_model=MultiStrategyScanResponse)
+def run_multi_strategy_scan(
     req: ScreenerRequest,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """
-    Run the algorithmic screener. Filters stocks by fundamentals and 
-    ranks them by 30-day relative strength price momentum.
-    """
-    screened_candidates = []
+    # 1. Fetch user's active tickers
+    watchlist_items = db.query(models.Watchlist).filter(
+        models.Watchlist.user_id == current_user.id
+    ).all()
+    holding_items = db.query(models.Holding).filter(
+        models.Holding.user_id == current_user.id
+    ).all()
 
-    # Fetch active Circle of Competence sectors for the user if requested
+    # Map tickers to their sources (initializing baseline universe as "recommendation")
+    ticker_sources = {}
+    for symbol in TICKER_UNIVERSE:
+        ticker_sources[symbol.upper().strip()] = "recommendation"
+
+    for item in watchlist_items:
+        ticker_sources[item.ticker.upper().strip()] = "watchlist"
+
+    for item in holding_items:
+        t_clean = item.ticker.upper().strip()
+        if ticker_sources.get(t_clean) in ["watchlist", "both"]:
+            ticker_sources[t_clean] = "both"
+        else:
+            ticker_sources[t_clean] = "portfolio"
+
+    # Fetch active sector competences for the Circle of Competence check
     allowed_sectors = []
     if req.circle_of_competence_only:
         competences = db.query(models.SectorCompetence).filter(
@@ -58,115 +88,144 @@ def run_screener(
         ).all()
         allowed_sectors = [c.sector.strip().lower() for c in competences]
 
-    # Gather data for each ticker in the universe
-    for symbol in TICKER_UNIVERSE:
+    candidates_raw = []
+
+    # 2. Gather metrics for each unique ticker
+    from routers.stocks import _get_cad_price
+
+    for symbol, source in ticker_sources.items():
         try:
             ticker = yf.Ticker(symbol)
             info = ticker.info
 
-            # Basic metadata
+            # Metadata
             name = info.get("longName") or info.get("shortName") or symbol
             sector = info.get("sector") or "Unknown"
 
-            # Check sector filter early if active
-            if req.circle_of_competence_only and sector.strip().lower() not in allowed_sectors:
-                continue
-
-            # Core pricing
-            price = info.get("currentPrice") or info.get("regularMarketPrice")
+            # Pricing
+            price_usd = info.get("currentPrice") or info.get("regularMarketPrice")
+            
+            # Fetch 30-day performance and fallback price
+            performance_30d, hist_price = _calculate_30d_return(ticker)
+            if price_usd is None:
+                price_usd = hist_price or 0.0
+            
+            price_cad = _get_cad_price(symbol, price_usd, db)
 
             # Fundamental ratios
             pe = info.get("trailingPE")
-            profit_margin = info.get("profitMargins")  # e.g., 0.22 for 22%
+            profit_margin = info.get("profitMargins")
             
-            # yfinance returns debtToEquity in percent (e.g. 85.5). Convert to standard ratio.
             debt_to_equity_pct = info.get("debtToEquity")
             debt_to_equity = (debt_to_equity_pct / 100.0) if debt_to_equity_pct is not None else None
 
-            # Calculate YoY Free Cash Flow Growth
             fcf_growth = _calculate_fcf_growth(ticker)
 
-            # Retrieve 30-day price performance history
-            performance_30d = 0.0
-            try:
-                hist = ticker.history(period="1mo")
-                if not hist.empty and len(hist) >= 2:
-                    price_start = float(hist["Close"].iloc[0])
-                    price_end = float(hist["Close"].iloc[-1])
-                    if price_start > 0:
-                        performance_30d = (price_end - price_start) / price_start
-                    # Fallback current price from historical end if info price is missing
-                    if price is None:
-                        price = price_end
-            except Exception:
-                pass
+            # Calculate QoQ Revenue Growth using private helper
+            q_revenue_growth = _calculate_qoq_revenue_growth(ticker, info)
 
-            if price is None:
-                price = 0.0
-
-            screened_candidates.append({
+            candidates_raw.append({
                 "ticker": symbol,
                 "name": name,
                 "sector": sector,
-                "price": float(price),
+                "price": float(price_cad),
                 "pe": pe,
                 "fcf_growth": fcf_growth,
                 "profit_margin": profit_margin,
                 "debt_to_equity": debt_to_equity,
-                "performance_30d": performance_30d
+                "performance_30d": performance_30d,
+                "qoq_revenue_growth": q_revenue_growth,
+                "source": source
             })
-
         except Exception as e:
-            # Silently fallback and skip failed tickers to maintain API resilience
+            print(f"ERROR: Failed to fetch data for {symbol}: {e}")
             continue
 
-    if not screened_candidates:
-        return []
+    if not candidates_raw:
+        return MultiStrategyScanResponse(momentum_quality=[], value_gap=[])
 
-    # Cross-Sectional Ranking:
-    # 1. Sort all candidates by 30-day performance descending
-    screened_candidates.sort(key=lambda x: x["performance_30d"], reverse=True)
-    total_candidates = len(screened_candidates)
+    # 3. Compute cross-sectional relative strength percentiles across all candidates
+    candidates_raw.sort(key=lambda x: x["performance_30d"], reverse=True)
+    total_candidates = len(candidates_raw)
 
-    final_results = []
-    for idx, candidate in enumerate(screened_candidates):
-        # Calculate relative strength percentile score (0% - 100%)
-        # Index 0 has the highest performance and gets a percentile score of 100%
-        relative_strength = ((total_candidates - idx) / total_candidates) * 100.0
+    for idx, item in enumerate(candidates_raw):
+        # Calculate rank percentile (100% is top performance)
+        rank = total_candidates - idx
+        relative_strength = (rank / total_candidates) * 100.0
+        item["relative_strength"] = relative_strength
 
-        # Apply Threshold Filters
+    momentum_quality_list = []
+    value_gap_list = []
+
+    # 4. Evaluate both strategies on each candidate
+    for item in candidates_raw:
+        # --- Strategy 1: Momentum Quality ---
+        qualifies_momentum = True
         
-        # 1. Profit Margin filter
-        if candidate["profit_margin"] is not None and candidate["profit_margin"] < req.min_profit_margin:
-            continue
-            
-        # 2. Debt to Equity filter
-        if candidate["debt_to_equity"] is not None and candidate["debt_to_equity"] > req.max_debt_equity:
-            continue
+        # Sector competence filter
+        if req.circle_of_competence_only:
+            if item["sector"].strip().lower() not in allowed_sectors:
+                qualifies_momentum = False
+        
+        # Margin filter
+        if qualifies_momentum and req.min_profit_margin is not None:
+            if item["profit_margin"] is None or item["profit_margin"] < req.min_profit_margin:
+                qualifies_momentum = False
+                
+        # PE filter
+        if qualifies_momentum and req.max_pe is not None:
+            if item["pe"] is None or item["pe"] > req.max_pe:
+                qualifies_momentum = False
 
-        # 3. Trailing P/E filter (filter out if PE is negative/loss or greater than max threshold)
-        if candidate["pe"] is not None and (candidate["pe"] < 0 or candidate["pe"] > req.max_pe):
-            continue
+        # Debt to Equity filter
+        if qualifies_momentum and req.max_debt_equity is not None:
+            if item["debt_to_equity"] is None or item["debt_to_equity"] > req.max_debt_equity:
+                qualifies_momentum = False
 
-        # 4. Free Cash Flow Growth filter
-        if candidate["fcf_growth"] is not None and candidate["fcf_growth"] < req.min_fcf_growth:
-            continue
+        # FCF Growth filter
+        if qualifies_momentum and req.min_fcf_growth is not None:
+            if item["fcf_growth"] is None or item["fcf_growth"] < req.min_fcf_growth:
+                qualifies_momentum = False
 
-        final_results.append(ScreenerResponseItem(
-            ticker=candidate["ticker"],
-            name=candidate["name"],
-            sector=candidate["sector"],
-            price=candidate["price"],
-            pe=candidate["pe"],
-            fcf_growth=candidate["fcf_growth"],
-            profit_margin=candidate["profit_margin"],
-            debt_to_equity=candidate["debt_to_equity"],
-            performance_30d=candidate["performance_30d"],
-            relative_strength=relative_strength
-        ))
+        if qualifies_momentum:
+            momentum_quality_list.append(ScreenerResponseItem(
+                ticker=item["ticker"],
+                name=item["name"],
+                sector=item["sector"],
+                price=item["price"],
+                pe=item["pe"],
+                fcf_growth=item["fcf_growth"],
+                profit_margin=item["profit_margin"],
+                debt_to_equity=item["debt_to_equity"],
+                performance_30d=item["performance_30d"],
+                relative_strength=item["relative_strength"]
+            ))
 
-    # Return final candidates sorted by relative strength (highest momentum first)
-    return final_results
+        # --- Strategy 2: Value Gap (Divergence Anomaly) ---
+        if item["qoq_revenue_growth"] is not None and item["performance_30d"] is not None:
+            if item["qoq_revenue_growth"] > 0.10 and item["performance_30d"] < -0.10:
+                growth_pct = item["qoq_revenue_growth"] * 100.0
+                return_pct = item["performance_30d"] * 100.0
+                msg = f"{item['ticker']} - Revenue grew {growth_pct:.1f}% QoQ but share price dropped {abs(return_pct):.1f}% in 30 days"
+                
+                value_gap_list.append(AnomalyResponseItem(
+                    ticker=item["ticker"],
+                    name=item["name"],
+                    sector=item["sector"],
+                    current_price=item["price"],
+                    performance_30d=item["performance_30d"],
+                    qoq_revenue_growth=item["qoq_revenue_growth"],
+                    message=msg,
+                    source=item["source"]
+                ))
+
+    # Sort momentum quality results by relative strength (highest momentum first)
+    momentum_quality_list.sort(key=lambda x: x.relative_strength, reverse=True)
+
+    return MultiStrategyScanResponse(
+        momentum_quality=momentum_quality_list,
+        value_gap=value_gap_list
+    )
 
 
 def _calculate_fcf_growth(ticker: yf.Ticker) -> Optional[float]:
@@ -208,3 +267,54 @@ def _calculate_fcf_growth(ticker: yf.Ticker) -> Optional[float]:
         pass
 
     return None
+
+
+def _calculate_30d_return(ticker: yf.Ticker) -> Tuple[float, Optional[float]]:
+    """
+    Private helper to calculate rolling 30-day price performance.
+    Returns a tuple: (performance_30d_ratio, last_close_price).
+    """
+    performance_30d = 0.0
+    last_price = None
+    try:
+        hist = ticker.history(period="1mo")
+        if not hist.empty and len(hist) >= 2:
+            price_start = float(hist["Close"].iloc[0])
+            price_end = float(hist["Close"].iloc[-1])
+            if price_start > 0:
+                performance_30d = (price_end - price_start) / price_start
+            last_price = price_end
+    except Exception:
+        pass
+    return performance_30d, last_price
+
+
+def _calculate_qoq_revenue_growth(ticker: yf.Ticker, info: dict) -> Optional[float]:
+    """
+    Private helper to calculate Quarter-over-Quarter (QoQ) Revenue Growth.
+    Queries quarterly income statements and falls back to yfinance info.get("revenueGrowth").
+    """
+    q_revenue_growth = None
+    try:
+        q_inc = ticker.quarterly_income_stmt
+        if q_inc.empty:
+            q_inc = ticker.quarterly_financials
+        
+        rev_row = None
+        for idx in ["Total Revenue", "Revenue"]:
+            if idx in q_inc.index:
+                rev_row = q_inc.loc[idx]
+                break
+        
+        if rev_row is not None and len(rev_row) >= 2:
+            rev_latest = float(rev_row.iloc[0])
+            rev_prev = float(rev_row.iloc[1])
+            if rev_prev > 0:
+                q_revenue_growth = (rev_latest - rev_prev) / rev_prev
+    except Exception:
+        pass
+
+    if q_revenue_growth is None:
+        q_revenue_growth = info.get("revenueGrowth")
+
+    return q_revenue_growth

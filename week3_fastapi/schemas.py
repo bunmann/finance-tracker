@@ -78,3 +78,20 @@ class ScreenerResponseItem(BaseModel):
     debt_to_equity: Optional[float]
     performance_30d: float
     relative_strength: float
+
+
+class AnomalyResponseItem(BaseModel):
+    ticker: str
+    name: str
+    sector: str
+    current_price: float
+    performance_30d: float
+    qoq_revenue_growth: Optional[float]
+    message: str
+    source: str  # "watchlist", "portfolio", or "both"
+
+
+from typing import List
+class MultiStrategyScanResponse(BaseModel):
+    momentum_quality: List[ScreenerResponseItem]
+    value_gap: List[AnomalyResponseItem]
