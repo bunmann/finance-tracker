@@ -57,6 +57,47 @@ def run_multi_strategy_scan(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
+    """
+    Unified Quantitative Multi-Strategy Market Scanner.
+    
+    This endpoint executes a multi-strategy quantitative scan across a consolidated 
+    ticker scope containing:
+    1. Active User Portfolio Holdings (e.g. assets the user currently owns).
+    2. User Watchlist Stocks (e.g. assets the user is actively monitoring).
+    3. General Market Universe (TICKER_UNIVERSE - baseline blue-chip list).
+
+    It runs the following processing steps and quantitative algorithms:
+
+    Step 1: Scope Consolidation & Relationship Mapping
+      - Builds a unified dictionary of unique tickers and tags their relational origin
+        (watchlist, portfolio, both, or recommendation).
+        
+    Step 2: Metric Fetching & Normalization
+      - Retrieves live stock data from Yahoo Finance and calculates rolling 30-day close returns.
+      - Converts foreign pricing from USD to CAD dynamically using USDCAD exchange rates.
+      - Computes trailing PE ratios, profit margins, debt-to-equity ratios, and FCF growth rates.
+      - Computes QoQ Revenue Growth using quarterly statement entries (falling back to yfinance info).
+
+    Step 3: Cross-Sectional Momentum (Relative Strength) Calculation
+      - Sorts the entire consolidated universe by 30-day price returns.
+      - Assigns each ticker a Relative Strength Percentile (0% to 100%) reflecting its 
+        momentum ranking relative to all other scanned assets.
+
+    Step 4: Strategy Evaluation & Execution
+      - Strategy A: Momentum Quality (Riding the Trend)
+        - Thesis: Invests in healthy companies displaying strong intermediate momentum.
+        - Triggers if: Ticker meets user thresholds (PE, margin, FCF growth, debt/equity) 
+          and falls within the user's Circle of Competence (if active).
+      - Strategy B: Value Gap / Anomalous Divergence (Buying the Dip)
+        - Thesis: Flags oversold opportunities where business sales are growing but price drops.
+        - Triggers if: QoQ Revenue Growth > 10% and 30-day Price Return < -10%.
+        - Filter: If circle of competence is active, restricts general recommendations to those sectors.
+
+    Step 5: Sorting & Response Serialization
+      - Sorts Momentum Quality candidates descending by Relative Strength.
+      - Sorts Value Gap alerts ascending by 30-day price performance (largest drops first).
+      - Package results into a structured MultiStrategyScanResponse.
+    """
     # 1. Fetch user's active tickers
     watchlist_items = db.query(models.Watchlist).filter(
         models.Watchlist.user_id == current_user.id
