@@ -7,16 +7,16 @@ Welcome to Week 7. In this phase, we transition from basic CRUD asset management
 ## 📋 Week 7 Features Checklist
 
 ### 🔍 Feature 1: Fundamental Screener & Anomalous Price Action Engine
-- [ ] **Task 1: Backend: Fundamental Screener API**
-  - [ ] Create `/screener` APIRouter structure in `routers/screener.py` and register it in `main.py`.
-  - [ ] Implement `POST /screener/run` using `yfinance` to fetch financial stats (FCF growth, net margins, Debt/Equity, P/E).
-  - [ ] Fetch recent 30-day price trends to support relative performance metrics (Cross-Sectional Ranking).
-  - [ ] Add filtering logic matching user-defined thresholds.
-  - [ ] Integrate user's **Circle of Competence** sectors to tag matching opportunities.
-- [ ] **Task 2: Backend: Anomalous Price Action Engine**
-  - [ ] Implement `GET /screener/anomalies` to scan watchlist and portfolio holdings.
-  - [ ] Calculate recent 30-day price trends and compare them against quarterly fundamental growth rates.
-  - [ ] Flag price-to-fundamental divergence alerts.
+- [x] **Task 1: Backend: Fundamental Screener API**
+  - [x] Create `/screener` APIRouter structure in `routers/screener.py` and register it in `main.py`.
+  - [x] Implement `POST /screener/run` using `yfinance` to fetch financial stats (FCF growth, net margins, Debt/Equity, P/E).
+  - [x] Fetch recent 30-day price trends to support relative performance metrics (Cross-Sectional Ranking).
+  - [x] Add filtering logic matching user-defined thresholds.
+  - [x] Integrate user's **Circle of Competence** sectors to tag matching opportunities.
+- [x] **Task 2: Backend: Anomalous Price Action Engine**
+  - [x] Implement unified multi-strategy quantitative scan engine `POST /screener/scan` covering watchlist, holdings, and general recommendations.
+  - [x] Calculate recent 30-day price trends and compare them against quarterly fundamental growth rates.
+  - [x] Flag price-to-fundamental divergence alerts.
 - [ ] **Task 3: Frontend: Screener & Anomalies Dashboard**
   - [ ] Create `StockScreener.jsx` to render the unified screener control panel.
   - [ ] Build the Anomaly Alerts panel showcasing real-time price divergence warnings.
