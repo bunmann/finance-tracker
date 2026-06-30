@@ -45,10 +45,10 @@ function DashboardContent({
         fill: COLORS[index % COLORS.length],
     }));
 
-    // Filter budget alerts
-    const activeAlerts = (dashboardData?.by_category || []).filter(
-        cat => cat.budget > 0 && cat.amount >= cat.budget * 0.75
-    );
+    // Filter and sort budget alerts by severity (highest % of budget consumed first)
+    const activeAlerts = (dashboardData?.by_category || [])
+        .filter(cat => cat.budget > 0 && cat.amount >= cat.budget * 0.75)
+        .sort((a, b) => (b.amount / b.budget) - (a.amount / a.budget));
 
     return (
         <div className="page-container">

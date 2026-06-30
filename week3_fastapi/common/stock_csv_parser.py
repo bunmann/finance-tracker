@@ -8,41 +8,23 @@ from common.file_validator import validate_and_read_csv
 
 def parse_brokerage_csv(file_stream: StringIO) -> list[dict]:
     """
-    Parses a brokerage CSV file stream (Wealthsimple or Questrade) and returns
+    Parses a brokerage CSV file stream (Wealthsimple format 1 & 2, or Questrade) and returns
     a list of standardized transaction dictionaries.
-    
-    Returns standard format:
-    [
-        {
-            "date": date,
-            "ticker": str,
-            "type": "buy" | "sell" | "dividend",
-            "shares": Decimal,
-            "price": Decimal,
-            "total": Decimal
-        },
-        ...
-    ]
     """
-    # Read headers to auto-detect format
     reader = csv.reader(file_stream)
     try:
         headers = next(reader)
     except StopIteration:
         raise ValueError("The CSV file is empty.")
 
-    # Trim and clean headers
-    headers = [h.strip() for h in headers]
+    headers_lower = [h.strip().lower() for h in headers]
     
     # Reset stream pointer after reading headers
     file_stream.seek(0)
-    
-    # We use DictReader to easily access row values by column name
     dict_reader = csv.DictReader(file_stream)
 
-    # Detect format based on headers
-    is_questrade = "Transaction Date" in headers and "Action" in headers
-    is_wealthsimple = "Date" in headers and "Type" in headers and "Symbol" in headers and not is_questrade
+    is_questrade = "transaction date" in headers_lower and "action" in headers_lower
+    is_wealthsimple = ("date" in headers_lower and ("type" in headers_lower or "symbol" in headers_lower)) or ("transaction_date" in headers_lower and "symbol" in headers_lower)
 
     if not is_questrade and not is_wealthsimple:
         raise ValueError("Unsupported CSV structure. Ensure it is a valid Wealthsimple or Questrade activity export.")
@@ -50,63 +32,61 @@ def parse_brokerage_csv(file_stream: StringIO) -> list[dict]:
     parsed_transactions = []
 
     for row_idx, row in enumerate(dict_reader, start=2):
+        # Create case-insensitive dictionary map for row
+        row_lower = {k.strip().lower(): (v.strip() if v else "") for k, v in row.items() if k}
+
         # 1. Date parsing
-        date_raw = row.get("Transaction Date" if is_questrade else "Date")
+        date_raw = row_lower.get("transaction date") or row_lower.get("transaction_date") or row_lower.get("date")
         if not date_raw:
             continue
-        parsed_dt = parse_date(date_raw.strip())
+        parsed_dt = parse_date(date_raw)
         if not parsed_dt:
-            raise ValueError(f"Row {row_idx}: Invalid date format '{date_raw}'")
+            # Skip non-transaction rows like footer/summary lines
+            continue
 
-        # 2. Type/Action parsing & normalization
-        action_orig = row.get("Action" if is_questrade else "Type", "").strip()
-        action_raw = action_orig.lower()
-        if "buy" in action_raw:
+        # 2. Action / Type parsing
+        action_str = f"{row_lower.get('action', '')} {row_lower.get('type', '')} {row_lower.get('activity_type', '')} {row_lower.get('activity_sub_type', '')}".lower()
+        if "buy" in action_str:
             tx_type = "buy"
-        elif "sell" in action_raw:
+        elif "sell" in action_str:
             tx_type = "sell"
-        elif "div" in action_raw or "dividend" in action_raw:
+        elif "div" in action_str or "dividend" in action_str:
             tx_type = "dividend"
         else:
-            # Skip unsupported transaction actions like deposits, withdrawals, or institutional adjustments
-            print(f"WARNING: Skipping unsupported transaction action '{action_orig}' on row {row_idx}")
+            # Skip money movements, EFT deposits, interest, or unsupported actions
             continue
 
         # 3. Ticker symbol
-        ticker = row.get("Symbol", "").strip().upper()
+        ticker = (row_lower.get("symbol") or "").upper()
         if not ticker:
-            raise ValueError(f"Row {row_idx}: Missing stock ticker symbol.")
+            continue
 
         # 4. Shares count
-        shares_raw = row.get("Quantity", "").strip()
-        if not shares_raw or shares_raw == "0":
+        shares_raw = row_lower.get("quantity") or row_lower.get("shares") or "0"
+        try:
+            shares = Decimal(shares_raw) if shares_raw else Decimal("0")
+        except Exception:
             shares = Decimal("0")
-        else:
-            try:
-                shares = Decimal(shares_raw)
-            except Exception:
-                shares = Decimal("0")
 
         # 5. Price per share
-        price_raw = row.get("Price", "").strip()
-        if not price_raw or price_raw == "0":
+        price_raw = row_lower.get("unit_price") or row_lower.get("price") or "0"
+        try:
+            price = Decimal(price_raw) if price_raw else Decimal("0")
+        except Exception:
             price = Decimal("0")
+
+        # 6. Total Amount
+        total_raw = row_lower.get("net_cash_amount") or row_lower.get("net amount") or row_lower.get("amount") or ""
+        if not total_raw:
+            if shares > 0 and price > 0:
+                total = shares * price
+            else:
+                continue
         else:
             try:
-                price = Decimal(price_raw)
+                total = abs(Decimal(total_raw))
             except Exception:
-                price = Decimal("0")
-
-        # 6. Net Total proceeds / cost
-        total_col = "Net Amount" if is_questrade else "Amount"
-        total_raw = row.get(total_col, "").strip()
-        if not total_raw:
-            raise ValueError(f"Row {row_idx}: Missing total amount.")
-        try:
-            # Keep as positive absolute Decimal
-            total = abs(Decimal(total_raw))
-        except Exception:
-            raise ValueError(f"Row {row_idx}: Invalid total amount '{total_raw}'")
+                continue
 
         parsed_transactions.append({
             "date": parsed_dt,

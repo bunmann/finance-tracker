@@ -74,9 +74,16 @@ function BudgetOverview({
         const category = categories.find(c => c.id === categoryId);
         if (!category) return;
 
-        api.put(`/categories/${categoryId}?name=${encodeURIComponent(category.name)}&icon=${encodeURIComponent(category.icon)}&monthly_budget=${newBudget}`)
+        const payload = {
+            name: category.name,
+            icon: category.icon || '📁',
+            monthly_budget: parseFloat(newBudget) || 0
+        };
+
+        api.put(`/categories/${categoryId}`, payload)
             .then(response => {
                 setCategories(categories.map(c => c.id === categoryId ? response.data : c));
+                setBudgetData(budgetData.map(b => b.category_name === category.name ? { ...b, budget: response.data.monthly_budget } : b));
                 showToast?.('Budget limit updated successfully!');
             })
             .catch(error => {

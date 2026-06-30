@@ -11,7 +11,6 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: var(--gutter);
-  margin-bottom: 32px;
 }
 
 /* Base summary card layout and metric color styles moved to global.css */
@@ -21,7 +20,6 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 32px;
 }
 
 .budget-alert {
@@ -56,7 +54,6 @@
   padding: 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
-  margin-top: 24px;
 }
 
 .dashboard-chart-card:hover {

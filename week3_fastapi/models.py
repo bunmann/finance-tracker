@@ -87,6 +87,11 @@ class Holding(Base):
     """
     Represents a user's current share balance and average cost basis for a stock ticker.
     Pre-computes portfolio state to avoid on-the-fly transaction aggregation.
+
+    The `currency` column is the canonical source of truth for pricing currency —
+    it is set at import time (from the broker CSV or yfinance detection) and used
+    directly by _get_cad_price to decide whether USD→CAD conversion is needed.
+    Storing it here eliminates all runtime ticker-suffix guessing.
     """
     __tablename__ = "holdings"
 
@@ -95,6 +100,8 @@ class Holding(Base):
     ticker = Column(String(10), nullable=False)
     shares = Column(Numeric(12, 4), nullable=False)
     avg_cost = Column(Numeric(12, 4), nullable=False)
+    # ISO 4217 currency code: 'CAD' means price is already in CAD, 'USD' triggers conversion.
+    currency = Column(String(3), nullable=False, default="CAD")
 
     # Each user can only have one holding per ticker
     __table_args__ = (UniqueConstraint('user_id', 'ticker', name='_user_ticker_uc'),)
@@ -104,6 +111,10 @@ class StockTransaction(Base):
     """
     Represents a historical ledger entry of a stock transaction (buy, sell, or dividend).
     Tracks quantity, per-share price, total cost/proceeds, and transaction date.
+
+    The `currency` column mirrors the same field on Holding — it records what currency
+    the broker settled this transaction in (e.g. 'CAD' for a Wealthsimple TFSA trade).
+    This lets the transaction history display be accurate regardless of ticker suffix.
     """
     __tablename__ = "stock_transactions"
 
@@ -117,6 +128,8 @@ class StockTransaction(Base):
     date = Column(Date, nullable=False)
     fingerprint = Column(String(64), nullable=True, index=True)  # for CSV import dedup
     realized_gain = Column(Numeric(12, 2), nullable=True)
+    # ISO 4217 currency code: 'CAD' means this trade was settled in Canadian dollars.
+    currency = Column(String(3), nullable=False, default="CAD")
 
 
 class PriceCache(Base):

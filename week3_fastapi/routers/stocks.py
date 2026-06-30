@@ -12,7 +12,7 @@ from database import get_db
 from auth import get_current_user
 from schemas import StockTransaction, WatchlistCreate, SectorCompetenceCreate
 import models
-from common.stock_service import get_stock_price
+from common.stock_service import get_stock_price, normalize_ticker_symbol, detect_ticker_currency
 from common.stock_csv_parser import validate_and_parse_brokerage_csv
 import io
 import hashlib
@@ -23,27 +23,48 @@ router = APIRouter(
 )
 
 
-def _get_cad_price(ticker: str, raw_price: float | None, db: Session) -> float | None:
+def _get_cad_price(raw_price: float | None, currency: str, db: Session) -> float | None:
     """
-    Private helper to convert stock prices from USD to CAD if the ticker is a US stock.
-    Tickers ending in .TO or .V are traded in CAD, so no conversion is needed.
+    Converts a stock price to CAD if needed, based on the STORED currency of the holding.
+
+    WHY CURRENCY PARAM INSTEAD OF TICKER SUFFIX?
+    ---------------------------------------------
+    The old approach guessed currency from the ticker name (e.g. '.TO' = CAD).
+    This broke for three reasons:
+      1. GOOG.NE (Alphabet CDR) was mistaken for US GOOG because .NE wasn't recognized.
+      2. Stocks stored without suffix (e.g. CEF for Sprott Trust) had no way to
+         signal they were already in CAD, so conversion was applied twice.
+      3. When normalize_ticker_symbol resolved 'XEQT' -> 'XEQT.TO', the price was
+         sometimes cached under the bare key 'XEQT', losing the suffix signal.
+
+    The fix: store `currency` ('CAD' or 'USD') on the Holding/StockTransaction at
+    import time, then pass it here explicitly. No ticker-suffix guessing needed.
+
+    Args:
+        raw_price (float | None): The price as returned by yfinance in the ticker's native currency.
+        currency (str): ISO 4217 code indicating the native currency (e.g. 'CAD', 'USD').
+                        This should come directly from holding.currency or tx.currency.
+        db (Session): Database session (used to look up the live USDCAD exchange rate).
+
+    Returns:
+        float | None: Price in CAD, or None if raw_price was None.
     """
     if raw_price is None or raw_price is False:
         return raw_price
 
-    # Check system currency configuration (e.g. from .env file or default)
-    # If the portfolio is configured as USD, bypass any CAD conversions.
+    # If the portfolio is configured in USD mode, bypass all CAD conversions.
     import os
     target_currency = os.getenv("CURRENCY", "CAD").upper().strip()
     if target_currency != "CAD":
         return raw_price
-        
-    ticker_clean = ticker.upper().strip()
-    # Canadian exchanges (.TO for TSX, .V for TSXV) and currency tickers like USDCAD=X don't need conversion.
-    if ticker_clean.endswith(".TO") or ticker_clean.endswith(".V") or "CAD" in ticker_clean:
+
+    # If the holding is already priced in CAD, no conversion is needed.
+    # This handles: XEQT.TO, GOOG.NE, CEF, VFV.TO, QQQX, VCNS, XIU, XIC...
+    if currency.upper() == "CAD":
         return raw_price
 
-    # Fetch USDCAD exchange rate using cache-aside stock service
+    # Price is in USD → convert to CAD using the live exchange rate.
+    # Fetch USDCAD from the cache-aside price service (USDCAD=X is a Yahoo Finance ticker).
     try:
         rate, _, _ = get_stock_price("USDCAD=X", db)
         if rate is not None and rate is not False and rate > 0:
@@ -51,7 +72,7 @@ def _get_cad_price(ticker: str, raw_price: float | None, db: Session) -> float |
     except Exception:
         pass
 
-    # Standard fallback rate (1.37 CAD/USD) if exchange query fails
+    # Standard fallback rate (~1.37 CAD/USD) if the exchange rate fetch fails.
     return float(raw_price) * 1.37
 
 
@@ -66,10 +87,19 @@ def get_price(
     current_user: models.User = Depends(get_current_user)
 ):
     """
-    Get the current market price for a stock ticker.
-    Utilizes the global cache-aside mechanism (PriceCache) and Alpha Vantage quote endpoint.
+    Get the current market price for a stock ticker, converted to the portfolio's display currency.
+
+    Parameters:
+    - ticker (str): Raw ticker symbol (e.g. 'XEQT', 'GOOG', 'AAPL').
+    
+    Returns:
+    - dict: Resolved ticker, CAD price, timestamp, and is_stale flag.
     """
-    price, last_updated, is_stale = get_stock_price(ticker, db)
+    # Resolve to the correct exchange-suffixed symbol first (e.g. XEQT → XEQT.TO).
+    # This also handles CDR detection (GOOG → GOOG.NE) before we check pricing.
+    norm_ticker, _ = normalize_ticker_symbol(ticker, db)
+    price, last_updated, is_stale = get_stock_price(norm_ticker, db)
+
     if price is False:
         raise HTTPException(
             status_code=400,
@@ -80,10 +110,15 @@ def get_price(
             status_code=404,
             detail=f"Failed to fetch price for '{ticker.upper()}' at the moment. Please try again later."
         )
-    price_cad = _get_cad_price(ticker, price, db)
+
+    # Detect the native currency of the resolved ticker for correct conversion.
+    currency = detect_ticker_currency(norm_ticker)
+    price_cad = _get_cad_price(price, currency, db)
+
     return {
-        "ticker": ticker.upper(),
+        "ticker": norm_ticker,
         "price": price_cad,
+        "currency": currency,
         "last_updated": last_updated.isoformat() if last_updated else None,
         "is_stale": is_stale
     }
@@ -117,18 +152,56 @@ def get_portfolio(
     total_value = Decimal("0")
     total_cost = Decimal("0")
     failed_tickers = []
+    # Exchange suffixes that unambiguously identify a Canadian-listed stock.
+    # Bare symbols without these (e.g. "CCO", "GOOG") may collide with US tickers.
+    canadian_suffixes = (".TO", ".NE", ".V", ".TRT")
 
     for holding in holdings:
-        price, last_updated, is_stale = get_stock_price(holding.ticker, db)
-        price_cad = _get_cad_price(holding.ticker, price, db)
-        
+        ticker = holding.ticker
+
+        # ── Self-healing ticker resolution ──
+        # If a CAD holding was stored with a bare symbol (e.g. "CCO"), resolve it
+        # to the canonical exchange-suffixed form ("CCO.TO") and WRITE IT BACK to
+        # both the Holding record and all matching StockTransaction rows.
+        #
+        # WHY WRITE-BACK INSTEAD OF JUST CORRECTING AT VIEW TIME?
+        #   - The suffixed ticker (CCO.TO, GOOG.NE) is the single unambiguous ID.
+        #     Storing it avoids repeated re-normalization on every portfolio load.
+        #   - Transaction history and any future features (alerts, screener) will
+        #     also see the correct symbol without special-casing.
+        #   - The write-back condition becomes False after the first fix, so it runs
+        #     at most once per holding.
+        if holding.currency == "CAD" and not any(ticker.endswith(s) for s in canadian_suffixes):
+            resolved, _ = normalize_ticker_symbol(ticker, db, currency_hint="CAD")
+
+            if resolved != ticker and any(resolved.endswith(s) for s in canadian_suffixes):
+                old_ticker = ticker
+
+                # 1. Update the Holding record
+                holding.ticker = resolved
+                ticker = resolved
+
+                # 2. Update all StockTransaction records that used the old bare ticker.
+                #    This keeps the transaction history consistent with the resolved symbol.
+                db.query(models.StockTransaction).filter(
+                    models.StockTransaction.user_id == current_user.id,
+                    models.StockTransaction.ticker == old_ticker
+                ).update({"ticker": resolved}, synchronize_session=False)
+
+                db.commit()
+
+        price, last_updated, is_stale = get_stock_price(ticker, db)
+        # Use the stored currency directly — no ticker-suffix guessing.
+        # holding.currency was recorded at import time and is the ground truth.
+        price_cad = _get_cad_price(price, holding.currency, db)
+
         market_value = Decimal(str(price_cad)) * holding.shares if price_cad is not None else None
         cost_basis = holding.avg_cost * holding.shares
         unrealized_gain = market_value - cost_basis if market_value is not None else None
         gain_percent = (unrealized_gain / cost_basis * 100) if unrealized_gain is not None and cost_basis else None
 
         portfolio.append({
-            "ticker": holding.ticker,
+            "ticker": ticker,
             "shares": float(holding.shares),
             "avg_cost": float(holding.avg_cost),
             "current_price": float(price_cad) if price_cad is not None else None,
@@ -141,8 +214,8 @@ def get_portfolio(
         })
 
         if price is None:
-            failed_tickers.append(holding.ticker)
-            
+            failed_tickers.append(ticker)
+
         if market_value is not None:
             total_value += market_value
         total_cost += cost_basis
@@ -191,8 +264,32 @@ def get_stock_transactions(
     return transactions
 
 
-def _update_holding_buy(db: Session, user_id: int, ticker: str, shares: Decimal, price: Decimal) -> models.Holding:
-    """Update or create a holding after a buy trade."""
+def _update_holding_buy(
+    db: Session,
+    user_id: int,
+    ticker: str,
+    shares: Decimal,
+    price: Decimal,
+    currency: str = "CAD"
+) -> models.Holding:
+    """
+    Update or create a Holding record after a buy trade.
+
+    Uses a weighted-average cost basis calculation for the avg_cost field:
+        new_avg = (old_shares * old_avg + new_shares * new_price) / total_shares
+
+    Args:
+        db (Session): Database session.
+        user_id (int): The authenticated user's ID.
+        ticker (str): Resolved Yahoo Finance ticker (e.g. 'XEQT.TO', 'GOOG.NE').
+        shares (Decimal): Number of shares purchased.
+        price (Decimal): Per-share purchase price.
+        currency (str): ISO 4217 currency code of the trade ('CAD' or 'USD').
+                        Stored on the Holding so _get_cad_price never needs to guess.
+
+    Returns:
+        models.Holding: The updated or newly created holding record.
+    """
     holding = db.query(models.Holding).filter(
         models.Holding.user_id == user_id,
         models.Holding.ticker == ticker
@@ -200,15 +297,19 @@ def _update_holding_buy(db: Session, user_id: int, ticker: str, shares: Decimal,
 
     total = shares * price
     if holding:
+        # Weighted-average cost basis update
         old_total = holding.shares * holding.avg_cost
         holding.shares = holding.shares + shares
         holding.avg_cost = (old_total + total) / holding.shares
+        # Update currency in case it changed (e.g. first import had no info)
+        holding.currency = currency
     else:
         holding = models.Holding(
             user_id=user_id,
             ticker=ticker,
             shares=shares,
-            avg_cost=price
+            avg_cost=price,
+            currency=currency
         )
         db.add(holding)
         db.flush()
@@ -268,10 +369,27 @@ def upload_csv(
     parsed_txs.sort(key=lambda t: t["date"])
 
     for idx, tx in enumerate(parsed_txs, start=2):
-        ticker = tx["ticker"].upper().strip()
-        # Normalize Canadian ticker suffixes
-        if ticker.endswith(".TO"):
-            ticker = ticker[:-3]
+        raw_ticker = tx["ticker"].upper().strip()
+
+        # Pull currency and name from the parsed CSV row.
+        # These come from the broker's 'currency' and 'name' columns and are
+        # the most reliable signals for exchange resolution:
+        #   - currency='CAD' tells us to check TSX/NEO before US exchanges.
+        #   - name='Alphabet CDR (CAD Hedged)' tells us to check .NE first.
+        currency_hint = tx.get("currency", "").upper().strip()
+        name_hint = tx.get("name", "")
+
+        # Resolve to the correct Yahoo Finance symbol and validate it exists.
+        # e.g. 'GOOG' + 'CAD' + 'CDR' → 'GOOG.NE'; 'XEQT' + 'CAD' → 'XEQT.TO'
+        ticker, price_val = normalize_ticker_symbol(
+            raw_ticker, db,
+            currency_hint=currency_hint,
+            name_hint=name_hint
+        )
+
+        # The trade's settlement currency is the ground truth for pricing.
+        # Default to CAD if not present (all Wealthsimple TFSA trades are CAD).
+        currency = currency_hint if currency_hint in ("CAD", "USD") else "CAD"
 
         tx_type = tx["type"]
         shares = tx["shares"]
@@ -279,7 +397,8 @@ def upload_csv(
         total = tx["total"]
         tx_date = tx["date"]
 
-        # Generate unique fingerprint for deduplication
+        # Generate unique fingerprint for deduplication.
+        # Uses the RESOLVED ticker so reimporting after a symbol fix doesn't duplicate.
         raw_str = f"{current_user.id}:{ticker}:{tx_type}:{shares}:{price}:{tx_date}"
         fingerprint = hashlib.sha256(raw_str.encode("utf-8")).hexdigest()
 
@@ -293,20 +412,20 @@ def upload_csv(
             duplicates += 1
             continue
 
-        # Validate ticker symbol
-        price_val, _, _ = get_stock_price(ticker, db)
+        # Validate the resolved ticker symbol
         if price_val is False:
-            errors.append(f"Row {idx}: Invalid stock symbol '{ticker}'. Please check the ticker name.")
+            errors.append(f"Row {idx}: Invalid stock symbol '{raw_ticker}'. Please check the ticker name.")
             continue
         elif price_val is None:
-            errors.append(f"Row {idx}: Failed to fetch price for '{ticker}' at the moment. Please try again later.")
+            errors.append(f"Row {idx}: Could not fetch price for '{raw_ticker}' right now. Please try again later.")
             continue
 
         # Database processing based on action type
         realized_gain = None
 
         if tx_type == "buy":
-            _update_holding_buy(db, current_user.id, ticker, shares, price)
+            # Pass currency so the Holding record stores it for future pricing calls
+            _update_holding_buy(db, current_user.id, ticker, shares, price, currency=currency)
 
         elif tx_type == "sell":
             try:
@@ -315,7 +434,7 @@ def upload_csv(
                 errors.append(f"Row {idx}: {str(e)}")
                 continue
 
-        # Log the transaction
+        # Log the transaction with the resolved ticker and settlement currency
         db_transaction = models.StockTransaction(
             user_id=current_user.id,
             ticker=ticker,
@@ -325,7 +444,8 @@ def upload_csv(
             total=total,
             date=tx_date,
             fingerprint=fingerprint,
-            realized_gain=realized_gain
+            realized_gain=realized_gain,
+            currency=currency
         )
         db.add(db_transaction)
         imported += 1
@@ -361,28 +481,36 @@ def buy_stock(
     Returns:
     - StockTransaction: The newly created stock transaction record.
     """
-    ticker = trade.ticker.upper().strip()
-    
-    # Verify the stock symbol exists
-    price_val, _, _ = get_stock_price(ticker, db)
+    raw_ticker = trade.ticker.upper().strip()
+
+    # Resolve the ticker to the correct exchange symbol (e.g. XEQT → XEQT.TO).
+    # No currency_hint here because the user typed the ticker manually;
+    # we rely on yfinance to detect the correct exchange.
+    ticker, price_val = normalize_ticker_symbol(raw_ticker, db)
+
+    # Validate that the resolved symbol actually exists
     if price_val is False:
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid stock symbol: '{ticker}'. Please check the ticker name."
+            detail=f"Invalid stock symbol: '{raw_ticker}'. Please check the ticker name."
         )
     elif price_val is None:
         raise HTTPException(
             status_code=400,
-            detail=f"Failed to fetch price for '{ticker}' at the moment. Please try again later."
+            detail=f"Failed to fetch price for '{raw_ticker}' at the moment. Please try again later."
         )
+
+    # Detect the native trading currency of this stock via yfinance.
+    # This is stored on the Holding and StockTransaction so _get_cad_price
+    # never has to guess from ticker suffixes at portfolio view time.
+    currency = detect_ticker_currency(ticker)
 
     shares = Decimal(str(trade.shares))
     price = Decimal(str(trade.price))
     total = shares * price
-
-    # 1. Log the transaction
     tx_date = trade.date if trade.date else date.today()
-    
+
+    # 1. Log the transaction with the resolved ticker and detected currency
     db_transaction = models.StockTransaction(
         user_id=current_user.id,
         ticker=ticker,
@@ -390,12 +518,13 @@ def buy_stock(
         shares=shares,
         price=price,
         total=total,
-        date=tx_date
+        date=tx_date,
+        currency=currency
     )
     db.add(db_transaction)
 
-    # 2. Update or create the holding
-    _update_holding_buy(db, current_user.id, ticker, shares, price)
+    # 2. Update or create the holding, passing currency so it's persisted
+    _update_holding_buy(db, current_user.id, ticker, shares, price, currency=currency)
 
     db.commit()
     db.refresh(db_transaction)
@@ -474,19 +603,19 @@ def add_to_watchlist(
     Returns:
     - Watchlist: The newly created watchlist record.
     """
-    ticker = item.ticker.upper().strip()
+    raw_ticker = item.ticker.upper().strip()
+    ticker, price_val = normalize_ticker_symbol(raw_ticker, db)
     
     # Verify the stock symbol exists
-    price_val, _, _ = get_stock_price(ticker, db)
     if price_val is False:
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid stock symbol: '{ticker}'. Please check the ticker name."
+            detail=f"Invalid stock symbol: '{raw_ticker}'. Please check the ticker name."
         )
     elif price_val is None:
         raise HTTPException(
             status_code=400,
-            detail=f"Failed to fetch price for '{ticker}' at the moment. Please try again later."
+            detail=f"Failed to fetch price for '{raw_ticker}' at the moment. Please try again later."
         )
     
     # Check if user is already watching this ticker
