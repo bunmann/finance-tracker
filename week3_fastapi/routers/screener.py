@@ -151,7 +151,8 @@ def run_multi_strategy_scan(
             if price_usd is None:
                 price_usd = hist_price or 0.0
             
-            price_cad = _get_cad_price(symbol, price_usd, db)
+            currency = info.get("currency", "USD")
+            price_cad = _get_cad_price(price_usd, currency, db)
 
             # Fundamental ratios
             pe = info.get("trailingPE")
@@ -160,7 +161,7 @@ def run_multi_strategy_scan(
             debt_to_equity_pct = info.get("debtToEquity")
             debt_to_equity = (debt_to_equity_pct / 100.0) if debt_to_equity_pct is not None else None
 
-            fcf_growth = _calculate_fcf_growth(ticker)
+            fcf_growth = _calculate_fcf_growth(ticker, info)
 
             # Calculate QoQ Revenue Growth using private helper
             q_revenue_growth = _calculate_qoq_revenue_growth(ticker, info)
@@ -212,22 +213,30 @@ def run_multi_strategy_scan(
         
         # Margin filter
         if qualifies_momentum and req.min_profit_margin is not None:
-            if item["profit_margin"] is None or item["profit_margin"] < req.min_profit_margin:
+            if item["profit_margin"] is not None:
+                if item["profit_margin"] < req.min_profit_margin:
+                    qualifies_momentum = False
+            elif req.min_profit_margin > 0:
                 qualifies_momentum = False
                 
         # PE filter
         if qualifies_momentum and req.max_pe is not None:
-            if item["pe"] is None or item["pe"] > req.max_pe:
-                qualifies_momentum = False
+            if item["pe"] is not None:
+                if item["pe"] > req.max_pe:
+                    qualifies_momentum = False
 
         # Debt to Equity filter
         if qualifies_momentum and req.max_debt_equity is not None:
-            if item["debt_to_equity"] is None or item["debt_to_equity"] > req.max_debt_equity:
-                qualifies_momentum = False
+            if item["debt_to_equity"] is not None:
+                if item["debt_to_equity"] > req.max_debt_equity:
+                    qualifies_momentum = False
 
         # FCF Growth filter
         if qualifies_momentum and req.min_fcf_growth is not None:
-            if item["fcf_growth"] is None or item["fcf_growth"] < req.min_fcf_growth:
+            if item["fcf_growth"] is not None:
+                if item["fcf_growth"] < req.min_fcf_growth:
+                    qualifies_momentum = False
+            elif req.min_fcf_growth > 0:
                 qualifies_momentum = False
 
         if qualifies_momentum:
@@ -282,7 +291,7 @@ def run_multi_strategy_scan(
     )
 
 
-def _calculate_fcf_growth(ticker: yf.Ticker) -> Optional[float]:
+def _calculate_fcf_growth(ticker: yf.Ticker, info: dict = None) -> Optional[float]:
     """
     Private helper to calculate YoY Free Cash Flow growth.
     Calculates FCF = Operating Cash Flow - Capital Expenditures.
@@ -319,6 +328,13 @@ def _calculate_fcf_growth(ticker: yf.Ticker) -> Optional[float]:
                     return (rev_current - rev_prev) / rev_prev
     except Exception:
         pass
+
+    # Final fallback: use revenueGrowth or earningsGrowth from info dictionary
+    if info:
+        if info.get("revenueGrowth") is not None:
+            return float(info.get("revenueGrowth"))
+        if info.get("earningsGrowth") is not None:
+            return float(info.get("earningsGrowth"))
 
     return None
 

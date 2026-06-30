@@ -661,7 +661,8 @@ def get_watchlist(
     watchlist_enriched = []
     for item in items:
         price, last_updated, is_stale = get_stock_price(item.ticker, db)
-        price_cad = _get_cad_price(item.ticker, price, db)
+        currency = detect_ticker_currency(item.ticker)
+        price_cad = _get_cad_price(price, currency, db)
         watchlist_enriched.append({
             "id": item.id,
             "ticker": item.ticker,
