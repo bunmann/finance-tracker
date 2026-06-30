@@ -6,10 +6,10 @@ Description: Custom styles for Login (fullscreen glassmorphism) and Signup (spli
 /* Wrapper for page transitions to prevent layout jumps and break fixed-positioning constraint */
 .auth-page-wrapper {
   position: fixed;
-  top: 64px;
+  top: 0;
   left: 0;
   width: 100vw;
-  height: calc(100vh - 64px);
+  height: 100vh;
   z-index: 100;
 }
 
@@ -31,7 +31,10 @@ Description: Custom styles for Login (fullscreen glassmorphism) and Signup (spli
 .auth-container.login-page {
   align-items: center;
   justify-content: center;
-  background: transparent;
+  background-image: linear-gradient(rgba(15, 23, 42, 0.45), rgba(15, 23, 42, 0.45)), url('/background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   font-family: var(--font-body);
 }
 
@@ -40,7 +43,8 @@ Description: Custom styles for Login (fullscreen glassmorphism) and Signup (spli
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: var(--radius-xxl); /* 24px */
+  border-radius: var(--radius-xxl);
+  /* 24px */
   padding: 48px 40px;
   width: 100%;
   max-width: 440px;
@@ -73,7 +77,7 @@ Description: Custom styles for Login (fullscreen glassmorphism) and Signup (spli
   gap: 20px;
 }
 
-.auth-container.login-page .auth-card form > div {
+.auth-container.login-page .auth-card form>div {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -94,7 +98,8 @@ Description: Custom styles for Login (fullscreen glassmorphism) and Signup (spli
   font-family: var(--font-body);
   font-size: 14px;
   border: 1px solid var(--outline-variant);
-  border-radius: var(--radius-md); /* 8px */
+  border-radius: var(--radius-md);
+  /* 8px */
   background-color: rgba(255, 255, 255, 0.6);
   color: var(--on-surface);
   outline: none;
@@ -115,9 +120,12 @@ Description: Custom styles for Login (fullscreen glassmorphism) and Signup (spli
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 14px;
-  border-radius: var(--radius-md); /* 8px */
-  background-color: var(--primary-container); /* Neon Green */
-  color: var(--inverse-surface); /* Navy text */
+  border-radius: var(--radius-md);
+  /* 8px */
+  background-color: var(--primary-container);
+  /* Neon Green */
+  color: var(--inverse-surface);
+  /* Navy text */
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -160,11 +168,11 @@ Description: Custom styles for Login (fullscreen glassmorphism) and Signup (spli
 .auth-container.signup-page {
   justify-content: flex-end;
   align-items: center;
-  background-color: transparent;
+  background-color: var(--background);
   font-family: var(--font-body);
 }
 
-/* Left side background image area */
+/* Left side background image */
 .auth-container.signup-page::before {
   content: '';
   position: absolute;
@@ -172,7 +180,10 @@ Description: Custom styles for Login (fullscreen glassmorphism) and Signup (spli
   left: 0;
   width: 50%;
   height: 100%;
-  background: transparent;
+  background-image: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.65)), url('/background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   border-right: 1px solid var(--outline-variant);
 }
 
@@ -206,7 +217,8 @@ Description: Custom styles for Login (fullscreen glassmorphism) and Signup (spli
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center; /* Center contents horizontally */
+  align-items: center;
+  /* Center contents horizontally */
   gap: 28px;
   box-shadow: -10px 0 30px rgba(15, 23, 42, 0.04);
   z-index: 5;
@@ -214,7 +226,7 @@ Description: Custom styles for Login (fullscreen glassmorphism) and Signup (spli
 }
 
 /* Keep form contents constrained to a professional, readable width */
-.auth-container.signup-page .auth-card > * {
+.auth-container.signup-page .auth-card>* {
   width: 100%;
   max-width: 380px;
 }
@@ -234,7 +246,7 @@ Description: Custom styles for Login (fullscreen glassmorphism) and Signup (spli
   gap: 16px;
 }
 
-.auth-container.signup-page .auth-card form > div {
+.auth-container.signup-page .auth-card form>div {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -255,7 +267,8 @@ Description: Custom styles for Login (fullscreen glassmorphism) and Signup (spli
   font-family: var(--font-body);
   font-size: 14px;
   border: 1px solid var(--outline-variant);
-  border-radius: var(--radius-md); /* 8px */
+  border-radius: var(--radius-md);
+  /* 8px */
   background-color: var(--surface-container-low);
   color: var(--on-surface);
   outline: none;
@@ -276,9 +289,12 @@ Description: Custom styles for Login (fullscreen glassmorphism) and Signup (spli
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 14px;
-  border-radius: var(--radius-md); /* 8px */
-  background-color: var(--primary-container); /* Neon Green */
-  color: var(--inverse-surface); /* Navy text */
+  border-radius: var(--radius-md);
+  /* 8px */
+  background-color: var(--primary-container);
+  /* Neon Green */
+  color: var(--inverse-surface);
+  /* Navy text */
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -319,9 +335,11 @@ Description: Custom styles for Login (fullscreen glassmorphism) and Signup (spli
   .auth-container.signup-page::before {
     display: none;
   }
+
   .auth-container.signup-page::after {
     display: none;
   }
+
   .auth-container.signup-page {
     justify-content: center;
     background-image: linear-gradient(rgba(15, 23, 42, 0.45), rgba(15, 23, 42, 0.45)), url('/background.png');
@@ -329,6 +347,7 @@ Description: Custom styles for Login (fullscreen glassmorphism) and Signup (spli
     background-position: center;
     background-repeat: no-repeat;
   }
+
   .auth-container.signup-page .auth-card {
     width: 100%;
     height: auto;

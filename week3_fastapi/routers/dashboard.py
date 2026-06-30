@@ -23,17 +23,28 @@ router = APIRouter(
 # Response: Dictionary containing total_income, total_expense, net_savings, and by_category array.
 @router.get("")
 def get_dashboard_summary(
-    month: int,
-    year: int,
+    month: int = 0,
+    year: int = 0,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
+    # =========================================================================
+    # PERIOD FILTERING LOGIC (month=0 and year=0 handling):
+    # - If both month == 0 and year == 0: No date restrictions applied (All Time mode).
+    # - If month == 0 and year > 0: Aggregates across the full specified year (Year mode).
+    # - If month > 0 and year > 0: Aggregates for the exact specified calendar month (Month mode).
+    # =========================================================================
+    date_filters = []
+    if year > 0:
+        date_filters.append(func.extract('year', models.Transaction.date) == year)
+    if month > 0:
+        date_filters.append(func.extract('month', models.Transaction.date) == month)
+
     # 1. Total income
     income_val = db.query(func.sum(models.Transaction.amount)).filter(
         models.Transaction.type == "income",
         models.Transaction.user_id == current_user.id,
-        func.extract('month', models.Transaction.date) == month,
-        func.extract('year', models.Transaction.date) == year
+        *date_filters
     ).scalar()
     total_income = float(income_val) if income_val is not None else 0.0
 
@@ -41,8 +52,7 @@ def get_dashboard_summary(
     expense_val = db.query(func.sum(models.Transaction.amount)).filter(
         models.Transaction.type == "expense",
         models.Transaction.user_id == current_user.id,
-        func.extract('month', models.Transaction.date) == month,
-        func.extract('year', models.Transaction.date) == year
+        *date_filters
     ).scalar()
     total_expense = float(expense_val) if expense_val is not None else 0.0
 
@@ -56,8 +66,7 @@ def get_dashboard_summary(
     ).filter(
         models.Transaction.type == "expense",
         models.Transaction.user_id == current_user.id,
-        func.extract('month', models.Transaction.date) == month,
-        func.extract('year', models.Transaction.date) == year
+        *date_filters
     ).group_by(
         models.Category.name,
         models.Category.monthly_budget
