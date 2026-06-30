@@ -3,14 +3,21 @@ File: Auth.css
 Description: Custom styles for Login (fullscreen glassmorphism) and Signup (split layout) views.
 ============================================================================ */
 
-/* Global container reset for auth flows overlaying navbar */
-.auth-container {
+/* Wrapper for page transitions to prevent layout jumps and break fixed-positioning constraint */
+.auth-page-wrapper {
   position: fixed;
-  top: 0;
+  top: 64px;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 64px);
   z-index: 100;
+}
+
+/* Global container reset for auth flows overlaying navbar */
+.auth-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
   display: flex;
   margin: 0;
   padding: 0;
@@ -24,10 +31,7 @@ Description: Custom styles for Login (fullscreen glassmorphism) and Signup (spli
 .auth-container.login-page {
   align-items: center;
   justify-content: center;
-  background-image: linear-gradient(rgba(15, 23, 42, 0.45), rgba(15, 23, 42, 0.45)), url('/background.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background: transparent;
   font-family: var(--font-body);
 }
 
@@ -156,11 +160,11 @@ Description: Custom styles for Login (fullscreen glassmorphism) and Signup (spli
 .auth-container.signup-page {
   justify-content: flex-end;
   align-items: center;
-  background-color: var(--background);
+  background-color: transparent;
   font-family: var(--font-body);
 }
 
-/* Left side background image */
+/* Left side background image area */
 .auth-container.signup-page::before {
   content: '';
   position: absolute;
@@ -168,10 +172,7 @@ Description: Custom styles for Login (fullscreen glassmorphism) and Signup (spli
   left: 0;
   width: 50%;
   height: 100%;
-  background-image: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.65)), url('/background.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background: transparent;
   border-right: 1px solid var(--outline-variant);
 }
 

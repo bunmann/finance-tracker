@@ -85,12 +85,12 @@ function AppContent({
                             ) : (
                                 <>
                                     <Route path="/login" element={
-                                        <motion.div {...pageTransition}>
+                                        <motion.div {...pageTransition} className="auth-page-wrapper">
                                             <LoginPage onLogin={handleLogin} />
                                         </motion.div>
                                     } />
                                     <Route path="/signup" element={
-                                        <motion.div {...pageTransition}>
+                                        <motion.div {...pageTransition} className="auth-page-wrapper">
                                             <SignupPage />
                                         </motion.div>
                                     } />
