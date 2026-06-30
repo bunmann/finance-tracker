@@ -1,3 +1,9 @@
+// ============================================================================
+// File: TransactionsContent.jsx
+// Description: Presenter component that renders the transactions forms, CSV upload,
+//              and transaction history list.
+// ============================================================================
+import React from 'react';
 import TransactionForm from './TransactionForm';
 import TransactionCsvUpload from './TransactionCsvUpload';
 import TransactionList from './TransactionList';
@@ -5,26 +11,17 @@ import '../../styles/Transactions.css';
 import { CURRENCY } from '../../utils/config';
 
 /**
- * Component: TransactionsPage
- * Description: Orchestrates the transaction forms, CSV upload component, and transaction list
- *              into a single unified transactions page view.
- * Props:
- *   - transactions (Array): List of transaction objects.
- *   - loading (Boolean): Fetch status indicator.
- *   - onTransactionAdded (Function): Callback for adding a transaction.
- *   - onTransactionDeleted (Function): Callback for deleting a transaction.
- *   - onTransactionUpdated (Function): Callback for updating a transaction's category.
- *   - onTransactionImportComplete (Function): Callback for successful CSV imports.
- *   - showToast (Function): Toast message trigger callback.
+ * Component: TransactionsContent
+ * Description: Dumb presenter component layout for transactions.
  */
-function TransactionsPage({ 
-    transactions, 
-    loading, 
-    onTransactionAdded, 
-    onTransactionDeleted, 
-    onTransactionUpdated, 
-    onTransactionImportComplete, 
-    showToast 
+function TransactionsContent({
+    transactions,
+    loading,
+    onTransactionAdded,
+    onTransactionDeleted,
+    onTransactionUpdated,
+    onTransactionImportComplete,
+    showToast
 }) {
     return (
         <div className="transactions-page page-container">
@@ -58,4 +55,4 @@ function TransactionsPage({
     );
 }
 
-export default TransactionsPage;
+export default TransactionsContent;

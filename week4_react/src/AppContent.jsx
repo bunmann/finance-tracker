@@ -6,13 +6,13 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './components/common/layout/Navbar';
-import Dashboard from './components/dashboard/Dashboard';
-import TransactionsPage from './components/transactions/TransactionsPage';
+import DashboardOverview from './components/dashboard/DashboardOverview';
+import TransactionsOverview from './components/transactions/TransactionsOverview';
 import LoginPage from './components/auth/LoginPage';
 import SignupPage from './components/auth/SignupPage';
 import BudgetOverview from './components/budgets/BudgetOverview';
-import StockPortfolio from './components/stocks/StockPortfolio';
-import StockScreener from './components/screener/StockScreener';
+import PortfolioOverview from './components/stocks/PortfolioOverview';
+import ScreenerOverview from './components/screener/ScreenerOverview';
 import Toast from './components/common/feedback/Toast';
 import ErrorBoundary from './components/common/feedback/ErrorBoundary';
 import { pageTransition } from './utils/animations';
@@ -49,12 +49,12 @@ function AppContent({
                                 <>
                                     <Route path="/" element={
                                         <motion.div {...pageTransition}>
-                                            <Dashboard transactions={transactions} showToast={showToast} />
+                                            <DashboardOverview transactions={transactions} showToast={showToast} />
                                         </motion.div>
                                     } />
                                     <Route path="/transactions" element={
                                         <motion.div {...pageTransition}>
-                                            <TransactionsPage
+                                            <TransactionsOverview
                                                 transactions={transactions}
                                                 loading={loading}
                                                 onTransactionAdded={handleTransactionAdded}
@@ -72,12 +72,12 @@ function AppContent({
                                     } />
                                     <Route path="/stocks" element={
                                         <motion.div {...pageTransition}>
-                                            <StockPortfolio showToast={showToast} />
+                                            <PortfolioOverview showToast={showToast} />
                                         </motion.div>
                                     } />
                                     <Route path="/screener" element={
                                         <motion.div {...pageTransition}>
-                                            <StockScreener showToast={showToast} />
+                                            <ScreenerOverview showToast={showToast} />
                                         </motion.div>
                                     } />
                                     <Route path="*" element={<Navigate to="/" />} />

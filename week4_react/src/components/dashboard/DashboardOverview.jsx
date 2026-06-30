@@ -1,21 +1,21 @@
 // ============================================================================
-// File: Dashboard.jsx
+// File: DashboardOverview.jsx
 // Description: Displays monthly financial summaries and spending breakdown charts.
 // ============================================================================
 import { useState, useEffect, useRef } from 'react';
 import api from '../../api';
-import DashboardView from './DashboardView';
+import DashboardContent from './DashboardContent';
 import '../../styles/Dashboard.css';
 
 /**
- * Component: Dashboard (Container)
+ * Component: DashboardOverview (Container)
  * Description: Smart container component coordinating monthly financial statistics fetching,
- *              loading states, and period filters before delegating UI design to DashboardView.
+ *              loading states, and period filters before delegating UI design to DashboardContent.
  * Props:
  *   - transactions (Array): User transactions list (forces re-renders/sync on dashboard when transactions change).
  *   - showToast (Function): Global toast callback to display alerts/success messages.
  */
-function Dashboard({ transactions, showToast }) {
+function DashboardOverview({ transactions, showToast }) {
     const today = new Date();
     const [month, setMonth] = useState(today.getMonth() + 1); // JS months are 0-indexed
     const [year, setYear] = useState(today.getFullYear());
@@ -48,22 +48,16 @@ function Dashboard({ transactions, showToast }) {
             });
     }, [month, year, transactions, showToast]);
 
-    if (loading) return (
-        <div className="spinner-container">
-            <div className="spinner"></div>
-        </div>
-    );
-    if (!dashboardData) return <p className="no-data-message">Error loading dashboard data.</p>;
-
     return (
-        <DashboardView
+        <DashboardContent
             dashboardData={dashboardData}
             month={month}
             year={year}
             onMonthChange={setMonth}
             onYearChange={setYear}
+            loading={loading}
         />
     );
 }
 
-export default Dashboard;
+export default DashboardOverview;

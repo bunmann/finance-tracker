@@ -202,3 +202,108 @@
   color: var(--on-surface-variant);
   margin: 0 0 10px 0;
 }
+
+/* Inline Category Creation Section */
+.budget-create-section {
+  background-color: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-xl);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.budget-create-form .form-inline-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.create-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.create-field label {
+  font-family: var(--font-brand);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+}
+
+.create-field input {
+  padding: 8px 12px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface);
+  color: var(--on-surface);
+  min-width: 180px;
+}
+
+.create-field input:focus {
+  border-color: var(--primary-container);
+  outline: none;
+}
+
+.selected-preview-icon {
+  font-size: 14px;
+}
+
+.preset-icons-grid {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.preset-icon-btn {
+  background: var(--surface);
+  border: 1px solid var(--outline-variant);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.preset-icon-btn:hover {
+  background-color: var(--surface-container);
+  border-color: var(--primary-container);
+}
+
+.preset-icon-btn.active {
+  background-color: rgba(0, 209, 102, 0.15);
+  border-color: var(--primary);
+  transform: scale(1.08);
+}
+
+.submit-field {
+  margin-left: auto;
+}
+
+.create-category-btn {
+  background-color: var(--on-surface);
+  color: var(--surface-container-lowest);
+  font-family: var(--font-brand);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 9px 18px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.create-category-btn:hover {
+  opacity: 0.9;
+}
+
+.create-category-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -4,6 +4,7 @@
 // ============================================================================
 import { useState } from 'react';
 import api from '../../api';
+import NonNegativeInput from '../common/inputs/NonNegativeInput';
 import { CURRENCY } from '../../utils/config';
 
 /**
@@ -27,10 +28,15 @@ function StockForm({ type, onComplete, showToast }) {
         setError('');
         setSubmitting(true);
 
+        const rawShares = parseFloat(shares);
+        const rawPrice = parseFloat(price);
+        const sanitizedShares = !isNaN(rawShares) ? Math.abs(rawShares) : 0;
+        const sanitizedPrice = !isNaN(rawPrice) ? Math.abs(rawPrice) : 0;
+
         const payload = {
             ticker: ticker.trim().toUpperCase(),
-            shares: parseFloat(shares),
-            price: parseFloat(price),
+            shares: sanitizedShares,
+            price: sanitizedPrice,
             date: date || null,
         };
 
@@ -92,7 +98,7 @@ function StockForm({ type, onComplete, showToast }) {
     const isBuy = type === 'buy';
 
     return (
-        <form onSubmit={handleSubmit} className="stock-form">
+        <form onSubmit={handleSubmit} className="stock-form" noValidate>
             <h2>{isBuy ? 'Buy Stock' : 'Sell Stock'}</h2>
             {error && <div className="form-error" style={{ marginBottom: '16px' }}>{error}</div>}
             
@@ -111,10 +117,9 @@ function StockForm({ type, onComplete, showToast }) {
                 <div className="form-grid-two-col">
                     <div className="form-group">
                         <label>Shares</label>
-                        <input
-                            type="number"
+                        <NonNegativeInput
                             step="any"
-                            min="0.000001"
+                            min={0.000001}
                             placeholder="e.g. 10"
                             value={shares}
                             onChange={(e) => setShares(e.target.value)}
@@ -124,10 +129,9 @@ function StockForm({ type, onComplete, showToast }) {
 
                     <div className="form-group">
                         <label>Price ({CURRENCY})</label>
-                        <input
-                            type="number"
+                        <NonNegativeInput
                             step="0.01"
-                            min="0.01"
+                            min={0.01}
                             placeholder="e.g. 150.25"
                             value={price}
                             onChange={(e) => setPrice(e.target.value)}

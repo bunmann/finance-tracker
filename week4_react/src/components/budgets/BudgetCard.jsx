@@ -6,6 +6,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TransactionTable from '../transactions/TransactionTable';
+import NonNegativeInput from '../common/inputs/NonNegativeInput';
 import { accordionCollapse } from '../../utils/animations';
 
 /**
@@ -49,7 +50,14 @@ function BudgetCard({ category, spent, transactions, month, year, onBudgetUpdate
     };
 
     return (
-        <div className={`budget-card ${getProgressColor(percentage)}`}>
+        <motion.div
+            layout
+            initial={{ opacity: 0, y: 15, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.96 }}
+            transition={{ duration: 0.2 }}
+            className={`budget-card ${getProgressColor(percentage)}`}
+        >
             <div 
                 className="budget-header clickable"
                 onClick={() => setIsExpanded(!isExpanded)}
@@ -72,11 +80,13 @@ function BudgetCard({ category, spent, transactions, month, year, onBudgetUpdate
                 </span>
             </div>
 
-            {/* Progress bar */}
+            {/* Progress bar with smooth width transition */}
             <div className="progress-bar-container">
-                <div
+                <motion.div
                     className={`progress-bar-fill ${getProgressColor(percentage)}`}
-                    style={{ width: `${Math.min(percentage, 100)}%` }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min(percentage, 100)}%` }}
+                    transition={{ type: 'spring', stiffness: 80, damping: 15 }}
                 />
             </div>
 
@@ -86,29 +96,15 @@ function BudgetCard({ category, spent, transactions, month, year, onBudgetUpdate
                 </span>
                 <div className="budget-input-group" onClick={(e) => e.stopPropagation()}>
                     <label>Budget: $</label>
-                    <input
-                        type="number"
+                    <NonNegativeInput
                         defaultValue={budget}
-                        onBlur={(e) => {
-                            const parsed = parseFloat(e.target.value);
-                            // Fallback validation: if a user bypasses keyboard blocks via copy-paste,
-                            // coerce negative numbers or NaN inputs to 0, and update the visual DOM value.
-                            const sanitizedValue = isNaN(parsed) || parsed < 0 ? 0 : parsed;
-                            e.target.value = sanitizedValue; // Reset visual DOM value if corrected
-                            onBudgetUpdate(category.id, sanitizedValue);
-                        }}
+                        step="10"
+                        onBlur={(e, sanitized) => onBudgetUpdate(category.id, sanitized)}
                         onKeyDown={(e) => {
-                            // Block typing negative sign ('-') and scientific exponent ('e')
-                            // to prevent users from inputting negative budgets via keyboard.
-                            if (e.key === '-' || e.key === 'e') {
-                                e.preventDefault();
-                            }
                             if (e.key === 'Enter') {
                                 e.target.blur();
                             }
                         }}
-                        step="10"
-                        min="0"
                     />
                 </div>
             </div>
@@ -139,7 +135,7 @@ function BudgetCard({ category, spent, transactions, month, year, onBudgetUpdate
                     </motion.div>
                 )}
             </AnimatePresence>
-        </div>
+        </motion.div>
     );
 }
 

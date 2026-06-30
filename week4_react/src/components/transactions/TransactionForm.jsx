@@ -4,6 +4,8 @@
 // ============================================================================
 import { useState, useEffect } from 'react';
 import api from '../../api';
+import NonNegativeInput from '../common/inputs/NonNegativeInput';
+import { sortCategories } from '../../utils/helpers';
 import { CURRENCY } from '../../utils/config';
 
 /**
@@ -30,7 +32,7 @@ function TransactionForm({ onTransactionAdded, showToast }) {
      */
     useEffect(() => {
         api.get('/categories')
-            .then(response => setCategories(response.data))
+            .then(response => setCategories(sortCategories(response.data)))
             .catch(err => {
                 console.error('Error fetching categories:', err);
                 showToast?.('Failed to load categories.', 'error');
@@ -50,8 +52,11 @@ function TransactionForm({ onTransactionAdded, showToast }) {
         setError('');  // Clear any previous error
 
         // Build the request body matching our Pydantic schema
+        const rawAmount = parseFloat(amount);
+        const sanitizedAmount = !isNaN(rawAmount) ? Math.abs(rawAmount) : 0;
+
         const transactionData = {
-            amount: parseFloat(amount),
+            amount: sanitizedAmount,
             description: description,
             type: type,
             date: date || null,
@@ -89,15 +94,14 @@ function TransactionForm({ onTransactionAdded, showToast }) {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
             <h2>Add Transaction</h2>
             {error && <p className="form-error">{error}</p>}
             
             <div className="form-grid">
                 <div className="form-group">
                     <label>Amount ({CURRENCY})</label>
-                    <input
-                        type="number"
+                    <NonNegativeInput
                         step="0.01"
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}

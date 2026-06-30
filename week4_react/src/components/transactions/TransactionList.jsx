@@ -5,6 +5,7 @@
 import { useState, useEffect } from 'react';
 import api from '../../api';
 import TransactionTable from './TransactionTable';
+import { sortCategories } from '../../utils/helpers';
 
 /**
  * Component: TransactionList
@@ -26,7 +27,7 @@ function TransactionList({ transactions, loading, onDelete, onUpdate, showToast 
      */
     useEffect(() => {
         api.get('/categories')
-            .then(response => setCategories(response.data))
+            .then(response => setCategories(sortCategories(response.data)))
             .catch(err => {
                 console.error('Error fetching categories in TransactionList:', err);
             });

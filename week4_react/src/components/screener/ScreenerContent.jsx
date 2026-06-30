@@ -1,82 +1,40 @@
 // ============================================================================
-// File: StockScreener.jsx
-// Description: Multi-strategy quantitative market screener and anomalies panel.
+// File: ScreenerContent.jsx
+// Description: Presenter component rendering quantitative screening UI controls,
+//              tab selectors, momentum tables, and value gap anomaly alerts.
 // ============================================================================
-import { useState, useEffect } from 'react';
-import api from '../../api';
-import AlertBanner from '../common/feedback/AlertBanner';
+import React from 'react';
 import FilterSidebar from '../common/layout/FilterSidebar';
 import MomentumTable from './MomentumTable';
 import ValueGapAlerts from './ValueGapAlerts';
-import ScreenerOverview from './ScreenerOverview';
-import '../../styles/Screener.css';
+import ScreenerOverviewPreview from './ScreenerOverviewPreview';
+import AlertBanner from '../common/feedback/AlertBanner';
 
 /**
- * Component: StockScreener
- * Description: Main quantitative screener container coordinating state, API scans, and modular sub-views.
- * Props:
- *   - showToast (Function): Toast notification delegate.
+ * Component: ScreenerContent
+ * Description: Pure presenter rendering the screener workspace.
  */
-function StockScreener({ showToast }) {
-    // Screener Slider States
-    const [minFcfGrowth, setMinFcfGrowth] = useState(20);       // Percentage (20 = 20%)
-    const [minProfitMargin, setMinProfitMargin] = useState(15);  // Percentage (15 = 15%)
-    const [maxDebtEquity, setMaxDebtEquity] = useState(1.0);     // Ratio
-    const [maxPe, setMaxPe] = useState(25.0);                    // Ratio
-    const [circleOfCompetenceOnly, setCircleOfCompetenceOnly] = useState(false);
-
-    // Navigation & Data States
-    const [activeTab, setActiveTab] = useState('overview');      // 'overview' | 'screener' | 'alerts'
-    const [results, setResults] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [competenceSectors, setCompetenceSectors] = useState([]);
-
-    // Fetch user's Circle of Competence sectors on mount for table highlighting
-    useEffect(() => {
-        api.get('/stocks/competence')
-            .then(res => {
-                if (Array.isArray(res.data)) {
-                    setCompetenceSectors(res.data.map(c => c.sector.toLowerCase().trim()));
-                }
-            })
-            .catch(err => console.error('Error loading competence sectors:', err));
-    }, []);
-
-    const handleRunScan = (e) => {
-        if (e) e.preventDefault();
-        setLoading(true);
-        setError(null);
-
-        const payload = {
-            min_fcf_growth: parseFloat(minFcfGrowth) / 100.0,
-            min_profit_margin: parseFloat(minProfitMargin) / 100.0,
-            max_debt_equity: parseFloat(maxDebtEquity),
-            max_pe: parseFloat(maxPe),
-            circle_of_competence_only: circleOfCompetenceOnly
-        };
-
-        api.post('/screener/scan', payload)
-            .then(res => {
-                setResults(res.data);
-                setLoading(false);
-                showToast?.('Quantitative market scan completed successfully!', 'success');
-            })
-            .catch(err => {
-                console.error('Scan failed:', err);
-                setError('Failed to execute quantitative scan. Please try again.');
-                showToast?.('Market scan failed.', 'error');
-                setLoading(false);
-            });
-    };
-
-    // Helper to render colored badges for stock relationship sources
-    const renderSourceBadge = (source) => {
-        const clean = (source || 'recommendation').toLowerCase();
-        return <span className={`source-badge badge-${clean}`}>{clean}</span>;
-    };
-
-    // Configuration arrays for the modular FilterSidebar
+function ScreenerContent({
+    activeTab,
+    setActiveTab,
+    minFcfGrowth,
+    setMinFcfGrowth,
+    minProfitMargin,
+    setMinProfitMargin,
+    maxDebtEquity,
+    setMaxDebtEquity,
+    maxPe,
+    setMaxPe,
+    circleOfCompetenceOnly,
+    setCircleOfCompetenceOnly,
+    results,
+    loading,
+    error,
+    competenceSectors,
+    handleRunScan,
+    renderSourceBadge
+}) {
+    // Helper slider configuration
     const sliderConfigs = [
         { id: 'fcf', label: 'Min FCF Growth', value: minFcfGrowth, min: -50, max: 100, step: 5, unit: '%', onChange: setMinFcfGrowth },
         { id: 'margin', label: 'Min Profit Margin', value: minProfitMargin, min: -20, max: 50, step: 5, unit: '%', onChange: setMinProfitMargin },
@@ -91,7 +49,6 @@ function StockScreener({ showToast }) {
     const alertCount = results?.value_gap?.length || 0;
     const candidateCount = results?.momentum_quality?.length || 0;
 
-    // Dynamic sidebar configurations per active strategy
     const activeSliders = (activeTab === 'overview' || activeTab === 'screener') ? sliderConfigs : [];
     const sidebarTitle = activeTab === 'overview' ? 'Global Scan Parameters' : (activeTab === 'screener' ? 'Momentum Parameters' : 'Value Gap Settings');
     const sidebarInfo = activeTab === 'overview'
@@ -102,6 +59,7 @@ function StockScreener({ showToast }) {
 
     return (
         <div className="screener-page page-container">
+            {/* Title Header - renders instantly */}
             <div className="screener-title-section">
                 <div>
                     <h2 className="dashboard-title">Quantitative Screener & Anomalies</h2>
@@ -162,14 +120,14 @@ function StockScreener({ showToast }) {
                             <span className="screener-loading-text">Analyzing quantitative indicators across TSX/US blue chips...</span>
                         </div>
                     ) : !results ? (
-                        <ScreenerOverview
+                        <ScreenerOverviewPreview
                             results={null}
                             competenceSectors={competenceSectors}
                             renderSourceBadge={renderSourceBadge}
                             onSelectTab={setActiveTab}
                         />
                     ) : activeTab === 'overview' ? (
-                        <ScreenerOverview
+                        <ScreenerOverviewPreview
                             results={results}
                             competenceSectors={competenceSectors}
                             renderSourceBadge={renderSourceBadge}
@@ -197,4 +155,4 @@ function StockScreener({ showToast }) {
     );
 }
 
-export default StockScreener;
+export default ScreenerContent;

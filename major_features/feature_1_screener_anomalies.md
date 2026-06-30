@@ -1,6 +1,6 @@
-# Week 7 — Quantitative Research: Screeners & Systematic Backtester
+# Major Feature 1: Fundamental Screener & Anomaly Detection Terminal
 
-Welcome to Week 7. In this phase, we transition from basic CRUD asset management to building automated quantitative engines, converting the portfolio tracker into a professional research terminal. We approach these strategies as signal-processing systems and state-logic control loops.
+Welcome to Major Feature 1. In this phase, we built automated quantitative engines that convert the portfolio tracker into a professional research terminal using signal processing and quantitative ranking logic.
 
 ---
 
@@ -22,23 +22,8 @@ Welcome to Week 7. In this phase, we transition from basic CRUD asset management
   - [x] Build the Anomaly Alerts panel showcasing real-time price divergence warnings.
   - [x] Integrate a results table with sorting, sector badges, "In Circle of Competence" highlights, and Cross-Sectional relative rankings.
   - [x] Connect routes in `App.jsx` and add sidebar navigation links in `Navbar.jsx`.
-
-### 📊 Feature 2: Systematic Backtester Framework
-- [ ] **Task 4: Backend: Python Backtester Engine**
-  - [ ] Create `/backtest` APIRouter structure in `routers/backtest.py`.
-  - [ ] Implement **Trend Following (Momentum)**: Simple Moving Average (SMA) crossover signal processing logic (e.g. 50-day fast vs. 200-day slow SMA).
-  - [ ] Implement **Mean Reversion (Spring / Bollinger Band)**: Z-Score rolling standard deviation state triggers.
-  - [ ] Fetch multi-year historical price tables from `yfinance`.
-  - [ ] Compute entry/exit trades, equity curve growth over time, total returns, Sharpe ratio, and Max Drawdown.
-  - [ ] Fetch S&P 500 (`^GSPC`) historical performance as a baseline benchmark.
-- [ ] **Task 5: Frontend: Interactive Backtester Panel**
-  - [ ] Create `StockBacktester.jsx` strategy config panel.
-  - [ ] Build strategy parameters form (ticker, start/end dates, strategy indicators, filter limits).
-  - [ ] Implement an interactive Recharts line chart comparing the Strategy Equity Curve against the S&P 500 Buy-and-Hold benchmark.
-  - [ ] Display backtest risk/return metrics summaries (Sharpe Ratio, Max Drawdown, Net Profit %).
-  - [ ] Connect routes in `App.jsx` and sidebar menu links in `Navbar.jsx`.
-
 ---
+
 
 ## 📐 ECE & Quantitative Logic Reference
 

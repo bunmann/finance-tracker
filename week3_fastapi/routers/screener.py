@@ -200,13 +200,15 @@ def run_multi_strategy_scan(
 
     # 4. Evaluate both strategies on each candidate
     for item in candidates_raw:
+        # --- Global Gatekeeper: Circle of Competence Filter ---
+        # When active, filter out general market candidates outside the user's expertise sectors.
+        # (Active portfolio holdings remain monitored so users never miss critical alerts on owned assets).
+        if req.circle_of_competence_only and item["source"] == "recommendation":
+            if item["sector"].strip().lower() not in allowed_sectors:
+                continue
+
         # --- Strategy 1: Momentum Quality ---
         qualifies_momentum = True
-        
-        # Sector competence filter
-        if req.circle_of_competence_only:
-            if item["sector"].strip().lower() not in allowed_sectors:
-                qualifies_momentum = False
         
         # Margin filter
         if qualifies_momentum and req.min_profit_margin is not None:
@@ -250,11 +252,6 @@ def run_multi_strategy_scan(
 
         # --- Strategy 2: Value Gap (Divergence Anomaly) ---
         qualifies_value_gap = True
-        
-        # If circle of competence is active, restrict new recommendations to those sectors
-        if req.circle_of_competence_only and item["source"] == "recommendation":
-            if item["sector"].strip().lower() not in allowed_sectors:
-                qualifies_value_gap = False
 
         if qualifies_value_gap and item["qoq_revenue_growth"] is not None and item["performance_30d"] is not None:
             if item["qoq_revenue_growth"] > 0.10 and item["performance_30d"] < -0.10:
