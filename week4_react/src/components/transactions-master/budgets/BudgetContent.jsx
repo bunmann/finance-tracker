@@ -90,6 +90,7 @@ function BudgetContent({
                                         category={category}
                                         spent={spent}
                                         transactions={transactions}
+                                        periodMode={periodMode}
                                         month={month}
                                         year={year}
                                         onBudgetUpdate={onBudgetUpdate}

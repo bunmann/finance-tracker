@@ -21,19 +21,33 @@ import { accordionCollapse } from '../../../../utils/animations';
  *   - year (Number): Currently selected calendar year.
  *   - onBudgetUpdate (Function): Parent callback handler triggered on budget input blur.
  */
-function BudgetCard({ category, spent, transactions, month, year, onBudgetUpdate }) {
+function BudgetCard({ category, spent, transactions, periodMode = 'month', month, year, onBudgetUpdate }) {
     const [isExpanded, setIsExpanded] = useState(false);
 
     const budget = parseFloat(category.monthly_budget) || 0;
     const percentage = budget > 0 ? Math.round((spent / budget) * 100) : 0;
 
-    // Filter transactions for this category, month, and year
+    // Filter transactions for this category based on active periodMode
     const catTransactions = transactions.filter(t => {
         if (t.category_id !== category.id) return false;
+        if (periodMode === 'all' || (month === 0 && year === 0)) return true;
         if (!t.date) return false;
         const [tYear, tMonth] = t.date.split('-');
+        if (periodMode === 'year' || month === 0) {
+            return parseInt(tYear) === year;
+        }
         return parseInt(tMonth) === month && parseInt(tYear) === year;
     });
+
+    const getPeriodHeader = () => {
+        if (periodMode === 'all' || (month === 0 && year === 0)) {
+            return 'All Transactions';
+        }
+        if (periodMode === 'year' || month === 0) {
+            return `Transactions in ${year}`;
+        }
+        return `Transactions in ${new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' })}`;
+    };
 
     /**
      * Function: getProgressColor
@@ -122,7 +136,7 @@ function BudgetCard({ category, spent, transactions, month, year, onBudgetUpdate
                     >
                         <div className="budget-transactions-divider"></div>
                         <h4 className="budget-transactions-title">
-                            Transactions in {new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' })}
+                            {getPeriodHeader()}
                         </h4>
                         {catTransactions.length === 0 ? (
                             <p className="no-transactions-text">No transactions logged under this category for this period.</p>
