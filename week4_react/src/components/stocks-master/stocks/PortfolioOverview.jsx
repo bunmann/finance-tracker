@@ -1,47 +1,35 @@
 // ============================================================================
 // File: PortfolioOverview.jsx
-// Description: Main stock portfolio page container managing data fetching.
+// Description: Route-level wrapper for the Portfolio Management page.
+//              Previously owned its own API fetch and refreshTransactionsTrigger
+//              state; all of that has been lifted to StocksMaster.jsx. This file
+//              is kept as a named wrapper so portfolio-specific state (e.g.
+//              selected holding, active detail panel) can be added here later
+//              without touching the parent router.
 // ============================================================================
-import { useState, useEffect } from 'react';
-import api from '../../../api';
 import PortfolioContent from './PortfolioContent';
 import '../../../styles/StockPortfolio.css';
 
 /**
  * Component: PortfolioOverview
- * Description: Smart container managing API fetching and callbacks for stock portfolio.
+ * Description: Thin pass-through wrapper for the Portfolio Management presenter.
+ *              All data fetching and refresh callbacks are handled by StocksMaster.
+ * Props:
+ *   - portfolio (Object|null): Live portfolio data from StocksMaster.
+ *   - loading (Boolean): True while the initial portfolio fetch is in progress.
+ *   - lastRefreshed (Date|null): Timestamp of the last successful API response.
+ *   - refreshTransactionsTrigger (Number): Bumped by StocksMaster after a trade so
+ *       PortfolioContent re-fetches its own transaction history list.
+ *   - handleTradeComplete (Function): Callback to StocksMaster triggering an
+ *       immediate portfolio re-fetch after a buy, sell, or CSV import.
+ *   - showToast (Function): Toast notification callback from App.
  */
-function PortfolioOverview({ showToast }) {
-    const [portfolio, setPortfolio] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [refreshTransactionsTrigger, setRefreshTransactionsTrigger] = useState(0);
-
-    const fetchPortfolio = () => {
-        api.get('/stocks/portfolio')
-            .then(response => {
-                setPortfolio(response.data);
-                setLoading(false);
-            })
-            .catch(error => {
-                console.error('Error fetching portfolio:', error);
-                showToast?.('Failed to load portfolio.', 'error');
-                setLoading(false);
-            });
-    };
-
-    useEffect(() => {
-        fetchPortfolio();
-    }, []);
-
-    const handleTradeComplete = () => {
-        fetchPortfolio();
-        setRefreshTransactionsTrigger(prev => prev + 1);
-    };
-
+function PortfolioOverview({ portfolio, loading, lastRefreshed, refreshTransactionsTrigger, handleTradeComplete, showToast }) {
     return (
         <PortfolioContent
             portfolio={portfolio}
             loading={loading}
+            lastRefreshed={lastRefreshed}
             refreshTransactionsTrigger={refreshTransactionsTrigger}
             handleTradeComplete={handleTradeComplete}
             showToast={showToast}

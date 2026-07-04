@@ -21,3 +21,25 @@ export function sortCategories(categoriesList) {
         return nameA.localeCompare(nameB);
     });
 }
+
+/**
+ * Formats lastRefreshed date to a human relative string like 'just now' or 'Xm ago'.
+ * @param {Date|string|null} lastRefreshed 
+ * @returns {string|null} Relative refresh string or null
+ */
+export function getRefreshLabel(lastRefreshed) {
+    if (!lastRefreshed) return null;
+    const diffMs = Date.now() - new Date(lastRefreshed).getTime();
+    const diffMin = Math.floor(diffMs / 60000);
+    return diffMin < 1 ? 'just now' : `${diffMin}m ago`;
+}
+
+/**
+ * Returns color class 'gain-text' or 'loss-text' based on numeric value.
+ * @param {number|string|null} value 
+ * @returns {string} styling class name
+ */
+export function getPnlClass(value) {
+    if (value === null || value === undefined) return '';
+    return parseFloat(value) >= 0 ? 'gain-text' : 'loss-text';
+}

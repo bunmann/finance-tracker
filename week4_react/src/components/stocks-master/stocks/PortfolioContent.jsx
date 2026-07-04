@@ -14,6 +14,7 @@ import StockTransactions from './components/StockTransactions';
 import EmptyState from '../../common/data-display/EmptyState';
 import { CURRENCY } from '../../../utils/config';
 import { staggerContainer } from '../../../utils/animations';
+import { getRefreshLabel, getPnlClass } from '../../../utils/helpers';
 
 /**
  * Component: PortfolioContent
@@ -22,21 +23,25 @@ import { staggerContainer } from '../../../utils/animations';
 function PortfolioContent({
     portfolio,
     loading,
+    lastRefreshed,
     refreshTransactionsTrigger,
     handleTradeComplete,
     showToast
 }) {
-    // Determine color class for P&L card
-    let gainClass = '';
-    if (portfolio && portfolio.total_gain !== null) {
-        gainClass = portfolio.total_gain >= 0 ? 'gain-text' : 'loss-text';
-    }
+    const refreshLabel = getRefreshLabel(lastRefreshed);
 
     return (
         <div className="stocks-page page-container">
             {/* Title Header - renders instantly on tab click */}
             <div className="dashboard-header">
-                <h2 className="dashboard-title">Stock Portfolio ({CURRENCY})</h2>
+                <div>
+                    <h2 className="dashboard-title">Stock Portfolio ({CURRENCY})</h2>
+                    {refreshLabel && (
+                        <p style={{ margin: 0, fontSize: '11px', color: 'var(--on-surface-variant)', fontStyle: 'italic', opacity: 0.55 }}>
+                            Prices refreshed {refreshLabel} &middot; auto-updates every 15 min
+                        </p>
+                    )}
+                </div>
             </div>
 
             {loading ? (
@@ -77,13 +82,13 @@ function PortfolioContent({
                         <MetricCard
                             title={`Total P&L (${CURRENCY})`}
                             value={portfolio.total_gain}
-                            className={gainClass}
+                            className={getPnlClass(portfolio.total_gain)}
                             prefix={portfolio.total_gain !== null && portfolio.total_gain >= 0 ? '+$' : '$'}
                         />
                         <MetricCard
                             title={`Realized P&L (${CURRENCY})`}
                             value={portfolio.total_realized_gain}
-                            className={portfolio.total_realized_gain >= 0 ? 'gain-text' : 'loss-text'}
+                            className={getPnlClass(portfolio.total_realized_gain)}
                             prefix={portfolio.total_realized_gain !== null && portfolio.total_realized_gain >= 0 ? '+$' : '$'}
                         />
                     </motion.div>

@@ -11,16 +11,14 @@ import AlertBanner from '../../common/feedback/AlertBanner';
 import EmptyState from '../../common/data-display/EmptyState';
 import { CURRENCY } from '../../../utils/config';
 import { staggerContainer } from '../../../utils/animations';
+import { getRefreshLabel, getPnlClass } from '../../../utils/helpers';
 
 /**
  * Component: StocksSummaryContent
  * Description: Dumb presenter for stock summary dashboard.
  */
-function StocksSummaryContent({ portfolio, loading }) {
-    let gainClass = '';
-    if (portfolio && portfolio.total_gain !== null) {
-        gainClass = portfolio.total_gain >= 0 ? 'gain-text' : 'loss-text';
-    }
+function StocksSummaryContent({ portfolio, loading, lastRefreshed }) {
+    const refreshLabel = getRefreshLabel(lastRefreshed);
 
     const holdings = portfolio?.holdings || [];
     const topHoldings = [...holdings].sort((a, b) => (b.current_value || 0) - (a.current_value || 0)).slice(0, 5);
@@ -31,8 +29,13 @@ function StocksSummaryContent({ portfolio, loading }) {
             <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                     <h2 className="dashboard-title">Stocks & Investments Summary ({CURRENCY})</h2>
-                    <p style={{ color: 'var(--on-surface-variant)', margin: 0, fontSize: '14px' }}>
+                    <p style={{ color: 'var(--on-surface-variant)', margin: 0, fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                         High-level capital compounding performance and asset allocation overview.
+                        {refreshLabel && (
+                            <span style={{ fontSize: '11px', fontStyle: 'italic', opacity: 0.55 }}>
+                                &middot; Prices refreshed {refreshLabel}
+                            </span>
+                        )}
                     </p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
@@ -84,13 +87,13 @@ function StocksSummaryContent({ portfolio, loading }) {
                         <MetricCard
                             title={`Total P&L (${CURRENCY})`}
                             value={portfolio.total_gain}
-                            className={gainClass}
+                            className={getPnlClass(portfolio.total_gain)}
                             prefix={portfolio.total_gain !== null && portfolio.total_gain >= 0 ? '+$' : '$'}
                         />
                         <MetricCard
                             title={`Realized P&L (${CURRENCY})`}
                             value={portfolio.total_realized_gain}
-                            className={portfolio.total_realized_gain >= 0 ? 'gain-text' : 'loss-text'}
+                            className={getPnlClass(portfolio.total_realized_gain)}
                             prefix={portfolio.total_realized_gain !== null && portfolio.total_realized_gain >= 0 ? '+$' : '$'}
                         />
                     </motion.div>
@@ -109,7 +112,7 @@ function StocksSummaryContent({ portfolio, loading }) {
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                     {topHoldings.map(item => {
                                         const pnl = (item.current_value || 0) - (item.total_cost || 0);
-                                        const pnlClass = pnl >= 0 ? 'gain-text' : 'loss-text';
+                                        const pnlClass = getPnlClass(pnl);
                                         return (
                                             <div key={item.ticker} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: 'var(--surface-container)', borderRadius: '8px' }}>
                                                 <div>

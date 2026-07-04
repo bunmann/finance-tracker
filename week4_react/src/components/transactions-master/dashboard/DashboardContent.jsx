@@ -12,6 +12,7 @@ import PeriodSelector from '../../common/inputs/PeriodSelector';
 import EmptyState from '../../common/data-display/EmptyState';
 import { CURRENCY } from '../../../utils/config';
 import { staggerContainer } from '../../../utils/animations';
+import { getPnlClass } from '../../../utils/helpers';
 
 // Colors for the pie chart slices
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#FF6B6B', '#4ECDC4'];
@@ -101,7 +102,7 @@ function DashboardContent({
                         <MetricCard
                             title={`Net Savings (${CURRENCY})`}
                             value={dashboardData.net_savings || 0}
-                            className={(dashboardData.net_savings || 0) >= 0 ? 'savings-positive' : 'savings-negative'}
+                            className={getPnlClass(dashboardData.net_savings)}
                         />
                     </motion.div>
 

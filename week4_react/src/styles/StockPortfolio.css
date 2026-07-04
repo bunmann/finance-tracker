@@ -22,16 +22,7 @@
   gap: var(--gutter);
 }
 
-/* Custom Text Highlighting */
-.gain-text {
-  color: var(--primary) !important;
-  font-weight: 600;
-}
 
-.loss-text {
-  color: var(--secondary) !important;
-  font-weight: 600;
-}
 
 /* Holdings and Trade Ledger custom tables */
 .ticker-cell {

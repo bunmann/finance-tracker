@@ -3,6 +3,7 @@
 // Description: Renders the active stock holdings table with sortable columns.
 // ============================================================================
 import GenericTable from '../../../common/data-display/GenericTable';
+import { getPnlClass } from '../../../../utils/helpers';
 
 /**
  * Component: StockHoldings
@@ -36,10 +37,8 @@ function StockHoldings({ holdings = [] }) {
                         defaultSort={{ key: 'ticker', direction: 'asc' }}
                         rowKey="ticker"
                         renderRow={(h) => {
-                            const isGain = h.unrealized_gain >= 0;
-                            const pnlClass = h.unrealized_gain !== null ? (isGain ? 'gain-text' : 'loss-text') : '';
-                            const isPercentGain = h.gain_percent >= 0;
-                            const percentClass = h.gain_percent !== null ? (isPercentGain ? 'gain-text' : 'loss-text') : '';
+                            const pnlClass = getPnlClass(h.unrealized_gain);
+                            const percentClass = getPnlClass(h.gain_percent);
 
                             return (
                                 <>
