@@ -58,6 +58,10 @@ function Navbar({ isLoggedIn, onLogout }) {
                             <span className="material-symbols-outlined">saved_search</span>
                             <span>Screener</span>
                         </NavLink>
+                        <NavLink to="/stocks/watchlist" className={({ isActive }) => `sidebar-link-secondary ${isActive ? 'active' : ''}`}>
+                            <span className="material-symbols-outlined">visibility</span>
+                            <span>Watchlist & Sectors</span>
+                        </NavLink>
                     </div>
                 </div>
 

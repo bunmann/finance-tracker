@@ -23,6 +23,7 @@ import api from '../../api';
 import StocksSummaryOverview from './stocks-summary/StocksSummaryOverview';
 import PortfolioOverview from './stocks/PortfolioOverview';
 import ScreenerOverview from './screener/ScreenerOverview';
+import WatchlistOverview from './watchlist/WatchlistOverview';
 import useTimerTick from '../../hooks/useTimerTick';
 
 // 15 minutes — matches the server-side PriceCache TTL so every background
@@ -52,6 +53,11 @@ function StocksMaster({ showToast }) {
     const [portfolio, setPortfolio] = useState(null);
     const [portfolioLoading, setPortfolioLoading] = useState(true);
 
+    // Shared watchlist & sector competence state
+    const [watchlistItems, setWatchlistItems] = useState([]);
+    const [competenceSectors, setCompetenceSectors] = useState([]);
+    const [extrasLoading, setExtrasLoading] = useState(true);
+
     // Timestamp of the last successful fetch — passed to children so they
     // can display a "Prices refreshed X min ago" label without managing time state
     const [lastRefreshed, setLastRefreshed] = useState(null);
@@ -71,11 +77,6 @@ function StocksMaster({ showToast }) {
     /**
      * Function: fetchPortfolio
      * Description: Fetches /stocks/portfolio from the API and updates shared state.
-     *              The isBackground flag prevents showing the full-page spinner and
-     *              error toast during silent background polls — those are reserved for
-     *              the initial load and user-triggered refreshes (e.g. after a trade).
-     * Parameters:
-     *   - isBackground (Boolean): If true, suppresses loading spinner and error toast.
      */
     const fetchPortfolio = useCallback((isBackground = false) => {
         if (!isBackground) setPortfolioLoading(true);
@@ -94,43 +95,135 @@ function StocksMaster({ showToast }) {
             });
     }, [showToast]);
 
+    /**
+     * Function: fetchExtras
+     * Description: Fetches /stocks/watchlist and /stocks/competence concurrently.
+     */
+    const fetchExtras = useCallback((isBackground = false) => {
+        if (!isBackground) setExtrasLoading(true);
+
+        Promise.all([
+            api.get('/stocks/watchlist'),
+            api.get('/stocks/competence')
+        ])
+            .then(([watchlistRes, competenceRes]) => {
+                setWatchlistItems(Array.isArray(watchlistRes.data) ? watchlistRes.data : []);
+                setCompetenceSectors(Array.isArray(competenceRes.data) ? competenceRes.data : []);
+            })
+            .catch(error => {
+                console.error('StocksMaster: extras fetch error:', error);
+                if (!isBackground) showToast?.('Failed to load watchlist and sector data.', 'error');
+            })
+            .finally(() => {
+                if (!isBackground) setExtrasLoading(false);
+            });
+    }, [showToast]);
+
     // Initial load + 15-minute background refresh timer
     useEffect(() => {
         fetchPortfolio(false);
+        fetchExtras(false);
 
         intervalRef.current = setInterval(() => {
             fetchPortfolio(true); // Silent background poll
+            fetchExtras(true);    // Silent background poll
         }, REFRESH_INTERVAL_MS);
 
         // Clear the interval when the user navigates away from /stocks entirely
         return () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
         };
-    }, [fetchPortfolio]);
+    }, [fetchPortfolio, fetchExtras]);
 
     /**
      * Function: handleTradeComplete
      * Description: Called by PortfolioContent after a buy, sell, or CSV import.
-     *              Forces an immediate non-background portfolio refresh so the
-     *              updated holdings are visible right away, and bumps the
-     *              transaction history trigger so that list also re-fetches.
      */
     const handleTradeComplete = useCallback(() => {
         fetchPortfolio(false);
+        fetchExtras(false);
         setRefreshTransactionsTrigger(prev => prev + 1);
-    }, [fetchPortfolio]);
+    }, [fetchPortfolio, fetchExtras]);
+
+    // Centralized mutation handlers for Watchlist & Circle of Competence
+    const handleAddToWatchlist = useCallback((tickerSymbol) => {
+        setExtrasLoading(true);
+        api.post('/stocks/watchlist', { ticker: tickerSymbol })
+            .then(() => {
+                showToast?.(`Added ${tickerSymbol} to Watchlist!`, 'success');
+                fetchExtras(false);
+            })
+            .catch(err => {
+                console.error('Add ticker error:', err);
+                const detail = err.response?.data?.detail || `Could not add ${tickerSymbol} to watchlist.`;
+                showToast?.(detail, 'error');
+                setExtrasLoading(false);
+            });
+    }, [fetchExtras, showToast]);
+
+    const handleRemoveFromWatchlist = useCallback((tickerSymbol) => {
+        setExtrasLoading(true);
+        api.delete(`/stocks/watchlist/${encodeURIComponent(tickerSymbol)}`)
+            .then(() => {
+                showToast?.(`Removed ${tickerSymbol} from Watchlist.`, 'info');
+                fetchExtras(false);
+            })
+            .catch(err => {
+                console.error('Remove ticker error:', err);
+                const detail = err.response?.data?.detail || `Could not remove ${tickerSymbol}.`;
+                showToast?.(detail, 'error');
+                setExtrasLoading(false);
+            });
+    }, [fetchExtras, showToast]);
+
+    const handleAddCompetenceSector = useCallback((sectorName) => {
+        setExtrasLoading(true);
+        api.post('/stocks/competence', { sector: sectorName })
+            .then(() => {
+                showToast?.(`Added '${sectorName}' to Circle of Competence!`, 'success');
+                fetchExtras(false);
+            })
+            .catch(err => {
+                console.error('Add sector error:', err);
+                const detail = err.response?.data?.detail || `Could not add sector '${sectorName}'.`;
+                showToast?.(detail, 'error');
+                setExtrasLoading(false);
+            });
+    }, [fetchExtras, showToast]);
+
+    const handleRemoveCompetenceSector = useCallback((sectorName) => {
+        setExtrasLoading(true);
+        api.delete(`/stocks/competence/${encodeURIComponent(sectorName)}`)
+            .then(() => {
+                showToast?.(`Removed '${sectorName}' from Circle of Competence.`, 'info');
+                fetchExtras(false);
+            })
+            .catch(err => {
+                console.error('Remove sector error:', err);
+                const detail = err.response?.data?.detail || `Could not remove sector '${sectorName}'.`;
+                showToast?.(detail, 'error');
+                setExtrasLoading(false);
+            });
+    }, [fetchExtras, showToast]);
 
     return (
         <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
 
-                {/* Stocks Summary — receives shared portfolio data, no independent fetch */}
+                {/* Stocks Summary — receives shared portfolio and watchlist data */}
                 <Route path="/" element={
                     <motion.div {...pageTransition}>
                         <StocksSummaryOverview
                             portfolio={portfolio}
                             loading={portfolioLoading}
                             lastRefreshed={lastRefreshed}
+                            watchlistItems={watchlistItems}
+                            competenceSectors={competenceSectors}
+                            onAddToWatchlist={handleAddToWatchlist}
+                            onRemoveFromWatchlist={handleRemoveFromWatchlist}
+                            onAddCompetenceSector={handleAddCompetenceSector}
+                            onRemoveCompetenceSector={handleRemoveCompetenceSector}
+                            extraLoading={extrasLoading}
                         />
                     </motion.div>
                 } />
@@ -149,10 +242,29 @@ function StocksMaster({ showToast }) {
                     </motion.div>
                 } />
 
-                {/* Quantitative Screener — self-contained, no portfolio data needed */}
+                {/* Quantitative Screener — consumes synchronized competence sectors */}
                 <Route path="/screener" element={
                     <motion.div {...pageTransition}>
-                        <ScreenerOverview showToast={showToast} />
+                        <ScreenerOverview
+                            showToast={showToast}
+                            competenceSectors={competenceSectors}
+                        />
+                    </motion.div>
+                } />
+
+                {/* Watchlist & Circle of Competence */}
+                <Route path="/watchlist" element={
+                    <motion.div {...pageTransition}>
+                        <WatchlistOverview
+                            showToast={showToast}
+                            watchlistItems={watchlistItems}
+                            competenceSectors={competenceSectors}
+                            onAddToWatchlist={handleAddToWatchlist}
+                            onRemoveFromWatchlist={handleRemoveFromWatchlist}
+                            onAddCompetenceSector={handleAddCompetenceSector}
+                            onRemoveCompetenceSector={handleRemoveCompetenceSector}
+                            loading={extrasLoading}
+                        />
                     </motion.div>
                 } />
 

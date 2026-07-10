@@ -12,12 +12,26 @@ import EmptyState from '../../common/data-display/EmptyState';
 import { CURRENCY } from '../../../utils/config';
 import { staggerContainer } from '../../../utils/animations';
 import { getRefreshLabel, getPnlClass } from '../../../utils/helpers';
+import WatchlistManager from '../watchlist/components/WatchlistManager';
+import SectorCompetenceManager from '../watchlist/components/SectorCompetenceManager';
+import '../../../styles/Watchlist.css';
 
 /**
  * Component: StocksSummaryContent
  * Description: Dumb presenter for stock summary dashboard.
  */
-function StocksSummaryContent({ portfolio, loading, lastRefreshed }) {
+function StocksSummaryContent({
+    portfolio,
+    loading,
+    lastRefreshed,
+    watchlistItems = [],
+    competenceSectors = [],
+    onAddToWatchlist,
+    onRemoveFromWatchlist,
+    onAddCompetenceSector,
+    onRemoveCompetenceSector,
+    extraLoading = false
+}) {
     const refreshLabel = getRefreshLabel(lastRefreshed);
 
     const holdings = portfolio?.holdings || [];
@@ -157,6 +171,22 @@ function StocksSummaryContent({ portfolio, loading, lastRefreshed }) {
                                 </Link>
                             </div>
                         </div>
+                    </div>
+
+                    {/* Second Grid: Active Watchlist & Circle of Competence */}
+                    <div className="watchlist-grid" style={{ marginTop: '24px' }}>
+                        <WatchlistManager
+                            items={watchlistItems}
+                            onAddToWatchlist={onAddToWatchlist}
+                            onRemoveFromWatchlist={onRemoveFromWatchlist}
+                            loading={extraLoading}
+                        />
+                        <SectorCompetenceManager
+                            sectors={competenceSectors}
+                            onAddCompetenceSector={onAddCompetenceSector}
+                            onRemoveCompetenceSector={onRemoveCompetenceSector}
+                            loading={extraLoading}
+                        />
                     </div>
                 </>
             )}

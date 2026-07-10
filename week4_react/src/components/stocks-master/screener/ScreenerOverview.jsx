@@ -3,17 +3,18 @@
 // Description: Parent container component coordinating state, API scans,
 //              and delegating visual layout rendering to ScreenerContent.
 // ============================================================================
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import api from '../../../api';
 import ScreenerContent from './ScreenerContent';
 import '../../../styles/Screener.css';
 
 /**
  * Component: ScreenerOverview (Container)
- * Description: Coordinates quantitative parameters, user competence fetching,
- *              loading states, and network requests for stock scan results.
+ * Description: Coordinates quantitative parameters, loading states, and network
+ *              requests for stock scan results. Consumes synchronized competence
+ *              sectors from StocksMaster via props.
  */
-function ScreenerOverview({ showToast }) {
+function ScreenerOverview({ showToast, competenceSectors = [] }) {
     // Screener Slider States
     const [minFcfGrowth, setMinFcfGrowth] = useState(20);       // Percentage (20 = 20%)
     const [minProfitMargin, setMinProfitMargin] = useState(15);  // Percentage (15 = 15%)
@@ -26,18 +27,11 @@ function ScreenerOverview({ showToast }) {
     const [results, setResults] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [competenceSectors, setCompetenceSectors] = useState([]);
 
-    // Fetch user's Circle of Competence sectors on mount for table highlighting
-    useEffect(() => {
-        api.get('/stocks/competence')
-            .then(res => {
-                if (Array.isArray(res.data)) {
-                    setCompetenceSectors(res.data.map(c => c.sector.toLowerCase().trim()));
-                }
-            })
-            .catch(err => console.error('Error loading competence sectors:', err));
-    }, []);
+    // Normalize incoming competenceSectors prop for table row matching
+    const formattedCompetenceSectors = competenceSectors
+        .map(c => (typeof c === 'object' ? c.sector : c)?.toLowerCase().trim())
+        .filter(Boolean);
 
     const handleRunScan = (e) => {
         if (e) e.preventDefault();
@@ -89,7 +83,7 @@ function ScreenerOverview({ showToast }) {
             results={results}
             loading={loading}
             error={error}
-            competenceSectors={competenceSectors}
+            competenceSectors={formattedCompetenceSectors}
             handleRunScan={handleRunScan}
             renderSourceBadge={renderSourceBadge}
         />

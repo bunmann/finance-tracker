@@ -1,43 +1,38 @@
 // ============================================================================
-// File: StocksSummaryOverview.jsx
-// Description: Pass-through wrapper for Stocks Summary presenter, forwarding
-//              consolidated portfolio, watchlist, and sector state from StocksMaster.
+// File: WatchlistOverview.jsx
+// Description: Pass-through wrapper for Watchlist and Sector Competence presenter,
+//              forwarding consolidated state and mutation callbacks from StocksMaster.
 // ============================================================================
 import React from 'react';
-import StocksSummaryContent from './StocksSummaryContent';
-import '../../../styles/StockPortfolio.css';
+import WatchlistContent from './WatchlistContent';
 
 /**
- * Component: StocksSummaryOverview
- * Description: Thin pass-through wrapper for the Stocks Summary presenter.
+ * Component: WatchlistOverview
+ * Description: Thin pass-through container for Watchlist & Sectors view.
  *              All data fetching and mutation handling is owned by StocksMaster.
  */
-function StocksSummaryOverview({
-    portfolio,
-    loading,
-    lastRefreshed,
+function WatchlistOverview({
     watchlistItems,
     competenceSectors,
     onAddToWatchlist,
     onRemoveFromWatchlist,
     onAddCompetenceSector,
     onRemoveCompetenceSector,
-    extraLoading
+    loading,
+    error
 }) {
     return (
-        <StocksSummaryContent
-            portfolio={portfolio}
-            loading={loading}
-            lastRefreshed={lastRefreshed}
+        <WatchlistContent
             watchlistItems={watchlistItems}
             competenceSectors={competenceSectors}
             onAddToWatchlist={onAddToWatchlist}
             onRemoveFromWatchlist={onRemoveFromWatchlist}
             onAddCompetenceSector={onAddCompetenceSector}
             onRemoveCompetenceSector={onRemoveCompetenceSector}
-            extraLoading={extraLoading}
+            loading={loading}
+            error={error}
         />
     );
 }
 
-export default StocksSummaryOverview;
+export default WatchlistOverview;

@@ -47,10 +47,6 @@ function AppContent({
         if (path.startsWith('/statements') || path.startsWith('/reports')) {
             return 'statements-master';
         }
-        // Auth paths
-        if (path.startsWith('/login') || path.startsWith('/signup')) {
-            return 'auth-master';
-        }
         return path;
     };
 
@@ -61,31 +57,47 @@ function AppContent({
                 <ErrorBoundary>
                     <AnimatePresence mode="wait">
                         <Routes location={location} key={getDomainKey(location.pathname)}>
-                            {isLoggedIn ? (
-                                <>
-                                    <Route path="/" element={<Navigate to="/cashflow" replace />} />
-                                    <Route path="/stocks/*" element={
-                                        <StocksMaster showToast={showToast} />
-                                    } />
-                                    <Route path="/cashflow/*" element={
-                                        <TransactionsMaster showToast={showToast} />
-                                    } />
-                                </>
-                            ) : (
-                                <>
-                                    <Route path="/login" element={
-                                        <motion.div {...pageTransition} className="auth-page-wrapper">
-                                            <LoginPage onLogin={handleLogin} />
-                                        </motion.div>
-                                    } />
-                                    <Route path="/signup" element={
-                                        <motion.div {...pageTransition} className="auth-page-wrapper">
-                                            <SignupPage />
-                                        </motion.div>
-                                    } />
-                                    <Route path="*" element={<Navigate to="/login" />} />
-                                </>
-                            )}
+                            {/* Base Redirects */}
+                            <Route path="/" element={<Navigate to={isLoggedIn ? "/cashflow" : "/login"} replace />} />
+
+                            {/* Guest Routes (Redirect to dashboard if logged in) */}
+                            <Route path="/login" element={
+                                isLoggedIn ? (
+                                    <Navigate to="/cashflow" replace />
+                                ) : (
+                                    <motion.div {...pageTransition} className="auth-page-wrapper">
+                                        <LoginPage onLogin={handleLogin} />
+                                    </motion.div>
+                                )
+                            } />
+                            <Route path="/signup" element={
+                                isLoggedIn ? (
+                                    <Navigate to="/cashflow" replace />
+                                ) : (
+                                    <motion.div {...pageTransition} className="auth-page-wrapper">
+                                        <SignupPage />
+                                    </motion.div>
+                                )
+                            } />
+
+                            {/* Protected Routes (Redirect to login if not logged in) */}
+                            <Route path="/stocks/*" element={
+                                isLoggedIn ? (
+                                    <StocksMaster showToast={showToast} />
+                                ) : (
+                                    <Navigate to="/login" replace />
+                                )
+                            } />
+                            <Route path="/cashflow/*" element={
+                                isLoggedIn ? (
+                                    <TransactionsMaster showToast={showToast} />
+                                ) : (
+                                    <Navigate to="/login" replace />
+                                )
+                            } />
+
+                            {/* Wildcard Fallback */}
+                            <Route path="*" element={<Navigate to={isLoggedIn ? "/cashflow" : "/login"} replace />} />
                         </Routes>
                     </AnimatePresence>
                 </ErrorBoundary>

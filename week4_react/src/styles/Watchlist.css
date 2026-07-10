@@ -1,0 +1,342 @@
+/* ============================================================================
+ * File: Watchlist.css
+ * Description: High-contrast, desktop-first stylesheet for Watchlist and
+ *              Circle of Competence management components. Follows Veridian Flow
+ *              Pro Edition specifications (ROUND_EIGHT, 40px table density,
+ *              JetBrains Mono numeric alignment, and soft 5% green row hover).
+ * ============================================================================ */
+
+/* Top-level Layout Container */
+.watchlist-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.watchlist-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+@media (max-width: 1024px) {
+    .watchlist-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Management Cards (ROUND_EIGHT -> 16px widget radius) */
+.watchlist-card,
+.competence-card {
+    background: var(--surface);
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+}
+
+.manager-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.manager-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #0F172A;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.manager-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--on-surface-variant);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Form Bar (Input + Add Button) */
+.manager-form-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.manager-input {
+    flex: 1;
+    height: 40px;
+    padding: 0 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #0F172A;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.manager-input:focus {
+    border-color: #00D166;
+    box-shadow: 0 0 4px rgba(0, 209, 102, 0.2);
+}
+
+.manager-input::placeholder {
+    color: #94A3B8;
+}
+
+.manager-submit-btn {
+    height: 40px;
+    padding: 0 18px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #0F172A;
+    background: #00D166;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.manager-submit-btn:hover:not(:disabled) {
+    background: #00BA5A;
+    box-shadow: 0 0 8px rgba(0, 209, 102, 0.3);
+}
+
+.manager-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.manager-submit-btn .spin {
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+
+/* Watchlist High-Density Table (40px row height) */
+.watchlist-table-wrapper {
+    overflow-x: auto;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    background: #FFFFFF;
+}
+
+.watchlist-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.watchlist-table th {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748B;
+    background: #F8FAFC;
+    padding: 0 14px;
+    height: 40px;
+    text-align: left;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.watchlist-table td {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #0F172A;
+    padding: 0 14px;
+    height: 40px;
+    border-bottom: 1px solid #F1F5F9;
+    vertical-align: middle;
+}
+
+.watchlist-table tr:last-child td {
+    border-bottom: none;
+}
+
+.watchlist-table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.watchlist-table tbody tr:hover {
+    background-color: rgba(0, 209, 102, 0.05) !important;
+}
+
+.watchlist-ticker-mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: #0F172A;
+}
+
+.watchlist-price-mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: #0F172A;
+}
+
+.watchlist-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 24px;
+}
+
+.watchlist-status-badge.live {
+    background: rgba(0, 209, 102, 0.12);
+    color: #006D32;
+}
+
+.watchlist-status-badge.stale {
+    background: rgba(255, 171, 0, 0.15);
+    color: #825500;
+}
+
+.watchlist-delete-btn {
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.watchlist-delete-btn:hover {
+    color: #FF3B3B;
+    background: rgba(255, 59, 59, 0.08);
+}
+
+/* Quick-Add Selector Pills */
+.quick-add-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.quick-add-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748B;
+}
+
+.quick-add-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.quick-add-pill {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #0F172A;
+    background: #F1F5F9;
+    border: 1px solid #E2E8F0;
+    border-radius: 24px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.quick-add-pill:hover {
+    border-color: #00D166;
+    background: rgba(0, 209, 102, 0.08);
+    color: #006D32;
+}
+
+/* Active Sector Tags Grid (24px radius tags) */
+.active-sectors-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.active-sectors-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.competence-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0F172A;
+    background: rgba(0, 209, 102, 0.12);
+    border: 1px solid rgba(0, 209, 102, 0.3);
+    border-radius: 24px;
+    padding: 6px 14px;
+    transition: all 0.2s ease;
+}
+
+.competence-tag:hover {
+    background: rgba(0, 209, 102, 0.2);
+}
+
+.competence-tag-remove {
+    background: transparent;
+    border: none;
+    color: #006D32;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0;
+    border-radius: 50%;
+    transition: color 0.2s ease;
+}
+
+.competence-tag-remove:hover {
+    color: #FF3B3B;
+}
+
+/* Compact Summary Widgets (For Stocks Summary page placement) */
+.watchlist-widget-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.watchlist-widget-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: #F8FAFC;
+    border: 1px solid #F1F5F9;
+    border-radius: 8px;
+    transition: background-color 0.15s ease;
+}
+
+.watchlist-widget-row:hover {
+    background-color: rgba(0, 209, 102, 0.05);
+}

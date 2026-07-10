@@ -709,6 +709,20 @@ def remove_from_watchlist(
 # 5. Circle of Competence (Sector Tracking)
 # ============================================================================
 
+VALID_SECTORS = {
+    "Technology",
+    "Financial Services",
+    "Healthcare",
+    "Energy",
+    "Industrials",
+    "Consumer Discretionary",
+    "Consumer Staples",
+    "Utilities",
+    "Real Estate",
+    "Basic Materials",
+    "Communication Services"
+}
+
 @router.post("/competence")
 def add_sector_competence(
     item: SectorCompetenceCreate,
@@ -717,31 +731,34 @@ def add_sector_competence(
 ):
     """
     Add a sector to the user's Circle of Competence.
-    
-    Parameters:
-    - item (SectorCompetenceCreate): The competence creation schema containing the sector name.
-    - db (Session): The database session dependency.
-    - current_user (User): The currently authenticated user.
-    
-    Returns:
-    - SectorCompetence: The newly created sector competence record.
     """
-    sector = item.sector.strip()
+    raw_sector = item.sector.strip()
+    
+    # Match case-insensitively against valid GICS/Yahoo Finance sectors
+    matched_sector = next(
+        (s for s in VALID_SECTORS if s.lower() == raw_sector.lower()),
+        None
+    )
+    if not matched_sector:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid sector: '{raw_sector}'. Must be a standard GICS/exchange sector."
+        )
     
     # Check if user already has this sector in their Circle of Competence
     existing = db.query(models.SectorCompetence).filter(
         models.SectorCompetence.user_id == current_user.id,
-        models.SectorCompetence.sector == sector
+        models.SectorCompetence.sector == matched_sector
     ).first()
     if existing:
         raise HTTPException(
             status_code=400,
-            detail=f"Sector '{sector}' is already in your Circle of Competence"
+            detail=f"Sector '{matched_sector}' is already in your Circle of Competence"
         )
         
     db_item = models.SectorCompetence(
         user_id=current_user.id,
-        sector=sector
+        sector=matched_sector
     )
     db.add(db_item)
     db.commit()
