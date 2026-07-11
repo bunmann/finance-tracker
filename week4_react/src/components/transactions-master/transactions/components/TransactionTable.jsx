@@ -8,11 +8,12 @@ import GenericTable from '../../../common/data-display/GenericTable';
 
 /**
  * Component: TransactionTable
- * Description: Renders a list of transactions in either a detailed (full) table
- *              or a simplified (mini) table by wrapping GenericTable.
+ * Description: Renders a paginated, sortable list of transactions by wrapping GenericTable.
  * Props:
  *   - transactions (Array): Filtered transactions to display.
- *   - isMini (Boolean): If true, renders a simplified 3-column view without actions.
+ *   - hiddenColumns (Array): List of column keys to omit (e.g., ['category', 'type', 'actions']).
+ *   - defaultPageSize (Number): Initial rows per page (default: 10).
+ *   - pageSizeOptions (Array): Available rows per page options.
  *   - categories (Array): List of category options for the edit dropdown.
  *   - onDelete (Function): Callback function triggered when a transaction is deleted.
  *   - onCategoryChange (Function): Callback function triggered when a category is updated.
@@ -20,7 +21,9 @@ import GenericTable from '../../../common/data-display/GenericTable';
  */
 function TransactionTable({
     transactions,
-    isMini = false,
+    hiddenColumns = [],
+    defaultPageSize = 10,
+    pageSizeOptions = [10, 25, 50, 'All'],
     categories = [],
     onDelete,
     onCategoryChange,
@@ -62,47 +65,25 @@ function TransactionTable({
         );
     }
 
-    if (isMini) {
-        const miniColumns = [
-            { label: 'Date', key: 'date' },
-            { label: 'Description', key: 'description' },
-            { label: 'Amount', key: 'amount', align: 'right' }
-        ];
-
-        return (
-            <GenericTable
-                data={transactions}
-                columns={miniColumns}
-                tableClass="mini-transactions-table"
-                defaultSort={{ key: 'date', direction: 'asc' }}
-                renderRow={(t) => (
-                    <>
-                        <td>{t.date}</td>
-                        <td>{t.description}</td>
-                        <td className={`amount-cell ${t.type === 'income' ? 'amount-gain' : 'amount-loss'}`} style={{ textAlign: 'right' }}>
-                            {t.type === 'income' ? '+' : '-'}${Number(Math.abs(t.amount)).toFixed(2)}
-                        </td>
-                    </>
-                )}
-            />
-        );
-    }
-
-    const fullColumns = [
+    const allColumns = [
         { label: 'Date', key: 'date' },
         { label: 'Description', key: 'description' },
         { label: 'Category', key: 'category' },
         { label: 'Type', key: 'type' },
-        { label: 'Amount', key: 'amount' },
-        { label: 'Actions', key: null }
+        { label: 'Amount', key: 'amount', align: hiddenColumns.includes('actions') ? 'right' : 'left' },
+        { label: 'Actions', key: 'actions' }
     ];
 
     return (
         <GenericTable
             data={transactions}
-            columns={fullColumns}
+            columns={allColumns}
+            hiddenColumns={hiddenColumns}
             categories={categories}
             defaultSort={{ key: 'date', direction: 'asc' }}
+            paginated={true}
+            defaultPageSize={defaultPageSize}
+            pageSizeOptions={pageSizeOptions}
             renderRow={(t) => (
                 <>
                     <td>{t.date}</td>
@@ -130,7 +111,7 @@ function TransactionTable({
                             {t.type}
                         </span>
                     </td>
-                    <td className={`amount-cell ${t.type === 'income' ? 'amount-gain' : 'amount-loss'}`}>
+                    <td className={`amount-cell ${t.type === 'income' ? 'amount-gain' : 'amount-loss'}`} style={{ textAlign: hiddenColumns.includes('actions') ? 'right' : 'left' }}>
                         {t.type === 'income' ? '+' : '-'}${Number(Math.abs(t.amount)).toFixed(2)}
                     </td>
                     <td>

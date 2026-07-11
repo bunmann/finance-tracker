@@ -36,7 +36,7 @@ router = APIRouter(
 #   - end_date (date): Filter transactions on or before this date.
 @router.get("")
 def get_transactions(
-    limit: int = 100,
+    limit: int = 5000,
     offset: int = 0,
     type: Optional[Literal["income", "expense"]] = None,
     category_id: Optional[int] = None,

@@ -38,7 +38,7 @@ function TransactionsMaster({ showToast }) {
     // Fetch transactions list on mount
     useEffect(() => {
         setLoading(true);
-        api.get('/transactions')
+        api.get('/transactions?limit=5000')
             .then(response => {
                 setTransactions(response.data);
                 setLoading(false);
@@ -70,7 +70,7 @@ function TransactionsMaster({ showToast }) {
     };
 
     const handleTransactionImportComplete = () => {
-        api.get('/transactions')
+        api.get('/transactions?limit=5000')
             .then(response => setTransactions(response.data))
             .catch(error => {
                 console.error('Error fetching transactions after import:', error);

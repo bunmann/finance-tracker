@@ -143,7 +143,9 @@ function BudgetCard({ category, spent, transactions, periodMode = 'month', month
                         ) : (
                             <TransactionTable
                                 transactions={catTransactions}
-                                isMini={true}
+                                hiddenColumns={['category', 'type', 'actions']}
+                                defaultPageSize={5}
+                                pageSizeOptions={[5, 10, 25, 'All']}
                             />
                         )}
                     </motion.div>
