@@ -74,7 +74,7 @@ function WatchlistManager({ items = [], onAddToWatchlist, onRemoveFromWatchlist,
     };
 
     return (
-        <div className="watchlist-card">
+        <div className="card watchlist-card">
             <div className="manager-header">
                 <h3 className="manager-title">
                     <span className="material-symbols-outlined" style={{ color: '#00D166', fontSize: '24px' }}>visibility</span>

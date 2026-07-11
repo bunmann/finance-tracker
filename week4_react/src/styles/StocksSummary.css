@@ -1,0 +1,241 @@
+/* ============================================================================
+ * File: StocksSummary.css
+ * Description: Clean, modular stylesheet for the Stocks Summary overview view.
+ *              Follows Veridian Flow Pro Edition standards (clean spacing,
+ *              JetBrains Mono numeric alignments, and modular card structures)
+ *              without relying on inline styles.
+ * ============================================================================ */
+
+/* Top Dashboard Header Flex Layout */
+.summary-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.summary-header-sub {
+    color: var(--on-surface-variant);
+    margin: 0;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.summary-refresh-note {
+    font-size: 11px;
+    font-style: italic;
+    opacity: 0.55;
+}
+
+.summary-action-btns {
+    display: flex;
+    gap: 12px;
+}
+
+.summary-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+/* Crisp Page-Level Vertical Spacing Override */
+.stocks-summary-page {
+    gap: 20px !important;
+}
+
+/* Two-Column Dashboard Overview Grid */
+.summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 0;
+}
+
+@media (max-width: 1024px) {
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Modular Overview Cards */
+.summary-section-card {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.summary-section-card h3,
+.summary-card-title {
+    margin: 0;
+    font-family: var(--font-brand);
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: var(--on-surface) !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+}
+
+.summary-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.summary-card-link {
+    font-size: 13px;
+    color: var(--primary-container);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Top Allocation Holdings List & Rows */
+.top-holdings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.top-holding-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    background: var(--surface-container);
+    border-radius: 8px;
+    border: 1px solid var(--outline-variant);
+    transition: background-color 0.15s ease;
+}
+
+.top-holding-row:hover {
+    background-color: rgba(0, 209, 102, 0.04);
+}
+
+.top-holding-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.top-holding-ticker-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.top-holding-ticker {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--on-surface);
+}
+
+.top-holding-price-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: rgba(0, 209, 102, 0.12);
+    color: #006D32;
+}
+
+.top-holding-price-badge.stale {
+    background: rgba(255, 171, 0, 0.12);
+    color: #825500;
+}
+
+.top-holding-stale-icon {
+    font-size: 12px;
+}
+
+.top-holding-details-sub {
+    font-size: 12px;
+    color: var(--on-surface-variant);
+    margin-top: 4px;
+}
+
+.top-holding-right {
+    text-align: right;
+}
+
+.top-holding-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--on-surface);
+}
+
+.top-holding-pnl-row {
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    margin-top: 2px;
+}
+
+/* Quantitative Anomaly Intelligence Card Styles */
+.summary-card-right {
+    justify-content: space-between;
+}
+
+.strategy-icon-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.strategy-main-icon {
+    color: var(--primary-container);
+    font-size: 28px;
+}
+
+.strategy-description {
+    color: var(--on-surface-variant);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.strategy-status-box {
+    background: var(--surface-container);
+    padding: 16px;
+    border-radius: 8px;
+    margin-top: 16px;
+}
+
+.strategy-status-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--on-surface);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.strategy-verified-icon {
+    font-size: 18px;
+    color: var(--primary-container);
+}
+
+.strategy-status-text {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: var(--on-surface-variant);
+}
+
+.strategy-cta-wrapper {
+    margin-top: 24px;
+    text-align: right;
+}
+
+.summary-watchlist-grid {
+    margin-top: 0;
+}

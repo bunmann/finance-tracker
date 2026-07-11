@@ -54,7 +54,7 @@ function SectorCompetenceManager({ sectors = [], onAddCompetenceSector, onRemove
     );
 
     return (
-        <div className="competence-card">
+        <div className="card competence-card">
             <div className="manager-header">
                 <h3 className="manager-title">
                     <span className="material-symbols-outlined" style={{ color: '#00D166', fontSize: '24px' }}>psychology</span>
