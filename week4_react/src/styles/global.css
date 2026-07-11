@@ -588,3 +588,89 @@ tr:hover td {
 .toast-error .toast-icon {
   color: var(--secondary);
 }
+
+/* ==========================================================================
+   Collapsible Add & Import Form Section
+   ========================================================================== */
+.collapsible-form-section {
+  width: 100%;
+  margin: 0;
+}
+
+.collapsible-form-header-bar {
+  display: flex;
+  width: 100%;
+  margin-bottom: 0;
+  transition: margin-bottom 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.collapsible-form-section.is-open .collapsible-form-header-bar {
+  margin-bottom: 16px;
+}
+
+.collapsible-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 22px;
+  border-radius: var(--radius-xl);
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  color: var(--on-surface);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  text-align: left;
+}
+
+.collapsible-toggle-btn:hover {
+  background: var(--surface-container-low);
+  border-color: rgba(148, 163, 184, 0.35);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.collapsible-toggle-btn.active {
+  background: var(--primary-container);
+  color: var(--inverse-surface);
+  border-color: var(--primary-container);
+  box-shadow: 0 4px 16px rgba(46, 125, 50, 0.2);
+}
+
+.collapsible-toggle-btn .toggle-left,
+.collapsible-toggle-btn .toggle-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.collapsible-toggle-btn .toggle-label {
+  font-family: var(--font-brand);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.collapsible-toggle-btn .toggle-hint {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.collapsible-toggle-btn .toggle-icon,
+.collapsible-toggle-btn .toggle-chevron {
+  font-size: 20px;
+}
+
+.collapsible-form-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 2px;
+  padding-bottom: 0;
+}

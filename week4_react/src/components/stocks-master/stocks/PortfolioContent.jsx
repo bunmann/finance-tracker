@@ -12,6 +12,7 @@ import StockHoldings from './components/StockHoldings';
 import StockForm from './components/StockForm';
 import StockTransactions from './components/StockTransactions';
 import EmptyState from '../../common/data-display/EmptyState';
+import CollapsibleFormSection from '../../common/layout/CollapsibleFormSection';
 import { CURRENCY } from '../../../utils/config';
 import { staggerContainer } from '../../../utils/animations';
 import { getRefreshLabel, getPnlClass } from '../../../utils/helpers';
@@ -96,14 +97,20 @@ function PortfolioContent({
                     {/* Holdings Table */}
                     <StockHoldings holdings={portfolio.holdings} />
 
-                    {/* Buy/Sell Forms */}
-                    <div className="stock-forms">
-                        <StockForm type="buy" onComplete={handleTradeComplete} showToast={showToast} />
-                        <StockForm type="sell" onComplete={handleTradeComplete} showToast={showToast} />
-                    </div>
-
-                    {/* CSV Import */}
-                    <BrokerageCsvUpload onBrokerageImportComplete={handleTradeComplete} />
+                    {/* Buy/Sell & CSV Import Forms */}
+                    <CollapsibleFormSection
+                        title="Buy, Sell or Import Stocks"
+                        activeTitle="Hide Trade & Import Tools"
+                        icon="trending_up"
+                        activeIcon="remove_circle"
+                        defaultOpen={false}
+                    >
+                        <div className="stock-forms">
+                            <StockForm type="buy" onComplete={handleTradeComplete} showToast={showToast} />
+                            <StockForm type="sell" onComplete={handleTradeComplete} showToast={showToast} />
+                        </div>
+                        <BrokerageCsvUpload onBrokerageImportComplete={handleTradeComplete} />
+                    </CollapsibleFormSection>
 
                     {/* Transaction History */}
                     <StockTransactions refreshTrigger={refreshTransactionsTrigger} showToast={showToast} />

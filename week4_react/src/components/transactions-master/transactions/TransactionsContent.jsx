@@ -8,6 +8,7 @@ import TransactionForm from './components/TransactionForm';
 import TransactionCsvUpload from './components/TransactionCsvUpload';
 import TransactionList from './components/TransactionList';
 import PeriodSelector from '../../common/inputs/PeriodSelector';
+import CollapsibleFormSection from '../../common/layout/CollapsibleFormSection';
 import '../../../styles/Transactions.css';
 import { CURRENCY } from '../../../utils/config';
 
@@ -58,16 +59,24 @@ function TransactionsContent({
                     />
                 </div>
             </div>
-            <div className="transactions-forms">
-                <TransactionForm
-                    onTransactionAdded={(tx) => {
-                        onTransactionAdded(tx);
-                        showToast('Transaction added successfully!');
-                    }}
-                    showToast={showToast}
-                />
-                <TransactionCsvUpload onTransactionImportComplete={onTransactionImportComplete} />
-            </div>
+            <CollapsibleFormSection
+                title="Add or Import Transactions"
+                activeTitle="Hide Add & Import Tools"
+                icon="add_card"
+                activeIcon="remove_circle"
+                defaultOpen={false}
+            >
+                <div className="transactions-forms">
+                    <TransactionForm
+                        onTransactionAdded={(tx) => {
+                            onTransactionAdded(tx);
+                            showToast('Transaction added successfully!');
+                        }}
+                        showToast={showToast}
+                    />
+                    <TransactionCsvUpload onTransactionImportComplete={onTransactionImportComplete} />
+                </div>
+            </CollapsibleFormSection>
             <TransactionList
                 transactions={filteredTransactions}
                 loading={loading}
