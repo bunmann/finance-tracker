@@ -17,4 +17,18 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
+// Silently intercept sliding token renewal headers and update stored JWT
+api.interceptors.response.use(
+    (response) => {
+        const refreshedToken = response.headers['x-token-refresh'] || response.headers['X-Token-Refresh'];
+        if (refreshedToken) {
+            localStorage.setItem('token', refreshedToken);
+        }
+        return response;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
 export default api;

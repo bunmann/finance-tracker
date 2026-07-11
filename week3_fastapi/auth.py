@@ -5,8 +5,9 @@
 #              implements the get_current_user FastAPI dependency.
 # ============================================================================
 from datetime import datetime, timedelta, timezone
+from typing import Optional
 from jose import JWTError, jwt
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from database import get_db
@@ -17,6 +18,7 @@ import bcrypt
 SECRET_KEY = "your-secret-key-change-this-in-production"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
+ABSOLUTE_SESSION_EXPIRE_HOURS = 12  # 12-hour maximum daily session hard cap
 
 # ====== Password Hashing ======
 def hash_password(password: str) -> str:
@@ -33,21 +35,31 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(pwd_bytes, hashed_bytes)
 
 # ====== JWT Token Creation ======
-def create_access_token(data: dict) -> str:
-    """Create a JWT token with an expiration time."""
+def create_access_token(data: dict, login_ts: Optional[float] = None) -> str:
+    """Create a JWT token with an expiration time and immutable login timestamp."""
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
+    now_utc = datetime.now(timezone.utc)
+    expire = now_utc + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    
+    # If this is the initial login, stamp the exact login epoch time
+    if login_ts is None:
+        login_ts = now_utc.timestamp()
+        
+    to_encode.update({
+        "exp": expire,
+        "login_ts": login_ts
+    })
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 # ====== Token Verification (Dependency) ======
 security = HTTPBearer()
 
 def get_current_user(
+    request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ):
-    """Extract the user from a JWT token. Use as a FastAPI dependency."""
+    """Extract and verify the user from a JWT token, enforcing absolute daily hard caps."""
     credentials_exception = HTTPException(
         status_code=401,
         detail="Invalid or expired token",
@@ -58,8 +70,27 @@ def get_current_user(
         # Decode the token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str = payload.get("sub")
+        login_ts = payload.get("login_ts")
+        
         if user_id is None:
             raise credentials_exception
+            
+        now_ts = datetime.now(timezone.utc).timestamp()
+        
+        # Enforce 12-hour absolute session hard cap (`May not roll continuously across days`)
+        if login_ts is not None and (now_ts - float(login_ts)) >= (ABSOLUTE_SESSION_EXPIRE_HOURS * 3600):
+            raise HTTPException(
+                status_code=401,
+                detail="Your 12-hour maximum daily session has expired. Please log in again for security.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+            
+        # Check if sliding token renewal is needed (`< 15 mins remaining on current 1-hour token`)
+        exp_ts = payload.get("exp")
+        if exp_ts and (float(exp_ts) - now_ts) < 900:
+            request.state.needs_token_refresh = True
+            request.state.token_payload = payload
+            
     except JWTError:
         raise credentials_exception
 

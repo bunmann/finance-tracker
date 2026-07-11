@@ -17,6 +17,7 @@ class UserCreate(BaseModel):
 class LoginRequest(BaseModel):
     email: str
     password: str
+    remember_email: Optional[bool] = False
 
 
 # ============================================================================

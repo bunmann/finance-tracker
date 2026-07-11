@@ -83,6 +83,37 @@ Description: Custom styles for Login (fullscreen glassmorphism) and Signup (spli
   gap: 8px;
 }
 
+.auth-container.login-page .auth-card form>div.remember-me-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  margin: 4px 0;
+}
+
+.auth-container.login-page .auth-card form>div.remember-me-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+.auth-container.login-page .auth-card form>div.remember-me-row label {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  margin: 0;
+  line-height: 1.4;
+}
+
 .auth-container.login-page .auth-card label {
   font-family: var(--font-brand);
   font-size: 11px;

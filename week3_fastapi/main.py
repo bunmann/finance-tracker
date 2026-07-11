@@ -17,6 +17,8 @@ from routers import auth, transactions, categories, dashboard, stocks, screener
 Base.metadata.create_all(bind=engine)
 
 
+from fastapi import Request
+
 app = FastAPI()
 
 # Allow the React frontend to talk to the backend
@@ -26,7 +28,23 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],       # Allow all HTTP methods (GET, POST, DELETE, etc.)
     allow_headers=["*"],       # Allow all headers
+    expose_headers=["X-Token-Refresh"],  # Expose token refresh header to browser Axios
 )
+
+@app.middleware("http")
+async def token_refresh_middleware(request: Request, call_next):
+    """Intercept responses to emit X-Token-Refresh header if sliding renewal was triggered."""
+    response = await call_next(request)
+    if getattr(request.state, "needs_token_refresh", False):
+        payload = getattr(request.state, "token_payload", {})
+        if payload and "sub" in payload:
+            from auth import create_access_token
+            new_token = create_access_token(
+                {"sub": payload["sub"]},
+                login_ts=payload.get("login_ts")
+            )
+            response.headers["X-Token-Refresh"] = new_token
+    return response
 
 # Include all modular sub-routers
 app.include_router(auth.router)

@@ -87,6 +87,10 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     if not verify_password(login_data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    # 3. Create and return a JWT token
+    # 3. Create and return a JWT token with initial login timestamp
     token = create_access_token({"sub": str(user.id)})
-    return {"access_token": token, "token_type": "bearer"}
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "remember_email": login_data.remember_email
+    }
