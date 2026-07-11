@@ -80,9 +80,9 @@ function ScreenerContent({
                     infoMessage={sidebarInfo}
                     onSubmit={handleRunScan}
                     loading={loading}
-                    buttonText="Run Market Scan"
-                    loadingText="Scanning Market..."
-                    buttonIcon="troubleshoot"
+                    buttonText="Reset Parameters"
+                    loadingText="Resetting..."
+                    buttonIcon="restart_alt"
                 />
 
                 {/* Right Results Panel */}

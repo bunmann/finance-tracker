@@ -58,6 +58,10 @@ function StocksMaster({ showToast }) {
     const [competenceSectors, setCompetenceSectors] = useState([]);
     const [extrasLoading, setExtrasLoading] = useState(true);
 
+    // Cached raw quantitative screener candidates (evaluated on mount, interval, and trade updates)
+    const [screenerCandidates, setScreenerCandidates] = useState([]);
+    const [screenerLoading, setScreenerLoading] = useState(true);
+
     // Timestamp of the last successful fetch — passed to children so they
     // can display a "Prices refreshed X min ago" label without managing time state
     const [lastRefreshed, setLastRefreshed] = useState(null);
@@ -119,21 +123,44 @@ function StocksMaster({ showToast }) {
             });
     }, [showToast]);
 
+    /**
+     * Function: fetchScreenerCandidates
+     * Description: Fetches /screener/candidates to cache raw candidate calculations
+     *              (metrics + relative strength) across the entire domain.
+     */
+    const fetchScreenerCandidates = useCallback((isBackground = false) => {
+        if (!isBackground) setScreenerLoading(true);
+
+        api.get('/screener/candidates')
+            .then(res => {
+                setScreenerCandidates(Array.isArray(res.data?.candidates) ? res.data.candidates : []);
+            })
+            .catch(err => {
+                console.error('StocksMaster: screener candidates fetch error:', err);
+                if (!isBackground) showToast?.('Failed to load quantitative screener dataset.', 'error');
+            })
+            .finally(() => {
+                if (!isBackground) setScreenerLoading(false);
+            });
+    }, [showToast]);
+
     // Initial load + 15-minute background refresh timer
     useEffect(() => {
         fetchPortfolio(false);
         fetchExtras(false);
+        fetchScreenerCandidates(false);
 
         intervalRef.current = setInterval(() => {
-            fetchPortfolio(true); // Silent background poll
-            fetchExtras(true);    // Silent background poll
+            fetchPortfolio(true);          // Silent background poll
+            fetchExtras(true);             // Silent background poll
+            fetchScreenerCandidates(true); // Silent background poll for fresh relative strength
         }, REFRESH_INTERVAL_MS);
 
         // Clear the interval when the user navigates away from /stocks entirely
         return () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
         };
-    }, [fetchPortfolio, fetchExtras]);
+    }, [fetchPortfolio, fetchExtras, fetchScreenerCandidates]);
 
     /**
      * Function: handleTradeComplete
@@ -142,8 +169,9 @@ function StocksMaster({ showToast }) {
     const handleTradeComplete = useCallback(() => {
         fetchPortfolio(false);
         fetchExtras(false);
+        fetchScreenerCandidates(true);
         setRefreshTransactionsTrigger(prev => prev + 1);
-    }, [fetchPortfolio, fetchExtras]);
+    }, [fetchPortfolio, fetchExtras, fetchScreenerCandidates]);
 
     // Centralized mutation handlers for Watchlist & Circle of Competence
     const handleAddToWatchlist = useCallback((tickerSymbol) => {
@@ -242,12 +270,15 @@ function StocksMaster({ showToast }) {
                     </motion.div>
                 } />
 
-                {/* Quantitative Screener — consumes synchronized competence sectors */}
+                {/* Quantitative Screener — consumes synchronized competence sectors & cached candidates */}
                 <Route path="/screener" element={
                     <motion.div {...pageTransition}>
                         <ScreenerOverview
                             showToast={showToast}
                             competenceSectors={competenceSectors}
+                            rawCandidates={screenerCandidates}
+                            screenerLoading={screenerLoading}
+                            onRefreshCandidates={() => fetchScreenerCandidates(false)}
                         />
                     </motion.div>
                 } />
