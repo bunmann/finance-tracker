@@ -7,6 +7,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import api from './api';
 import AppContent from './AppContent';
+import ScrollToTop from './components/common/layout/ScrollToTop';
 import './App.css';
 
 const INACTIVITY_CHECK_INTERVAL_MS = 30 * 1000; // 30 seconds
@@ -108,6 +109,7 @@ function App() {
 
     return (
         <Router>
+            <ScrollToTop />
             <AppContent
                 isLoggedIn={isLoggedIn}
                 handleLogin={handleLogin}

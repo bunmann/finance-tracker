@@ -55,7 +55,7 @@ function AppContent({
             <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
             <main className="main-content">
                 <ErrorBoundary>
-                    <AnimatePresence mode="wait">
+                    <AnimatePresence mode="wait" onExitComplete={() => window.scrollTo(0, 0)}>
                         <Routes location={location} key={getDomainKey(location.pathname)}>
                             {/* Base Redirects */}
                             <Route path="/" element={<Navigate to={isLoggedIn ? "/cashflow" : "/login"} replace />} />

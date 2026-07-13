@@ -235,7 +235,7 @@ function StocksMaster({ showToast }) {
     }, [fetchExtras, showToast]);
 
     return (
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" onExitComplete={() => window.scrollTo(0, 0)}>
             <Routes location={location} key={location.pathname}>
 
                 {/* Stocks Summary — receives shared portfolio and watchlist data */}

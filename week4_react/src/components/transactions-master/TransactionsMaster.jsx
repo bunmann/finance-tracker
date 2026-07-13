@@ -72,7 +72,7 @@ function TransactionsMaster({ showToast }) {
     };
 
     return (
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" onExitComplete={() => window.scrollTo(0, 0)}>
             <Routes location={location} key={location.pathname}>
                 <Route path="/" element={
                     <motion.div {...pageTransition}>

@@ -4,7 +4,7 @@
 //              strategy filtering over cached candidates, and delegating visual
 //              layout rendering to ScreenerContent.
 // ============================================================================
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import ScreenerContent from './ScreenerContent';
 import './Screener.css';
 
@@ -32,6 +32,11 @@ function ScreenerOverview({
     // Navigation & Data States
     const [activeTab, setActiveTab] = useState('overview');      // 'overview' | 'screener' | 'alerts'
     const [error, setError] = useState(null);
+
+    // Reset window scroll to top whenever the internal strategy tab changes
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [activeTab]);
 
     // Normalize incoming competenceSectors prop for table row matching
     const formattedCompetenceSectors = useMemo(() => {
