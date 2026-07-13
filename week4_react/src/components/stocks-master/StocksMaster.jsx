@@ -24,7 +24,7 @@ import StocksSummaryOverview from './stocks-summary/StocksSummaryOverview';
 import PortfolioOverview from './stocks/PortfolioOverview';
 import ScreenerOverview from './screener/ScreenerOverview';
 import WatchlistOverview from './watchlist/WatchlistOverview';
-import StockAnalysisModal from './stocks-summary/components/StockAnalysisModal';
+import StockAnalysisModal from './stocks-summary/components/stock-analysis-modal/StockAnalysisModal';
 import useTimerTick from '../../hooks/useTimerTick';
 
 // 15 minutes — matches the server-side PriceCache TTL so every background

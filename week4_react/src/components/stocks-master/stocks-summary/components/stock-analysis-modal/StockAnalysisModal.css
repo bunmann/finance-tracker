@@ -92,6 +92,34 @@
     gap: 0.35rem;
 }
 
+.stock-modal-live-clock {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #94A3B8;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.15rem;
+}
+
+.live-dot {
+    width: 7px;
+    height: 7px;
+    background-color: #00D166;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 8px #00D166;
+    animation: liveClockPulse 2s infinite;
+}
+
+@keyframes liveClockPulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
 .stock-modal-ticker-row {
     display: flex;
     align-items: center;
