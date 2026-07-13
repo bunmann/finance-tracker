@@ -15,7 +15,7 @@ import EmptyState from '../../../common/data-display/EmptyState';
  *   - competenceSectors (Array): User's active Circle of Competence sectors (lowercase).
  *   - renderSourceBadge (Function): Delegate returning badge JSX.
  */
-function MomentumTable({ candidates = [], competenceSectors = [], renderSourceBadge }) {
+function MomentumTable({ candidates = [], competenceSectors = [], renderSourceBadge, onOpenModal }) {
     if (!candidates || candidates.length === 0) {
         return (
             <EmptyState
@@ -44,7 +44,16 @@ function MomentumTable({ candidates = [], competenceSectors = [], renderSourceBa
     // Table Row Render Prop
     const renderRow = (item) => (
         <>
-            <td className="ticker-cell">{item.ticker}</td>
+            <td className="ticker-cell">
+                <button
+                    type="button"
+                    className="ticker-link-btn"
+                    onClick={() => onOpenModal && onOpenModal(item.ticker)}
+                    title="Research & Chart"
+                >
+                    {item.ticker}
+                </button>
+            </td>
             <td>{item.name}</td>
             <td>{item.sector}</td>
             <td className="screener-cell-mono">

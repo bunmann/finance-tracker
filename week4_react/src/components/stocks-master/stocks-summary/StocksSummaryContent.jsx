@@ -32,7 +32,8 @@ function StocksSummaryContent({
     onRemoveFromWatchlist,
     onAddCompetenceSector,
     onRemoveCompetenceSector,
-    extraLoading
+    extraLoading,
+    onOpenModal
 }) {
     const refreshLabel = getRefreshLabel(lastRefreshed);
 
@@ -127,7 +128,7 @@ function StocksSummaryContent({
                             ) : (
                                 <div className="top-holdings-list">
                                     {topHoldings.map(item => (
-                                        <HoldingMiniCard key={item.ticker} holding={item} />
+                                        <HoldingMiniCard key={item.ticker} holding={item} onOpenModal={onOpenModal} />
                                     ))}
                                 </div>
                             )}
@@ -169,6 +170,7 @@ function StocksSummaryContent({
                             onAddToWatchlist={onAddToWatchlist}
                             onRemoveFromWatchlist={onRemoveFromWatchlist}
                             loading={extraLoading}
+                            onOpenModal={onOpenModal}
                         />
                         <SectorCompetenceManager
                             sectors={competenceSectors}

@@ -12,7 +12,7 @@ import { getPnlClass } from '../../../../utils/helpers';
  * Props:
  *   - holding (Object): Stock holding details ({ ticker, shares, cost_basis, market_value, current_price, unrealized_gain, gain_percent, is_stale })
  */
-function HoldingMiniCard({ holding }) {
+function HoldingMiniCard({ holding, onOpenModal }) {
     if (!holding) return null;
 
     const pnl = holding.unrealized_gain !== null && holding.unrealized_gain !== undefined
@@ -27,7 +27,14 @@ function HoldingMiniCard({ holding }) {
             <div className="top-holding-left">
                 <div>
                     <div className="top-holding-ticker-row">
-                        <span className="top-holding-ticker">{holding.ticker}</span>
+                        <button
+                            type="button"
+                            className="ticker-link-btn top-holding-ticker"
+                            onClick={() => onOpenModal && onOpenModal(holding.ticker)}
+                            title="Click to view historical research & performance chart"
+                        >
+                            {holding.ticker}
+                        </button>
                         {hasPrice && (
                             <span className={`top-holding-price-badge ${holding.is_stale ? 'stale' : ''}`}>
                                 ${holding.current_price.toFixed(2)} / sh

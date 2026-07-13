@@ -12,7 +12,7 @@ import GenericAlertList from '../../../common/data-display/GenericAlertList';
  *   - alerts (Array): List of Value Gap anomaly objects.
  *   - renderSourceBadge (Function): Delegate returning source badge JSX.
  */
-function ValueGapAlerts({ alerts = [], renderSourceBadge }) {
+function ValueGapAlerts({ alerts = [], renderSourceBadge, onOpenModal }) {
     const renderMetrics = (alert) => (
         <>
             <div className="anomaly-metric-item">
@@ -43,6 +43,7 @@ function ValueGapAlerts({ alerts = [], renderSourceBadge }) {
             items={alerts}
             renderMetrics={renderMetrics}
             renderSourceBadge={renderSourceBadge}
+            onOpenModal={onOpenModal}
             emptyTitle="No Fundamental Anomalies Detected"
             emptyMessage="All monitored portfolio and watchlist holdings are trading within normal fundamental-to-price bounds."
             emptyIcon="verified_user"

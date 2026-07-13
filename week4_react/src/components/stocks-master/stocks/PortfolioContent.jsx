@@ -27,7 +27,8 @@ function PortfolioContent({
     lastRefreshed,
     refreshTransactionsTrigger,
     handleTradeComplete,
-    showToast
+    showToast,
+    onOpenModal
 }) {
     const refreshLabel = getRefreshLabel(lastRefreshed);
 
@@ -95,7 +96,7 @@ function PortfolioContent({
                     </motion.div>
 
                     {/* Holdings Table */}
-                    <StockHoldings holdings={portfolio.holdings} />
+                    <StockHoldings holdings={portfolio.holdings} onOpenModal={onOpenModal} />
 
                     {/* Buy/Sell & CSV Import Forms */}
                     <CollapsibleFormSection

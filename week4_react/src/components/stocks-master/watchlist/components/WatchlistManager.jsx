@@ -17,7 +17,7 @@ import { CURRENCY } from '../../../../utils/config';
  *   - onRemoveTicker (Function): Callback invoked when removing a ticker symbol.
  *   - loading (Boolean): Loading indicator status during network operations.
  */
-function WatchlistManager({ items = [], onAddToWatchlist, onRemoveFromWatchlist, loading = false }) {
+function WatchlistManager({ items = [], onAddToWatchlist, onRemoveFromWatchlist, loading = false, onOpenModal }) {
     const [tickerInput, setTickerInput] = useState('');
 
     const handleSubmit = (e) => {
@@ -44,7 +44,16 @@ function WatchlistManager({ items = [], onAddToWatchlist, onRemoveFromWatchlist,
 
         return (
             <>
-                <td className="watchlist-ticker-mono">{item.ticker}</td>
+                <td className="watchlist-ticker-mono">
+                    <button
+                        type="button"
+                        className="ticker-link-btn"
+                        onClick={() => onOpenModal && onOpenModal(item.ticker)}
+                        title="Research & Chart"
+                    >
+                        {item.ticker}
+                    </button>
+                </td>
                 <td className="watchlist-price-mono watchlist-cell-right">{priceDisplay}</td>
                 <td className="watchlist-cell-center">
                     {item.is_stale ? (

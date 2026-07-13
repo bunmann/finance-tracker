@@ -22,7 +22,8 @@ function StocksSummaryOverview({
     onRemoveFromWatchlist,
     onAddCompetenceSector,
     onRemoveCompetenceSector,
-    extraLoading
+    extraLoading,
+    onOpenModal
 }) {
     return (
         <StocksSummaryContent
@@ -36,6 +37,7 @@ function StocksSummaryOverview({
             onAddCompetenceSector={onAddCompetenceSector}
             onRemoveCompetenceSector={onRemoveCompetenceSector}
             extraLoading={extraLoading}
+            onOpenModal={onOpenModal}
         />
     );
 }

@@ -19,7 +19,8 @@ function WatchlistOverview({
     onAddCompetenceSector,
     onRemoveCompetenceSector,
     loading,
-    error
+    error,
+    onOpenModal
 }) {
     return (
         <WatchlistContent
@@ -31,6 +32,7 @@ function WatchlistOverview({
             onRemoveCompetenceSector={onRemoveCompetenceSector}
             loading={loading}
             error={error}
+            onOpenModal={onOpenModal}
         />
     );
 }

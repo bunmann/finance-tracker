@@ -20,7 +20,8 @@ function ScreenerOverview({
     competenceSectors = [],
     rawCandidates = [],
     screenerLoading = false,
-    onRefreshCandidates
+    onRefreshCandidates,
+    onOpenModal
 }) {
     // Screener Slider States
     const [minFcfGrowth, setMinFcfGrowth] = useState(20);       // Percentage (20 = 20%)
@@ -183,6 +184,7 @@ function ScreenerOverview({
             competenceSectors={formattedCompetenceSectors}
             handleRunScan={handleRunScan}
             renderSourceBadge={renderSourceBadge}
+            onOpenModal={onOpenModal}
         />
     );
 }

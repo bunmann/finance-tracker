@@ -23,6 +23,7 @@ function GenericAlertList({
     items = [],
     renderMetrics,
     renderSourceBadge,
+    onOpenModal,
     emptyTitle = 'No Anomalies Detected',
     emptyMessage = 'All monitored assets are trading within normal fundamental parameters.',
     emptyIcon = 'verified_user'
@@ -43,7 +44,14 @@ function GenericAlertList({
                 <motion.div key={alert.ticker || Math.random()} className="anomaly-card" layout>
                     <div className="anomaly-header">
                         <div className="anomaly-title">
-                            <span className="anomaly-symbol">{alert.ticker}</span>
+                            <button
+                                type="button"
+                                className="ticker-link-btn anomaly-symbol"
+                                onClick={() => onOpenModal && onOpenModal(alert.ticker)}
+                                title="Research & Chart"
+                            >
+                                {alert.ticker}
+                            </button>
                             {alert.name && <span className="anomaly-name">({alert.name})</span>}
                         </div>
                         {renderSourceBadge && renderSourceBadge(alert.source)}

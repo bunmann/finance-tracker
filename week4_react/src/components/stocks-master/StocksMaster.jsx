@@ -24,6 +24,7 @@ import StocksSummaryOverview from './stocks-summary/StocksSummaryOverview';
 import PortfolioOverview from './stocks/PortfolioOverview';
 import ScreenerOverview from './screener/ScreenerOverview';
 import WatchlistOverview from './watchlist/WatchlistOverview';
+import StockAnalysisModal from './stocks-summary/components/StockAnalysisModal';
 import useTimerTick from '../../hooks/useTimerTick';
 
 // 15 minutes — matches the server-side PriceCache TTL so every background
@@ -69,6 +70,9 @@ function StocksMaster({ showToast }) {
     // Bumped after a trade to tell PortfolioContent to re-fetch its own
     // transaction history list (which StocksMaster does not need to own)
     const [refreshTransactionsTrigger, setRefreshTransactionsTrigger] = useState(0);
+
+    // Global active ticker for the interactive StockAnalysisModal research view
+    const [activeModalSymbol, setActiveModalSymbol] = useState(null);
 
     // Stable ref to the interval handle so we can clear on unmount
     const intervalRef = useRef(null);
@@ -252,6 +256,7 @@ function StocksMaster({ showToast }) {
                             onAddCompetenceSector={handleAddCompetenceSector}
                             onRemoveCompetenceSector={handleRemoveCompetenceSector}
                             extraLoading={extrasLoading}
+                            onOpenModal={setActiveModalSymbol}
                         />
                     </motion.div>
                 } />
@@ -266,6 +271,7 @@ function StocksMaster({ showToast }) {
                             refreshTransactionsTrigger={refreshTransactionsTrigger}
                             handleTradeComplete={handleTradeComplete}
                             showToast={showToast}
+                            onOpenModal={setActiveModalSymbol}
                         />
                     </motion.div>
                 } />
@@ -279,6 +285,7 @@ function StocksMaster({ showToast }) {
                             rawCandidates={screenerCandidates}
                             screenerLoading={screenerLoading}
                             onRefreshCandidates={() => fetchScreenerCandidates(false)}
+                            onOpenModal={setActiveModalSymbol}
                         />
                     </motion.div>
                 } />
@@ -295,11 +302,17 @@ function StocksMaster({ showToast }) {
                             onAddCompetenceSector={handleAddCompetenceSector}
                             onRemoveCompetenceSector={handleRemoveCompetenceSector}
                             loading={extrasLoading}
+                            onOpenModal={setActiveModalSymbol}
                         />
                     </motion.div>
                 } />
 
             </Routes>
+            <StockAnalysisModal
+                isOpen={!!activeModalSymbol}
+                symbol={activeModalSymbol}
+                onClose={() => setActiveModalSymbol(null)}
+            />
         </AnimatePresence>
     );
 }

@@ -30,7 +30,8 @@ function WatchlistContent({
     onAddCompetenceSector,
     onRemoveCompetenceSector,
     loading = false,
-    error = null
+    error = null,
+    onOpenModal
 }) {
     return (
         <div className="watchlist-page page-container">
@@ -60,6 +61,7 @@ function WatchlistContent({
                     onAddToWatchlist={onAddToWatchlist}
                     onRemoveFromWatchlist={onRemoveFromWatchlist}
                     loading={loading}
+                    onOpenModal={onOpenModal}
                 />
                 <SectorCompetenceManager
                     sectors={competenceSectors}

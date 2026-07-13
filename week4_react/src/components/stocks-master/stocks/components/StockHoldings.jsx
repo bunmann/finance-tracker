@@ -12,7 +12,7 @@ import { getPnlClass } from '../../../../utils/helpers';
  * Props:
  *   - holdings (Array): List of current stock holdings.
  */
-function StockHoldings({ holdings = [] }) {
+function StockHoldings({ holdings = [], onOpenModal }) {
     // Strip trailing zeros: 30.0000 → "30", 170.08 → "170.08", 294.30 → "294.3"
     const fmt = (num, decimals = 2) => parseFloat(num.toFixed(decimals)).toString();
     const columns = [
@@ -42,7 +42,16 @@ function StockHoldings({ holdings = [] }) {
 
                             return (
                                 <>
-                                    <td className="ticker-cell">{h.ticker}</td>
+                                    <td className="ticker-cell">
+                                        <button
+                                            type="button"
+                                            className="ticker-link-btn"
+                                            onClick={() => onOpenModal && onOpenModal(h.ticker)}
+                                            title="Research & Chart"
+                                        >
+                                            {h.ticker}
+                                        </button>
+                                    </td>
                                     <td className="amount-cell">{fmt(h.shares, 4)}</td>
                                     <td className="amount-cell">${h.avg_cost.toFixed(2)}</td>
                                     <td className="amount-cell">{h.current_price !== null && h.current_price !== undefined ? `$${h.current_price.toFixed(2)}` : '—'}</td>

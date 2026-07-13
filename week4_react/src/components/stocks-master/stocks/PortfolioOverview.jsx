@@ -24,7 +24,7 @@ import './StockPortfolio.css';
  *       immediate portfolio re-fetch after a buy, sell, or CSV import.
  *   - showToast (Function): Toast notification callback from App.
  */
-function PortfolioOverview({ portfolio, loading, lastRefreshed, refreshTransactionsTrigger, handleTradeComplete, showToast }) {
+function PortfolioOverview({ portfolio, loading, lastRefreshed, refreshTransactionsTrigger, handleTradeComplete, showToast, onOpenModal }) {
     return (
         <PortfolioContent
             portfolio={portfolio}
@@ -33,6 +33,7 @@ function PortfolioOverview({ portfolio, loading, lastRefreshed, refreshTransacti
             refreshTransactionsTrigger={refreshTransactionsTrigger}
             handleTradeComplete={handleTradeComplete}
             showToast={showToast}
+            onOpenModal={onOpenModal}
         />
     );
 }

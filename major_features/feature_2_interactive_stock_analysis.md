@@ -7,9 +7,9 @@ This module transforms static stock listings into interactive, drill-down equity
 ## 📋 Feature 2 Tasks Checklist
 
 ### 🔗 Task 1: Clickable Ticker Hyperlinks across UI
-- [ ] Update `StockHoldings.jsx` table rows so ticker symbols act as clickable interactive links.
-- [ ] Update `MomentumTable.jsx` and `ValueGapAlerts.jsx` so clicking a ticker triggers a detailed modal view.
-- [ ] Update `Watchlist` grids to support quick-view ticker clicks.
+- [x] Update `StockHoldings.jsx` table rows so ticker symbols act as clickable interactive links.
+- [x] Update `MomentumTable.jsx` and `ValueGapAlerts.jsx` so clicking a ticker triggers a detailed modal view.
+- [x] Update `Watchlist` grids to support quick-view ticker clicks.
 
 ### 📊 Task 2: Backend Historical Price & Aggregation API (`GET /stocks/{symbol}/chart`)
 - [x] Implement endpoint accepting query parameters `period` (`1D`, `1W`, `1M`, `3M`, `1Y`, `ALL`).
@@ -17,9 +17,9 @@ This module transforms static stock listings into interactive, drill-down equity
 - [x] Return structured JSON arrays containing `[timestamp, price, volume]` for frontend chart rendering.
 
 ### 📈 Task 3: Interactive Stock Detail View / Modal (`StockAnalysisModal.jsx`)
-- [ ] Create interactive modal displaying key company metadata, real-time price, and day change %.
-- [ ] Render interactive `Recharts` line/area chart with timeframe selector toggle buttons (`1D`, `1W`, `1M`, `3M`, `1Y`, `MAX`).
-- [ ] Display core financial ratios grid (PE Ratio, Profit Margin, Debt/Equity, 52-Week High/Low).
+- [x] Create interactive modal displaying key company metadata, real-time price, and day change %.
+- [x] Render interactive `Recharts` line/area chart with timeframe selector toggle buttons (`1D`, `1W`, `1M`, `3M`, `1Y`, `MAX`).
+- [x] Display core financial ratios grid (PE Ratio, Profit Margin, Debt/Equity, 52-Week High/Low).
 
 ### 💼 Task 4: Aggregated Portfolio Performance Chart
 - [ ] Create endpoint aggregating historical price trajectories across all active shares held in the user's `Holding` table.

@@ -19,7 +19,7 @@ import { fadeInUp } from '../../../../utils/animations';
  *   - renderSourceBadge (Function): Delegate returning badge JSX.
  *   - onSelectTab (Function): Handler to switch active tab view.
  */
-function ScreenerOverviewPreview({ results, competenceSectors = [], renderSourceBadge, onSelectTab }) {
+function ScreenerOverviewPreview({ results, competenceSectors = [], renderSourceBadge, onSelectTab, onOpenModal }) {
     if (!results) {
         return (
             <EmptyState
@@ -67,6 +67,7 @@ function ScreenerOverviewPreview({ results, competenceSectors = [], renderSource
                     candidates={topCandidates}
                     competenceSectors={competenceSectors}
                     renderSourceBadge={renderSourceBadge}
+                    onOpenModal={onOpenModal}
                 />
             </div>
 
@@ -98,6 +99,7 @@ function ScreenerOverviewPreview({ results, competenceSectors = [], renderSource
                 <ValueGapAlerts
                     alerts={topAlerts}
                     renderSourceBadge={renderSourceBadge}
+                    onOpenModal={onOpenModal}
                 />
             </div>
         </motion.div>

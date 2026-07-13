@@ -1,0 +1,342 @@
+/* ============================================================================
+ * File: StockAnalysisModal.css
+ * Description: Veridian Flow Pro Edition styles for the interactive stock analysis modal.
+ *              Features glassmorphic overlays, Space Grotesk headings, JetBrains Mono numbers,
+ *              and dynamic neon/red highlights.
+ * ============================================================================ */
+
+.stock-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: modalBackdropFade 0.2s ease-out;
+    padding: 1rem;
+}
+
+@keyframes modalBackdropFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.stock-modal-container {
+    background: #0F172A;
+    border: 1px solid rgba(226, 232, 240, 0.15);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 820px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    animation: modalScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+@keyframes modalScaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Clickable Ticker Button (Global Across All Tables & Mini Cards) */
+.ticker-link-btn {
+    background: transparent;
+    border: none;
+    color: var(--on-surface);
+    font-family: inherit;
+    font-weight: 700;
+    font-size: inherit;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: var(--primary);
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.ticker-link-btn:hover {
+    color: var(--primary);
+    text-decoration-color: var(--primary);
+    text-shadow: 0 0 10px rgba(0, 209, 102, 0.35);
+}
+
+/* Modal Header */
+.stock-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1.5rem 1.75rem 1rem 1.75rem;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.1);
+}
+
+.stock-modal-title-area {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.stock-modal-ticker-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.stock-modal-ticker {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #F8FAFC;
+    letter-spacing: -0.02em;
+}
+
+.stock-modal-currency-badge {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #94A3B8;
+    background: rgba(148, 163, 184, 0.15);
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.stock-modal-company-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    color: #94A3B8;
+    font-weight: 400;
+}
+
+.stock-modal-close-btn {
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.4rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.stock-modal-close-btn:hover {
+    color: #F8FAFC;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Price & Timeframe Bar */
+.stock-modal-subnav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.75rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.stock-modal-price-area {
+    display: flex;
+    align-items: baseline;
+    gap: 0.85rem;
+}
+
+.stock-modal-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: #F8FAFC;
+}
+
+.stock-modal-change-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.3rem 0.7rem;
+    border-radius: 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.stock-modal-change-pill.positive {
+    background: rgba(0, 209, 102, 0.15);
+    color: #00D166;
+}
+
+.stock-modal-change-pill.negative {
+    background: rgba(255, 59, 59, 0.15);
+    color: #FF3B3B;
+}
+
+/* Timeframe Selector Pills */
+.stock-modal-timeframe-pills {
+    display: flex;
+    background: rgba(30, 41, 59, 0.6);
+    padding: 0.25rem;
+    border-radius: 24px;
+    border: 1px solid rgba(226, 232, 240, 0.08);
+}
+
+.stock-modal-tf-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #94A3B8;
+    background: transparent;
+    border: none;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.stock-modal-tf-btn:hover {
+    color: #F8FAFC;
+}
+
+.stock-modal-tf-btn.active {
+    background: #00D166;
+    color: #0F172A;
+    box-shadow: 0 0 12px rgba(0, 209, 102, 0.25);
+}
+
+/* Chart Container */
+.stock-modal-chart-section {
+    padding: 0 1.75rem 1rem 1.75rem;
+    min-height: 340px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.stock-modal-loading-overlay,
+.stock-modal-error-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 10;
+    gap: 0.75rem;
+    color: #94A3B8;
+    font-family: 'Inter', sans-serif;
+}
+
+.stock-modal-error-overlay {
+    color: #FF3B3B;
+}
+
+.stock-modal-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(226, 232, 240, 0.15);
+    border-top-color: #00D166;
+    border-radius: 50%;
+    animation: modalSpin 0.8s linear infinite;
+}
+
+@keyframes modalSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* Recharts Tooltip Custom Style */
+.stock-modal-tooltip {
+    background: #0F172A;
+    border: 1px solid rgba(226, 232, 240, 0.2);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.stock-modal-tooltip-date {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    color: #94A3B8;
+    margin-bottom: 0.35rem;
+}
+
+.stock-modal-tooltip-price {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #F8FAFC;
+}
+
+.stock-modal-tooltip-vol {
+    font-size: 0.75rem;
+    color: #64748B;
+    margin-top: 0.25rem;
+}
+
+/* Fundamental Ratios Grid */
+.stock-modal-ratios-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    padding: 1.25rem 1.75rem 1.75rem 1.75rem;
+    border-top: 1px solid rgba(226, 232, 240, 0.1);
+}
+
+@media (max-width: 680px) {
+    .stock-modal-ratios-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.stock-modal-ratio-card {
+    background: rgba(30, 41, 59, 0.45);
+    border: 1px solid rgba(226, 232, 240, 0.08);
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    transition: border-color 0.15s ease;
+}
+
+.stock-modal-ratio-card:hover {
+    border-color: rgba(226, 232, 240, 0.2);
+}
+
+.stock-modal-ratio-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.stock-modal-ratio-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #F8FAFC;
+}

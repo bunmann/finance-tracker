@@ -32,7 +32,8 @@ function ScreenerContent({
     error,
     competenceSectors,
     handleRunScan,
-    renderSourceBadge
+    renderSourceBadge,
+    onOpenModal
 }) {
     // Helper slider configuration
     const sliderConfigs = [
@@ -125,6 +126,7 @@ function ScreenerContent({
                             competenceSectors={competenceSectors}
                             renderSourceBadge={renderSourceBadge}
                             onSelectTab={setActiveTab}
+                            onOpenModal={onOpenModal}
                         />
                     ) : activeTab === 'overview' ? (
                         <ScreenerOverviewPreview
@@ -132,6 +134,7 @@ function ScreenerContent({
                             competenceSectors={competenceSectors}
                             renderSourceBadge={renderSourceBadge}
                             onSelectTab={setActiveTab}
+                            onOpenModal={onOpenModal}
                         />
                     ) : activeTab === 'screener' ? (
                         <div className="screener-table-card">
@@ -139,6 +142,7 @@ function ScreenerContent({
                                 candidates={results.momentum_quality}
                                 competenceSectors={competenceSectors}
                                 renderSourceBadge={renderSourceBadge}
+                                onOpenModal={onOpenModal}
                             />
                         </div>
                     ) : (
@@ -146,6 +150,7 @@ function ScreenerContent({
                             <ValueGapAlerts
                                 alerts={results.value_gap}
                                 renderSourceBadge={renderSourceBadge}
+                                onOpenModal={onOpenModal}
                             />
                         </div>
                     )}
