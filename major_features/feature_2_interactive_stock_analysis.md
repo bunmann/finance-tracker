@@ -12,9 +12,9 @@ This module transforms static stock listings into interactive, drill-down equity
 - [ ] Update `Watchlist` grids to support quick-view ticker clicks.
 
 ### 📊 Task 2: Backend Historical Price & Aggregation API (`GET /stocks/{symbol}/chart`)
-- [ ] Implement endpoint accepting query parameters `period` (`1D`, `1W`, `1M`, `3M`, `1Y`, `ALL`).
-- [ ] Integrate `yfinance` history retrieval with appropriate interval resolution (e.g., 5-minute bars for `1D`, daily bars for `1Y`).
-- [ ] Return structured JSON arrays containing `[timestamp, price, volume]` for frontend chart rendering.
+- [x] Implement endpoint accepting query parameters `period` (`1D`, `1W`, `1M`, `3M`, `1Y`, `ALL`).
+- [x] Integrate `yfinance` history retrieval with appropriate interval resolution (e.g., 5-minute bars for `1D`, daily bars for `1Y`).
+- [x] Return structured JSON arrays containing `[timestamp, price, volume]` for frontend chart rendering.
 
 ### 📈 Task 3: Interactive Stock Detail View / Modal (`StockAnalysisModal.jsx`)
 - [ ] Create interactive modal displaying key company metadata, real-time price, and day change %.

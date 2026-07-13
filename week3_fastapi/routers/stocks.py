@@ -2,9 +2,9 @@
 # File: routers/stocks.py
 # Description: Stock portfolio endpoints: pricing, holdings, buy/sell, watchlist, sector competence.
 # ============================================================================
-from datetime import date
+from datetime import date, datetime, timedelta
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, Literal
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -12,7 +12,15 @@ from database import get_db
 from auth import get_current_user
 from schemas import StockTransaction, WatchlistCreate, SectorCompetenceCreate
 import models
-from common.stock_service import get_stock_price, normalize_ticker_symbol, detect_ticker_currency
+from common.stock_service import (
+    get_stock_price,
+    normalize_ticker_symbol,
+    detect_ticker_currency,
+    get_stock_history,
+    get_multiple_stocks_history,
+    _get_cad_price,
+    calculate_portfolio_historical_curve,
+)
 from common.stock_csv_parser import validate_and_parse_brokerage_csv
 import io
 import hashlib
@@ -21,59 +29,6 @@ router = APIRouter(
     prefix="/stocks",
     tags=["Stocks"]
 )
-
-
-def _get_cad_price(raw_price: float | None, currency: str, db: Session) -> float | None:
-    """
-    Converts a stock price to CAD if needed, based on the STORED currency of the holding.
-
-    WHY CURRENCY PARAM INSTEAD OF TICKER SUFFIX?
-    ---------------------------------------------
-    The old approach guessed currency from the ticker name (e.g. '.TO' = CAD).
-    This broke for three reasons:
-      1. GOOG.NE (Alphabet CDR) was mistaken for US GOOG because .NE wasn't recognized.
-      2. Stocks stored without suffix (e.g. CEF for Sprott Trust) had no way to
-         signal they were already in CAD, so conversion was applied twice.
-      3. When normalize_ticker_symbol resolved 'XEQT' -> 'XEQT.TO', the price was
-         sometimes cached under the bare key 'XEQT', losing the suffix signal.
-
-    The fix: store `currency` ('CAD' or 'USD') on the Holding/StockTransaction at
-    import time, then pass it here explicitly. No ticker-suffix guessing needed.
-
-    Args:
-        raw_price (float | None): The price as returned by yfinance in the ticker's native currency.
-        currency (str): ISO 4217 code indicating the native currency (e.g. 'CAD', 'USD').
-                        This should come directly from holding.currency or tx.currency.
-        db (Session): Database session (used to look up the live USDCAD exchange rate).
-
-    Returns:
-        float | None: Price in CAD, or None if raw_price was None.
-    """
-    if raw_price is None or raw_price is False:
-        return raw_price
-
-    # If the portfolio is configured in USD mode, bypass all CAD conversions.
-    import os
-    target_currency = os.getenv("CURRENCY", "CAD").upper().strip()
-    if target_currency != "CAD":
-        return raw_price
-
-    # If the holding is already priced in CAD, no conversion is needed.
-    # This handles: XEQT.TO, GOOG.NE, CEF, VFV.TO, QQQX, VCNS, XIU, XIC...
-    if currency.upper() == "CAD":
-        return raw_price
-
-    # Price is in USD → convert to CAD using the live exchange rate.
-    # Fetch USDCAD from the cache-aside price service (USDCAD=X is a Yahoo Finance ticker).
-    try:
-        rate, _, _ = get_stock_price("USDCAD=X", db)
-        if rate is not None and rate is not False and rate > 0:
-            return float(raw_price) * float(rate)
-    except Exception:
-        pass
-
-    # Standard fallback rate (~1.37 CAD/USD) if the exchange rate fetch fails.
-    return float(raw_price) * 1.37
 
 
 # ============================================================================
@@ -125,7 +80,93 @@ def get_price(
 
 
 # ============================================================================
-# 2. Portfolio Holdings & Transaction Ledger
+# 2. Historical Chart & Portfolio Performance Endpoints
+# ============================================================================
+
+@router.get("/portfolio/chart")
+def get_portfolio_chart(
+    period: Literal["1M", "3M", "1Y", "ALL", "MAX"] = "1M",
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """
+    Retrieves the historical portfolio valuation curve vs cost basis over time.
+    Delegates calculation to calculate_portfolio_historical_curve in common.stock_service.
+    """
+    return calculate_portfolio_historical_curve(period, current_user.id, db)
+
+
+@router.get("/{symbol}/chart")
+def get_stock_chart(
+    symbol: str,
+    period: Literal["1D", "1W", "1M", "3M", "1Y", "ALL", "MAX"] = "1M",
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """
+    Retrieves individual stock chart history and company ratios for modal display.
+    Uses 15-minute SQLite ChartCache to guarantee instant open (<50ms).
+    """
+    period_upper = period.upper().strip()
+    if period_upper == "1D":
+        yf_period, interval = "1d", "5m"
+    elif period_upper == "1W":
+        yf_period, interval = "5d", "15m"
+    elif period_upper == "1M":
+        yf_period, interval = "1mo", "1d"
+    elif period_upper == "3M":
+        yf_period, interval = "3mo", "1d"
+    elif period_upper == "1Y":
+        yf_period, interval = "1y", "1d"
+    else:  # ALL / MAX
+        period_upper = "ALL"
+        yf_period, interval = "max", "1wk"
+
+    norm_ticker, _ = normalize_ticker_symbol(symbol, db)
+    chart_data, metadata, is_stale = get_stock_history(norm_ticker, yf_period, interval, db)
+
+    if chart_data is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Chart history unavailable for '{norm_ticker.upper()}'. Please try again later."
+        )
+
+    # Determine currency
+    holding = db.query(models.Holding).filter(
+        models.Holding.user_id == current_user.id,
+        models.Holding.ticker == norm_ticker
+    ).first()
+    curr = holding.currency if holding else detect_ticker_currency(norm_ticker)
+
+    # Convert chart points to CAD if needed
+    converted_chart = []
+    for pt in chart_data:
+        p_cad = _get_cad_price(pt["price"], curr, db)
+        converted_chart.append({
+            "timestamp": pt["timestamp"],
+            "price": round(float(p_cad if p_cad is not None else pt["price"]), 4),
+            "volume": pt["volume"]
+        })
+
+    # Compute period % change
+    if len(converted_chart) >= 2:
+        first_p = converted_chart[0]["price"]
+        last_p = converted_chart[-1]["price"]
+        metadata["change_pct"] = round(((last_p - first_p) / first_p) * 100, 2) if first_p > 0 else 0.0
+    else:
+        metadata["change_pct"] = 0.0
+
+    return {
+        "ticker": norm_ticker,
+        "period": period_upper,
+        "interval": interval,
+        "chart": converted_chart,
+        "metadata": metadata,
+        "is_stale": is_stale
+    }
+
+# ============================================================================
+# 3. Portfolio Holdings & Transaction Ledger
 # ============================================================================
 
 @router.get("/portfolio")
@@ -461,7 +502,7 @@ def upload_csv(
 
 
 # ============================================================================
-# 3. Buy & Sell Trading Endpoints
+# 4. Buy & Sell Trading Endpoints
 # ============================================================================
 
 @router.post("/buy")
@@ -583,7 +624,7 @@ def sell_stock(
 
 
 # ============================================================================
-# 4. Watchlist Management
+# 5. Watchlist Management
 # ============================================================================
 
 @router.post("/watchlist")
@@ -706,7 +747,7 @@ def remove_from_watchlist(
 
 
 # ============================================================================
-# 5. Circle of Competence (Sector Tracking)
+# 6. Circle of Competence (Sector Tracking)
 # ============================================================================
 
 VALID_SECTORS = {

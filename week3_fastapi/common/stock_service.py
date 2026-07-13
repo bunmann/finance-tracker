@@ -4,8 +4,11 @@
 #              and resolves ambiguous ticker symbols to their correct exchange suffix.
 # ============================================================================
 import os
+import json
 import yfinance as yf
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta, date
+from decimal import Decimal
+from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 import models
@@ -16,6 +19,9 @@ load_dotenv()
 # Caching Strategy: We consider cached prices "fresh" for 60 minutes.
 # This keeps response times ultra-fast and avoids unnecessary network requests.
 CACHE_DURATION_MINUTES = 60
+
+# Historical chart cache duration: 15 minutes to balance responsiveness and Yahoo Finance rate limits.
+CHART_CACHE_DURATION_MINUTES = 15
 
 
 def get_stock_price(ticker: str, db: Session) -> tuple[float | None | bool, datetime | None, bool]:
@@ -315,3 +321,361 @@ def _fetch_price_from_api(ticker: str) -> float | None | bool:
         if isinstance(e, (requests.exceptions.ConnectionError, requests.exceptions.Timeout)):
             return None
         return False
+
+
+# ============================================================================
+# Historical Chart & Ratios Discovery (15-Minute Caching & Parallel Fetching)
+# ============================================================================
+
+
+def _fetch_history_from_api(ticker: str, period: str, interval: str) -> tuple[list[dict] | None, dict]:
+    """
+    Fetches historical chart points and company metadata directly from Yahoo Finance (yfinance) without DB access.
+    Returns (chart_data, metadata).
+    """
+    ticker_clean = ticker.upper().strip()
+    try:
+        ticker_obj = yf.Ticker(ticker_clean)
+        hist = ticker_obj.history(period=period, interval=interval)
+        if hist.empty:
+            return None, {}
+
+        chart_data = []
+        for idx_timestamp, row in hist.iterrows():
+            if hasattr(idx_timestamp, "to_pydatetime"):
+                dt = idx_timestamp.to_pydatetime()
+            else:
+                dt = idx_timestamp
+            
+            # Format timestamp cleanly as ISO string
+            if hasattr(dt, "isoformat"):
+                ts_str = dt.isoformat()
+            else:
+                ts_str = str(dt)
+
+            price_val = float(row.get("Close", 0.0))
+            vol_val = int(row.get("Volume", 0))
+            if price_val > 0:
+                chart_data.append({
+                    "timestamp": ts_str,
+                    "price": round(price_val, 4),
+                    "volume": vol_val
+                })
+
+        # Extract metadata metrics cleanly
+        metadata = {}
+        try:
+            info = ticker_obj.info
+            metadata["name"] = info.get("shortName") or info.get("longName") or ticker_clean
+            pe = info.get("trailingPE") or info.get("forwardPE")
+            metadata["pe_ratio"] = round(float(pe), 2) if pe else None
+            pm = info.get("profitMargins")
+            metadata["profit_margin"] = round(float(pm) * 100, 2) if pm else None
+            de = info.get("debtToEquity")
+            metadata["debt_to_equity"] = round(float(de), 2) if de else None
+            high52 = info.get("fiftyTwoWeekHigh")
+            metadata["high_52w"] = round(float(high52), 2) if high52 else None
+            low52 = info.get("fiftyTwoWeekLow")
+            metadata["low_52w"] = round(float(low52), 2) if low52 else None
+        except Exception:
+            metadata["name"] = ticker_clean
+
+        return chart_data, metadata
+    except Exception:
+        return None, {}
+
+
+def get_stock_history(
+    ticker: str,
+    period: str,
+    interval: str,
+    db: Session
+) -> tuple[list[dict] | None, dict, bool]:
+    """
+    Retrieves historical stock data and metadata with 15-minute SQLite ChartCache integration.
+    Returns (chart_data, metadata, is_stale).
+    """
+    ticker = ticker.upper().strip()
+
+    # Step 1: Check Database Cache
+    cached = db.query(models.ChartCache).filter(
+        models.ChartCache.ticker == ticker,
+        models.ChartCache.period == period,
+        models.ChartCache.interval == interval
+    ).first()
+
+    if cached:
+        last_updated_utc = cached.last_updated.replace(tzinfo=timezone.utc)
+        age = datetime.now(timezone.utc) - last_updated_utc
+        if age < timedelta(minutes=CHART_CACHE_DURATION_MINUTES):
+            try:
+                payload = json.loads(cached.data_json)
+                return payload.get("chart", []), payload.get("metadata", {}), False
+            except Exception:
+                pass
+
+    # Step 2: Fetch Live from API
+    chart_data, metadata = _fetch_history_from_api(ticker, period, interval)
+
+    # Step 3: Handle Failures
+    if chart_data is None:
+        if cached:
+            try:
+                payload = json.loads(cached.data_json)
+                return payload.get("chart", []), payload.get("metadata", {}), True
+            except Exception:
+                pass
+        return None, {}, True
+
+    # Step 4: Upsert into ChartCache
+    now_utc = datetime.now(timezone.utc)
+    payload_str = json.dumps({"chart": chart_data, "metadata": metadata})
+
+    if cached:
+        cached.data_json = payload_str
+        cached.last_updated = now_utc
+    else:
+        new_cache = models.ChartCache(
+            ticker=ticker,
+            period=period,
+            interval=interval,
+            data_json=payload_str,
+            last_updated=now_utc
+        )
+        db.add(new_cache)
+
+    db.commit()
+    return chart_data, metadata, False
+
+
+def get_multiple_stocks_history(
+    tickers: list[str],
+    period: str,
+    interval: str,
+    db: Session
+) -> dict[str, list[dict]]:
+    """
+    Retrieves historical chart data across multiple tickers concurrently using ThreadPoolExecutor,
+    while maintaining thread-safe access to the SQLite ChartCache.
+    Returns a dictionary mapping ticker -> list[dict of chart points].
+    """
+    unique_tickers = sorted(list({t.upper().strip() for t in tickers if t}))
+    results = {}
+    missing_tickers = []
+
+    # Step 1: Check cache on main thread for all unique tickers
+    now_utc = datetime.now(timezone.utc)
+    for ticker in unique_tickers:
+        cached = db.query(models.ChartCache).filter(
+            models.ChartCache.ticker == ticker,
+            models.ChartCache.period == period,
+            models.ChartCache.interval == interval
+        ).first()
+
+        hit = False
+        if cached:
+            last_updated_utc = cached.last_updated.replace(tzinfo=timezone.utc)
+            age = now_utc - last_updated_utc
+            if age < timedelta(minutes=CHART_CACHE_DURATION_MINUTES):
+                try:
+                    payload = json.loads(cached.data_json)
+                    chart_data = payload.get("chart")
+                    if chart_data is not None:
+                        results[ticker] = chart_data
+                        hit = True
+                except Exception:
+                    pass
+        if not hit:
+            missing_tickers.append(ticker)
+
+    if not missing_tickers:
+        return results
+
+    # Step 2: Concurrently fetch uncached tickers without passing SQLAlchemy session to threads
+    def _worker(symbol: str):
+        data, meta = _fetch_history_from_api(symbol, period, interval)
+        return symbol, data, meta
+
+    with ThreadPoolExecutor(max_workers=min(10, len(missing_tickers))) as executor:
+        futures_map = {executor.submit(_worker, t): t for t in missing_tickers}
+        for future in futures_map:
+            try:
+                symbol, chart_data, metadata = future.result()
+                if chart_data is not None:
+                    results[symbol] = chart_data
+                    # Step 3: Upsert into SQLite on the main thread safely
+                    payload_str = json.dumps({"chart": chart_data, "metadata": metadata})
+                    cached_row = db.query(models.ChartCache).filter(
+                        models.ChartCache.ticker == symbol,
+                        models.ChartCache.period == period,
+                        models.ChartCache.interval == interval
+                    ).first()
+                    if cached_row:
+                        cached_row.data_json = payload_str
+                        cached_row.last_updated = now_utc
+                    else:
+                        db.add(models.ChartCache(
+                            ticker=symbol,
+                            period=period,
+                            interval=interval,
+                            data_json=payload_str,
+                            last_updated=now_utc
+                        ))
+            except Exception as e:
+                print(f"[Concurrent Fetch Error] {futures_map[future]}: {e}")
+
+    db.commit()
+    return results
+
+
+# ============================================================================
+# Portfolio Historical Simulation & Currency Conversion Service
+# ============================================================================
+
+
+def _get_cad_price(raw_price: float | None, currency: str, db: Session) -> float | None:
+    """
+    Converts a stock price to CAD if needed, based on the STORED currency of the holding.
+    Uses the cache-aside live USDCAD exchange rate.
+    """
+    if raw_price is None or raw_price is False:
+        return raw_price
+
+    target_currency = os.getenv("CURRENCY", "CAD").upper().strip()
+    if target_currency != "CAD":
+        return raw_price
+
+    if currency.upper() == "CAD":
+        return raw_price
+
+    try:
+        rate, _, _ = get_stock_price("USDCAD=X", db)
+        if rate is not None and rate is not False and rate > 0:
+            return float(raw_price) * float(rate)
+    except Exception:
+        pass
+
+    # Standard fallback rate (~1.37 CAD/USD) if the exchange rate fetch fails.
+    return float(raw_price) * 1.37
+
+
+def calculate_portfolio_historical_curve(period: str, user_id: int, db: Session) -> dict:
+    """
+    Calculates the daily historical valuation curve vs cost basis and cumulative dividends over time
+    for a user's entire portfolio.
+    """
+    period_upper = period.upper().strip()
+    if period_upper == "1M":
+        yf_period, interval, days_cutoff = "1mo", "1d", 30
+    elif period_upper == "3M":
+        yf_period, interval, days_cutoff = "3mo", "1d", 90
+    elif period_upper == "1Y":
+        yf_period, interval, days_cutoff = "1y", "1d", 365
+    else:  # ALL / MAX
+        period_upper = "ALL"
+        yf_period, interval, days_cutoff = "max", "1wk", 3650
+
+    # Query user's transactions and active holdings
+    txs = db.query(models.StockTransaction).filter(
+        models.StockTransaction.user_id == user_id
+    ).order_by(models.StockTransaction.date.asc()).all()
+    holdings = db.query(models.Holding).filter(
+        models.Holding.user_id == user_id
+    ).all()
+
+    unique_tickers = sorted(list({tx.ticker for tx in txs} | {h.ticker for h in holdings}))
+    if not unique_tickers:
+        return {"period": period_upper, "chart": []}
+
+    # Map currency for each ticker from transactions and holdings
+    currency_map = {tx.ticker: (tx.currency or "CAD") for tx in txs}
+    currency_map.update({h.ticker: (h.currency or "CAD") for h in holdings})
+
+    # Concurrently fetch history across unique tickers
+    history_map = get_multiple_stocks_history(unique_tickers, yf_period, interval, db)
+
+    # Collect distinct trading dates
+    distinct_dates = set()
+    cutoff_date = date.today() - timedelta(days=days_cutoff)
+    for t_sym, points in history_map.items():
+        for p in points:
+            ts = p["timestamp"]
+            try:
+                if len(ts) >= 10:
+                    dt_date = datetime.fromisoformat(ts[:10]).date()
+                    if dt_date >= cutoff_date:
+                        distinct_dates.add(dt_date)
+            except Exception:
+                pass
+
+    sorted_dates = sorted(list(distinct_dates))
+    if not sorted_dates:
+        return {"period": period_upper, "chart": []}
+
+    portfolio_chart = []
+    # Reconstruct share count, cost basis & cumulative dividends day by day
+    for D in sorted_dates:
+        shares_on_date = {t: Decimal("0") for t in unique_tickers}
+        cost_basis_on_date = {t: Decimal("0") for t in unique_tickers}
+        dividends_on_date = {t: Decimal("0") for t in unique_tickers}
+
+        for tx in txs:
+            if tx.date <= D:
+                t_sym = tx.ticker
+                if tx.type == "buy":
+                    shares_on_date[t_sym] += tx.shares
+                    cost_basis_on_date[t_sym] += tx.total
+                elif tx.type == "sell":
+                    old_shares = shares_on_date[t_sym]
+                    if old_shares > 0:
+                        avg_cost_per_share = cost_basis_on_date[t_sym] / old_shares
+                        sold_cost = avg_cost_per_share * tx.shares
+                        cost_basis_on_date[t_sym] = max(Decimal("0"), cost_basis_on_date[t_sym] - sold_cost)
+                    shares_on_date[t_sym] = max(Decimal("0"), old_shares - tx.shares)
+                elif tx.type == "dividend":
+                    if tx.shares > 0:
+                        # DRIP / Stock Dividend
+                        shares_on_date[t_sym] += tx.shares
+                        cost_basis_on_date[t_sym] += tx.total
+                    else:
+                        # Pure Cash Dividend
+                        dividends_on_date[t_sym] += tx.total
+
+        daily_value = Decimal("0")
+        daily_cost = Decimal("0")
+        daily_dividends = Decimal("0")
+        has_active_shares = False
+
+        for t_sym in unique_tickers:
+            sh = shares_on_date[t_sym]
+            div = dividends_on_date[t_sym]
+            if sh > 0 or div > 0:
+                if sh > 0:
+                    has_active_shares = True
+                daily_cost += cost_basis_on_date[t_sym]
+                daily_dividends += div
+                if sh > 0:
+                    # Find historical closing price on or before date D
+                    pts = history_map.get(t_sym, [])
+                    best_price = None
+                    for p in pts:
+                        ts = p["timestamp"] if len(p["timestamp"]) >= 10 else p["timestamp"][:10]
+                        if ts[:10] <= D.isoformat():
+                            best_price = p["price"]
+                        else:
+                            break
+                    if best_price is None and pts:
+                        best_price = pts[0]["price"]
+                    if best_price is not None:
+                        price_cad = _get_cad_price(best_price, currency_map.get(t_sym, "CAD"), db)
+                        daily_value += sh * Decimal(str(price_cad if price_cad is not None else best_price))
+
+        if has_active_shares or daily_dividends > 0:
+            portfolio_chart.append({
+                "timestamp": D.isoformat(),
+                "portfolio_value": round(float(daily_value), 2),
+                "total_cost": round(float(daily_cost), 2),
+                "total_dividends": round(float(daily_dividends), 2)
+            })
+
+    return {"period": period_upper, "chart": portfolio_chart}
