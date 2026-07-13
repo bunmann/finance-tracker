@@ -239,3 +239,14 @@
 .summary-watchlist-grid {
     margin-top: 0;
 }
+
+/* No holdings note text */
+.summary-no-holdings-note {
+    color: var(--on-surface-variant);
+    font-size: 14px;
+    margin: 20px 0;
+}
+
+.summary-arrow-sm {
+    font-size: 16px;
+}

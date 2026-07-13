@@ -58,63 +58,27 @@ function PeriodSelector({
     };
 
     return (
-        <div className="period-selector-container" style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        <div className="period-selector-container">
             {/* Mode Segmented Controls */}
-            <div className="period-mode-toggle" style={{
-                display: 'flex',
-                background: 'var(--surface-container-high)',
-                borderRadius: '8px',
-                padding: '3px',
-                border: '1px solid var(--outline-variant)'
-            }}>
+            <div className="period-mode-toggle">
                 <button
                     type="button"
                     onClick={() => handleModeClick('all')}
-                    style={{
-                        padding: '4px 10px',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        borderRadius: '6px',
-                        border: 'none',
-                        background: mode === 'all' ? 'var(--primary)' : 'transparent',
-                        color: mode === 'all' ? 'var(--on-primary)' : 'var(--on-surface-variant)',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease'
-                    }}
+                    className={`period-mode-btn ${mode === 'all' ? 'active' : ''}`}
                 >
                     View All
                 </button>
                 <button
                     type="button"
                     onClick={() => handleModeClick('year')}
-                    style={{
-                        padding: '4px 10px',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        borderRadius: '6px',
-                        border: 'none',
-                        background: mode === 'year' ? 'var(--primary)' : 'transparent',
-                        color: mode === 'year' ? 'var(--on-primary)' : 'var(--on-surface-variant)',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease'
-                    }}
+                    className={`period-mode-btn ${mode === 'year' ? 'active' : ''}`}
                 >
                     By Year
                 </button>
                 <button
                     type="button"
                     onClick={() => handleModeClick('month')}
-                    style={{
-                        padding: '4px 10px',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        borderRadius: '6px',
-                        border: 'none',
-                        background: mode === 'month' ? 'var(--primary)' : 'transparent',
-                        color: mode === 'month' ? 'var(--on-primary)' : 'var(--on-surface-variant)',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease'
-                    }}
+                    className={`period-mode-btn ${mode === 'month' ? 'active' : ''}`}
                 >
                     By Month
                 </button>
@@ -125,16 +89,7 @@ function PeriodSelector({
                 <select
                     value={year}
                     onChange={(e) => onPeriodChange?.(0, parseInt(e.target.value))}
-                    style={{
-                        padding: '6px 12px',
-                        borderRadius: '8px',
-                        border: '1px solid var(--outline)',
-                        background: 'var(--surface)',
-                        color: 'var(--on-surface)',
-                        fontWeight: '500',
-                        fontSize: '13px',
-                        cursor: 'pointer'
-                    }}
+                    className="period-dropdown"
                 >
                     {availableYears.map(y => (
                         <option key={y} value={y}>{y}</option>
@@ -149,16 +104,7 @@ function PeriodSelector({
                         const [mStr, yStr] = e.target.value.split('-');
                         onPeriodChange?.(parseInt(mStr), parseInt(yStr));
                     }}
-                    style={{
-                        padding: '6px 12px',
-                        borderRadius: '8px',
-                        border: '1px solid var(--outline)',
-                        background: 'var(--surface)',
-                        color: 'var(--on-surface)',
-                        fontWeight: '500',
-                        fontSize: '13px',
-                        cursor: 'pointer'
-                    }}
+                    className="period-dropdown"
                 >
                     {availableMonths.map(opt => (
                         <option key={opt.value} value={opt.value}>{opt.label}</option>

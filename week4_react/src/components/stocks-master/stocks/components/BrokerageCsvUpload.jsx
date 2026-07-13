@@ -12,7 +12,7 @@ function BrokerageCsvUpload({ onBrokerageImportComplete }) {
         <>
             Upload a CSV export from your brokerage (Wealthsimple or Questrade). 
             Supported columns include: <strong>Date, Type/Action, Symbol, Quantity, Price, Amount/Net Amount</strong>.
-            <div style={{ marginTop: '8px', fontSize: '11px', color: 'var(--on-surface-variant)', lineHeight: '1.4' }}>
+            <div className="csv-upload-hint">
                 ⚠️ <strong>Currency Note:</strong> This portfolio runs in <strong>{CURRENCY}</strong>. Please ensure the CSV transaction records represent prices already converted to {CURRENCY} (which is standard for Wealthsimple and Questrade {CURRENCY} accounts).
             </div>
         </>

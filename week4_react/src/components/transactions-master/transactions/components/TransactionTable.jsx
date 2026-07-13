@@ -87,7 +87,7 @@ function TransactionTable({
             renderRow={(t) => (
                 <>
                     <td>{t.date}</td>
-                    <td style={{ fontWeight: '500' }}>{t.description}</td>
+                    <td className="transaction-description-cell">{t.description}</td>
                     <td>
                         {t.type === 'expense' ? (
                             <select
@@ -111,16 +111,15 @@ function TransactionTable({
                             {t.type}
                         </span>
                     </td>
-                    <td className={`amount-cell ${t.type === 'income' ? 'amount-gain' : 'amount-loss'}`} style={{ textAlign: hiddenColumns.includes('actions') ? 'right' : 'left' }}>
+                    <td className={`amount-cell ${t.type === 'income' ? 'amount-gain' : 'amount-loss'} ${hiddenColumns.includes('actions') ? 'amount-cell--right' : 'amount-cell--left'}`}>
                         {t.type === 'income' ? '+' : '-'}${Number(Math.abs(t.amount)).toFixed(2)}
                     </td>
                     <td>
                         <button
-                            className="btn btn-secondary"
-                            style={{ padding: '6px 12px', fontSize: '11px', textTransform: 'none', border: '1px solid var(--secondary-container)', color: 'var(--secondary)' }}
+                            className="btn btn-secondary transaction-delete-btn"
                             onClick={() => handleDelete(t.id)}
                         >
-                            <span className="material-symbols-outlined" style={{ fontSize: '14px', marginRight: '4px' }}>delete</span>
+                            <span className="material-symbols-outlined btn-icon-sm">delete</span>
                             Delete
                         </button>
                     </td>

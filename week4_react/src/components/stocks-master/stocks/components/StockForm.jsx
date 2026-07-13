@@ -100,7 +100,7 @@ function StockForm({ type, onComplete, showToast }) {
     return (
         <form onSubmit={handleSubmit} className="stock-form" noValidate>
             <h2>{isBuy ? 'Buy Stock' : 'Sell Stock'}</h2>
-            {error && <div className="form-error" style={{ marginBottom: '16px' }}>{error}</div>}
+            {error && <div className="form-error">{error}</div>}
             
             <div className="form-grid">
                 <div className="form-group">
@@ -155,7 +155,7 @@ function StockForm({ type, onComplete, showToast }) {
                 className={isBuy ? 'btn-buy' : 'btn-sell'} 
                 disabled={submitting}
             >
-                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                <span className="material-symbols-outlined stock-form-icon">
                     {isBuy ? 'add_shopping_cart' : 'sell'}
                 </span>
                 {submitting ? 'Submitting...' : isBuy ? 'Buy Shares' : 'Sell Shares'}

@@ -12,7 +12,7 @@ import PeriodSelector from '../../common/inputs/PeriodSelector';
 import EmptyState from '../../common/data-display/EmptyState';
 import { CURRENCY } from '../../../utils/config';
 import { staggerContainer } from '../../../utils/animations';
-import { getPnlClass } from '../../../utils/helpers';
+import { getPnlClass, getPeriodMultiplier } from '../../../utils/helpers';
 
 // Colors for the pie chart slices
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#FF6B6B', '#4ECDC4'];
@@ -28,6 +28,7 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#FF6B6B'
  *   - onModeChange (Function): Callback to update period mode state.
  *   - onMonthChange (Function): Callback to update month state.
  *   - onYearChange (Function): Callback to update year state.
+ *   - transactions (Array): List of user transactions for periodMultiplier scaling.
  *   - loading (Boolean): Loading state from parent.
  */
 function DashboardContent({
@@ -38,6 +39,7 @@ function DashboardContent({
     onModeChange,
     onMonthChange,
     onYearChange,
+    transactions = [],
     loading
 }) {
     // Inject colors directly into data array
@@ -46,10 +48,21 @@ function DashboardContent({
         fill: COLORS[index % COLORS.length],
     }));
 
-    // Filter and sort budget alerts by severity (highest % of budget consumed first)
+    const periodMultiplier = getPeriodMultiplier(periodMode, month, year, transactions || []);
+
+    // Filter and sort budget alerts by severity (highest % of scaled budget consumed first)
     const activeAlerts = (dashboardData?.by_category || [])
-        .filter(cat => cat.budget > 0 && cat.amount >= cat.budget * 0.75)
-        .sort((a, b) => (b.amount / b.budget) - (a.amount / a.budget));
+        .map(cat => {
+            const targetBudget = (cat.budget || 0) * periodMultiplier;
+            const percentage = targetBudget > 0 ? Math.round((cat.amount / targetBudget) * 100) : 0;
+            return {
+                ...cat,
+                targetBudget,
+                percentage
+            };
+        })
+        .filter(cat => cat.targetBudget > 0 && cat.percentage >= 75)
+        .sort((a, b) => b.percentage - a.percentage);
 
     return (
         <div className="page-container">
@@ -71,7 +84,7 @@ function DashboardContent({
             </div>
 
             {loading ? (
-                <div className="spinner-container" style={{ marginTop: '40px' }}>
+                <div className="spinner-container spinner-container--page">
                     <div className="spinner"></div>
                 </div>
             ) : !dashboardData ? (
@@ -110,16 +123,16 @@ function DashboardContent({
                     {activeAlerts.length > 0 && (
                         <div className="budget-alerts-container">
                             {activeAlerts.map((cat, i) => {
-                                const percentage = Math.round((cat.amount / cat.budget) * 100);
-                                const isOver = cat.amount >= cat.budget;
+                                const percentage = cat.percentage;
+                                const isOver = cat.amount >= cat.targetBudget;
                                 return (
                                     <AlertBanner
                                         key={i}
                                         type={isOver ? 'danger' : 'warning'}
                                         icon={isOver ? 'warning' : 'bolt'}
                                         message={isOver
-                                            ? `Over budget! ${cat.category_name}: $${cat.amount.toFixed(2)} / $${cat.budget.toFixed(2)} (${percentage}%)`
-                                            : `Approaching limit: ${cat.category_name}: $${cat.amount.toFixed(2)} / $${cat.budget.toFixed(2)} (${percentage}%)`
+                                            ? `Over budget! ${cat.category_name}: $${cat.amount.toFixed(2)} / $${cat.targetBudget.toFixed(2)} (${percentage}%)`
+                                            : `Approaching limit: ${cat.category_name}: $${cat.amount.toFixed(2)} / $${cat.targetBudget.toFixed(2)} (${percentage}%)`
                                         }
                                     />
                                 );
@@ -131,7 +144,7 @@ function DashboardContent({
                     <div className="dashboard-chart-card">
                         <h3>Spending by Category ({CURRENCY})</h3>
                         {dashboardData.by_category && dashboardData.by_category.length > 0 ? (
-                            <div style={{ width: '100%', height: 320 }}>
+                            <div className="dashboard-chart-wrapper">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
                                         <Pie

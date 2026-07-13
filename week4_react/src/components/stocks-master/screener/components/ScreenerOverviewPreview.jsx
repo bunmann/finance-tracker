@@ -37,17 +37,17 @@ function ScreenerOverviewPreview({ results, competenceSectors = [], renderSource
     const totalAlerts = results.value_gap?.length || 0;
 
     return (
-        <motion.div variants={fadeInUp} initial="initial" animate="animate" className="screener-overview" style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
+        <motion.div variants={fadeInUp} initial="initial" animate="animate" className="screener-overview screener-overview-stack">
             {/* Section 1: Top Momentum Leaders */}
             <div className="overview-section">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div className="screener-section-header">
                     <div>
-                        <h3 style={{ margin: 0, fontSize: '18px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--on-surface)' }}>
-                            <span className="material-symbols-outlined" style={{ color: 'var(--primary)' }}>trending_up</span>
+                        <h3 className="screener-section-title">
+                            <span className="material-symbols-outlined screener-icon-primary">trending_up</span>
                             <span>Top Momentum Quality Leaders</span>
                             <span className="tab-badge">{totalCandidates}</span>
                         </h3>
-                        <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--on-surface-variant)' }}>
+                        <p className="screener-section-subtitle">
                             Highest relative strength rankings meeting fundamental FCF, margin, and debt thresholds.
                         </p>
                     </div>
@@ -55,23 +55,10 @@ function ScreenerOverviewPreview({ results, competenceSectors = [], renderSource
                         <button
                             type="button"
                             onClick={() => onSelectTab('screener')}
-                            style={{
-                                background: 'var(--surface-container-high)',
-                                border: '1px solid var(--outline-variant)',
-                                padding: '6px 14px',
-                                borderRadius: '20px',
-                                color: 'var(--primary)',
-                                fontWeight: 600,
-                                fontSize: '13px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '4px',
-                                transition: 'all 0.15s ease'
-                            }}
+                            className="screener-view-all-btn"
                         >
                             <span>View All ({totalCandidates})</span>
-                            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>arrow_forward</span>
+                            <span className="material-symbols-outlined screener-arrow-sm">arrow_forward</span>
                         </button>
                     )}
                 </div>
@@ -85,14 +72,14 @@ function ScreenerOverviewPreview({ results, competenceSectors = [], renderSource
 
             {/* Section 2: Active Value Gap Divergences */}
             <div className="overview-section">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div className="screener-section-header">
                     <div>
-                        <h3 style={{ margin: 0, fontSize: '18px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--on-surface)' }}>
-                            <span className="material-symbols-outlined" style={{ color: 'var(--error)' }}>warning</span>
+                        <h3 className="screener-section-title">
+                            <span className="material-symbols-outlined screener-icon-error">warning</span>
                             <span>Active Value Gap Alerts</span>
                             <span className="tab-badge">{totalAlerts}</span>
                         </h3>
-                        <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--on-surface-variant)' }}>
+                        <p className="screener-section-subtitle">
                             Holdings & watchlists exhibiting strong revenue growth but negative recent price action.
                         </p>
                     </div>
@@ -100,23 +87,10 @@ function ScreenerOverviewPreview({ results, competenceSectors = [], renderSource
                         <button
                             type="button"
                             onClick={() => onSelectTab('alerts')}
-                            style={{
-                                background: 'var(--surface-container-high)',
-                                border: '1px solid var(--outline-variant)',
-                                padding: '6px 14px',
-                                borderRadius: '20px',
-                                color: 'var(--primary)',
-                                fontWeight: 600,
-                                fontSize: '13px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '4px',
-                                transition: 'all 0.15s ease'
-                            }}
+                            className="screener-view-all-btn"
                         >
                             <span>View All ({totalAlerts})</span>
-                            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>arrow_forward</span>
+                            <span className="material-symbols-outlined screener-arrow-sm">arrow_forward</span>
                         </button>
                     )}
                 </div>

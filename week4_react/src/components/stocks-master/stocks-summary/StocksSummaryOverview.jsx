@@ -5,7 +5,7 @@
 // ============================================================================
 import React from 'react';
 import StocksSummaryContent from './StocksSummaryContent';
-import '../../../styles/StockPortfolio.css';
+import '../stocks/StockPortfolio.css';
 
 /**
  * Component: StocksSummaryOverview

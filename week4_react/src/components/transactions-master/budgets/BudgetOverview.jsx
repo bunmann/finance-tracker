@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import api from '../../../api';
 import BudgetContent from './BudgetContent';
 import { sortCategories } from '../../../utils/helpers';
-import '../../../styles/Budgets.css';
+import './Budgets.css';
 
 
 /**

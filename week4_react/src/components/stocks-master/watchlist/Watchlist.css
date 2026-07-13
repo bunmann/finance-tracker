@@ -347,3 +347,34 @@
 .watchlist-widget-row:hover {
     background-color: rgba(0, 209, 102, 0.05);
 }
+
+/* Watchlist and Sector Table & Icon Utilities */
+.watchlist-cell-right {
+    text-align: right;
+}
+
+.watchlist-cell-center {
+    text-align: center;
+}
+
+.watchlist-status-badge .material-symbols-outlined {
+    font-size: 13px;
+}
+
+.watchlist-delete-btn .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.watchlist-empty-icon {
+    color: #00D166;
+    font-size: 24px;
+}
+
+.competence-empty-icon {
+    color: #00D166;
+    font-size: 24px;
+}
+
+.watchlist-action-icon {
+    font-size: 18px;
+}

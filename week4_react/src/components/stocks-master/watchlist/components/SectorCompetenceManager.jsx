@@ -57,7 +57,7 @@ function SectorCompetenceManager({ sectors = [], onAddCompetenceSector, onRemove
         <div className="card competence-card">
             <div className="manager-header">
                 <h3 className="manager-title">
-                    <span className="material-symbols-outlined" style={{ color: '#00D166', fontSize: '24px' }}>psychology</span>
+                    <span className="material-symbols-outlined competence-empty-icon">psychology</span>
                     <span>Circle of Competence (Sectors)</span>
                 </h3>
                 <p className="manager-subtitle">
@@ -70,7 +70,7 @@ function SectorCompetenceManager({ sectors = [], onAddCompetenceSector, onRemove
                 <span className="quick-add-label">Available Market Sectors:</span>
                 <div className="quick-add-pills">
                     {availableSectors.length === 0 ? (
-                        <span style={{ fontSize: '13px', color: 'var(--on-surface-variant)', fontStyle: 'italic' }}>
+                        <span className="sector-note">
                             All standard GICS market sectors are added to your Circle of Competence.
                         </span>
                     ) : (

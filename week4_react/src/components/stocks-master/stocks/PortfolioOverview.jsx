@@ -8,7 +8,7 @@
 //              without touching the parent router.
 // ============================================================================
 import PortfolioContent from './PortfolioContent';
-import '../../../styles/StockPortfolio.css';
+import './StockPortfolio.css';
 
 /**
  * Component: PortfolioOverview

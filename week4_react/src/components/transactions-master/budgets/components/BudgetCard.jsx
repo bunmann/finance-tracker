@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import TransactionTable from '../../transactions/components/TransactionTable';
 import NonNegativeInput from '../../../common/inputs/NonNegativeInput';
 import { accordionCollapse } from '../../../../utils/animations';
+import { getPeriodMultiplier } from '../../../../utils/helpers';
 
 /**
  * Component: BudgetCard
@@ -15,8 +16,9 @@ import { accordionCollapse } from '../../../../utils/animations';
  *              Includes local state for toggle expand and lists relevant transactions.
  * Props:
  *   - category (Object): The category DB definition (name, icon, monthly_budget).
- *   - spent (Number): Calculated spending total for this category for the month.
+ *   - spent (Number): Calculated spending total for this category for the month/period.
  *   - transactions (Array): List of all user transactions (filtered inside this card).
+ *   - periodMode (String): Current period view mode ('month', 'year', 'all').
  *   - month (Number): Currently selected calendar month.
  *   - year (Number): Currently selected calendar year.
  *   - onBudgetUpdate (Function): Parent callback handler triggered on budget input blur.
@@ -24,11 +26,14 @@ import { accordionCollapse } from '../../../../utils/animations';
 function BudgetCard({ category, spent, transactions, periodMode = 'month', month, year, onBudgetUpdate }) {
     const [isExpanded, setIsExpanded] = useState(false);
 
-    const budget = parseFloat(category.monthly_budget) || 0;
-    const percentage = budget > 0 ? Math.round((spent / budget) * 100) : 0;
+    const baseMonthlyBudget = parseFloat(category.monthly_budget) || 0;
+    const periodMultiplier = getPeriodMultiplier(periodMode, month, year, transactions || []);
+
+    const targetBudget = baseMonthlyBudget * periodMultiplier;
+    const percentage = targetBudget > 0 ? Math.round((spent / targetBudget) * 100) : 0;
 
     // Filter transactions for this category based on active periodMode
-    const catTransactions = transactions.filter(t => {
+    const catTransactions = (transactions || []).filter(t => {
         if (t.category_id !== category.id) return false;
         if (periodMode === 'all' || (month === 0 && year === 0)) return true;
         if (!t.date) return false;
@@ -73,24 +78,17 @@ function BudgetCard({ category, spent, transactions, periodMode = 'month', month
             className={`budget-card ${getProgressColor(percentage)}`}
         >
             <div 
-                className="budget-header clickable"
+                className="budget-header clickable budget-header--clickable"
                 onClick={() => setIsExpanded(!isExpanded)}
-                style={{ cursor: 'pointer', userSelect: 'none' }}
             >
                 <span className="budget-category">
-                    <span className="expand-arrow" style={{
-                        display: 'inline-block',
-                        width: '12px',
-                        marginRight: '8px',
-                        transition: 'transform 0.2s ease',
-                        transform: isExpanded ? 'rotate(90deg)' : 'none'
-                    }}>
+                    <span className="expand-arrow" style={{ transform: isExpanded ? 'rotate(90deg)' : 'none' }}>
                         ►
                     </span>
                     {category.icon} {category.name}
                 </span>
                 <span className="budget-amounts">
-                    ${spent.toFixed(2)} / ${budget.toFixed(2)}
+                    ${spent.toFixed(2)} / ${targetBudget.toFixed(2)}
                 </span>
             </div>
 
@@ -106,14 +104,18 @@ function BudgetCard({ category, spent, transactions, periodMode = 'month', month
 
             <div className="budget-footer">
                 <span className={`budget-percentage ${getProgressColor(percentage)}`}>
-                    {budget > 0 ? `${percentage}%` : 'No budget set'}
+                    {targetBudget > 0 ? `${percentage}%` : 'No budget set'}
                 </span>
                 <div className="budget-input-group" onClick={(e) => e.stopPropagation()}>
-                    <label>Budget: $</label>
+                    <label title="Edits your base monthly budget target across all period views">Monthly Budget: $</label>
                     <NonNegativeInput
-                        defaultValue={budget}
+                        key={`${category.id}-${baseMonthlyBudget}`}
+                        defaultValue={baseMonthlyBudget}
                         step="10"
-                        onBlur={(e, sanitized) => onBudgetUpdate(category.id, sanitized)}
+                        onBlur={(e, sanitized) => {
+                            const val = parseFloat(sanitized) || 0;
+                            onBudgetUpdate(category.id, val);
+                        }}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                                 e.target.blur();
@@ -132,7 +134,7 @@ function BudgetCard({ category, spent, transactions, periodMode = 'month', month
                         initial="initial"
                         animate="animate"
                         exit="exit"
-                        style={{ overflow: 'hidden' }}
+                        className="budget-expand-body"
                     >
                         <div className="budget-transactions-divider"></div>
                         <h4 className="budget-transactions-title">

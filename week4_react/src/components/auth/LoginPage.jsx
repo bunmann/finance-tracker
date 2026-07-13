@@ -7,7 +7,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../api';
 import { saveRememberedEmail, getRememberedEmail, clearRememberedEmail } from '../../utils/authSession';
-import '../../styles/Auth.css';
+import './Auth.css';
 
 /**
  * Component: LoginPage

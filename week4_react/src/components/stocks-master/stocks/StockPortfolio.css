@@ -170,3 +170,36 @@
   background-color: rgba(255, 59, 59, 0.15);
   color: var(--secondary);
 }
+
+/* Portfolio italic note (e.g. data freshness disclaimer) */
+.portfolio-note {
+  margin: 0;
+  font-size: 11px;
+  color: var(--on-surface-variant);
+  font-style: italic;
+  opacity: 0.55;
+}
+
+/* Stock transaction amount cell — right-aligned mono */
+.stock-tx-amount-cell {
+  text-align: right;
+  font-weight: 600;
+}
+
+/* Empty state with inline vertical margin */
+.empty-state--inline {
+  margin: 15px 0;
+}
+
+/* form-error margin override within stock forms */
+.stock-form .form-error {
+  margin-bottom: 16px;
+}
+
+.stock-tx-cell-right {
+  text-align: right;
+}
+
+.stock-form-icon {
+  font-size: 16px;
+}

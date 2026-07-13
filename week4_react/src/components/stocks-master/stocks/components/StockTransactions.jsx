@@ -53,7 +53,7 @@ function StockTransactions({ refreshTrigger, showToast }) {
         <div className="stock-transactions">
             <h3>Trade Ledger</h3>
             {transactions.length === 0 ? (
-                <div className="empty-state" style={{ margin: '15px 0' }}>
+                <div className="empty-state empty-state--inline">
                     <div className="material-symbols-outlined empty-icon">trending_up</div>
                     <h3>No trades logged</h3>
                     <p>Log a buy/sell trade or import a brokerage statement to construct the ledger.</p>
@@ -75,9 +75,9 @@ function StockTransactions({ refreshTrigger, showToast }) {
                                             {tx.type.toUpperCase()}
                                         </span>
                                     </td>
-                                    <td className="amount-cell" style={{ textAlign: 'right' }}>{parseFloat(Number(tx.shares).toFixed(4))}</td>
-                                    <td className="amount-cell" style={{ textAlign: 'right' }}>${Number(tx.price).toFixed(2)}</td>
-                                    <td className="amount-cell" style={{ textAlign: 'right', fontWeight: '600' }}>${Number(tx.total).toFixed(2)}</td>
+                                    <td className="amount-cell stock-tx-cell-right">{parseFloat(Number(tx.shares).toFixed(4))}</td>
+                                    <td className="amount-cell stock-tx-cell-right">${Number(tx.price).toFixed(2)}</td>
+                                    <td className="amount-cell stock-tx-amount-cell">${Number(tx.total).toFixed(2)}</td>
                                 </>
                             );
                         }}

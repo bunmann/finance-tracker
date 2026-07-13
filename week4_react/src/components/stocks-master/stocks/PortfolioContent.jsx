@@ -38,7 +38,7 @@ function PortfolioContent({
                 <div>
                     <h2 className="dashboard-title">Stock Portfolio ({CURRENCY})</h2>
                     {refreshLabel && (
-                        <p style={{ margin: 0, fontSize: '11px', color: 'var(--on-surface-variant)', fontStyle: 'italic', opacity: 0.55 }}>
+                        <p className="portfolio-note">
                             Prices refreshed {refreshLabel} &middot; auto-updates every 15 min
                         </p>
                     )}
@@ -46,7 +46,7 @@ function PortfolioContent({
             </div>
 
             {loading ? (
-                <div className="spinner-container" style={{ marginTop: '40px' }}>
+                <div className="spinner-container spinner-container--page">
                     <div className="spinner"></div>
                 </div>
             ) : !portfolio ? (

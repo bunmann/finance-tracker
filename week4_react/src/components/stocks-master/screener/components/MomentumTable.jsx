@@ -47,28 +47,28 @@ function MomentumTable({ candidates = [], competenceSectors = [], renderSourceBa
             <td className="ticker-cell">{item.ticker}</td>
             <td>{item.name}</td>
             <td>{item.sector}</td>
-            <td style={{ textAlign: 'right', fontFamily: 'var(--font-mono)' }}>
+            <td className="screener-cell-mono">
                 C${item.price.toFixed(2)}
             </td>
-            <td style={{ textAlign: 'right', fontFamily: 'var(--font-mono)' }}>
+            <td className="screener-cell-mono">
                 {item.pe ? item.pe.toFixed(1) : '—'}
             </td>
-            <td style={{ textAlign: 'right', fontFamily: 'var(--font-mono)' }}>
+            <td className="screener-cell-mono">
                 {item.fcf_growth !== null && item.fcf_growth !== undefined ? `${(item.fcf_growth * 100).toFixed(1)}%` : '—'}
             </td>
-            <td style={{ textAlign: 'right', fontFamily: 'var(--font-mono)' }}>
+            <td className="screener-cell-mono">
                 {item.profit_margin !== null && item.profit_margin !== undefined ? `${(item.profit_margin * 100).toFixed(1)}%` : '—'}
             </td>
-            <td style={{ textAlign: 'right', fontFamily: 'var(--font-mono)' }}>
+            <td className="screener-cell-mono">
                 {item.debt_to_equity !== null && item.debt_to_equity !== undefined ? item.debt_to_equity.toFixed(2) : '—'}
             </td>
-            <td style={{ textAlign: 'right', fontFamily: 'var(--font-mono)', color: item.performance_30d >= 0 ? 'var(--primary)' : 'var(--secondary)' }}>
+            <td className={`screener-cell-mono ${item.performance_30d >= 0 ? 'screener-text-gain' : 'screener-text-loss'}`}>
                 {item.performance_30d !== null && item.performance_30d !== undefined ? `${item.performance_30d >= 0 ? '+' : ''}${(item.performance_30d * 100).toFixed(1)}%` : '—'}
             </td>
-            <td style={{ textAlign: 'right', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
+            <td className="screener-cell-mono-bold">
                 {item.relative_strength ? `${item.relative_strength.toFixed(1)}%` : '—'}
             </td>
-            <td style={{ textAlign: 'center' }}>
+            <td className="screener-cell-center">
                 {renderSourceBadge && renderSourceBadge(item.source)}
             </td>
         </>

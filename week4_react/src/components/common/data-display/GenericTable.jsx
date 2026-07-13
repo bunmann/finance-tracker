@@ -108,8 +108,8 @@ function GenericTable({
 
     const getClassNamesFor = (name) => {
         if (!name) return '';
-        if (!sortConfig) return 'sortable-header';
-        return sortConfig.key === name ? `sortable-header active ${sortConfig.direction}` : 'sortable-header';
+        if (!sortConfig) return 'sortable-header sortable-header-cell';
+        return sortConfig.key === name ? `sortable-header sortable-header-cell active ${sortConfig.direction}` : 'sortable-header sortable-header-cell';
     };
 
     const renderSortIndicator = (name) => {
@@ -128,14 +128,14 @@ function GenericTable({
                 <thead>
                     <tr>
                         {visibleColumns.map((col, index) => {
-                            const style = col.align ? { textAlign: col.align } : {};
+                            const style = col.align ? { textAlign: col.align } : undefined;
                             if (col.key) {
                                 return (
                                     <th 
                                         key={index} 
                                         onClick={() => requestSort(col.key)} 
                                         className={getClassNamesFor(col.key)}
-                                        style={{ ...style, cursor: 'pointer', userSelect: 'none' }}
+                                        style={style}
                                     >
                                         {col.label} {renderSortIndicator(col.key)}
                                     </th>

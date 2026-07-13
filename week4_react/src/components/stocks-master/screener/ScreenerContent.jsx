@@ -63,7 +63,7 @@ function ScreenerContent({
             <div className="screener-title-section">
                 <div>
                     <h2 className="dashboard-title">Quantitative Screener & Anomalies</h2>
-                    <p style={{ color: 'var(--on-surface-variant)', margin: 0, fontSize: '14px' }}>
+                    <p className="screener-subtitle">
                         Multi-strategy signal processing across holdings, watchlists, and market leaders.
                     </p>
                 </div>

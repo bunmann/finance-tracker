@@ -26,7 +26,7 @@ This is a Personal Finance and Stock Portfolio Tracker application.
 # 3-Tier Context Hierarchy
 To prevent hallucination, visual regression, and code-drift:
 * **Tier 1 (Global Context)**: This `.cursorrules` file. Governs stack standards, aesthetic specs, and agent workflows.
-* **Tier 2 (Module Context)**: Folder-specific `structure.md` files. Backend rules live in `week3_fastapi/structure.md`; Frontend rules live in `week4_react/structure.md`.
+* **Tier 2 (Module Context)**: Folder-specific `structure.md` files. Backend rules live in `week3_fastapi/structure.md`; Frontend rules live in `week4_react/structure.md`. CSS organization and naming rules live in `UI_guidelines/CSS.md`.
 * **Tier 3 (Task Context)**: Just-in-time session prompts, plans, and checklist logs.
 
 # Execution Boundaries

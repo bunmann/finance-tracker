@@ -18,7 +18,7 @@ function AlertBanner({ message, type = 'warning', icon = '' }) {
     return (
         <div className={`budget-alert ${alertClass}`}>
             {icon && (
-                <span className="material-symbols-outlined" style={{ marginRight: '8px' }}>
+                <span className="material-symbols-outlined alert-banner-icon">
                     {icon}
                 </span>
             )}

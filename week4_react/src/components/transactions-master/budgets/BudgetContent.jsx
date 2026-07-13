@@ -48,7 +48,7 @@ function BudgetContent({
             {/* Page Header and Period Controls */}
             <div className="dashboard-header">
                 <h2 className="dashboard-title">Budget Overview ({CURRENCY})</h2>
-                <div className="budget-controls" style={{ margin: 0 }}>
+                <div className="budget-controls budget-controls--no-margin">
                     <PeriodSelector
                         mode={periodMode}
                         month={month}
@@ -63,7 +63,7 @@ function BudgetContent({
             </div>
 
             {loading ? (
-                <div className="spinner-container" style={{ marginTop: '40px' }}>
+                <div className="spinner-container spinner-container--page">
                     <div className="spinner"></div>
                 </div>
             ) : (

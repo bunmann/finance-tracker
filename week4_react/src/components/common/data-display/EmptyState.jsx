@@ -20,15 +20,15 @@ function EmptyState({
     iconColor = 'var(--primary)'
 }) {
     return (
-        <div className="screener-empty-state" style={{ padding: '48px 24px', textAlign: 'center' }}>
+        <div className="screener-empty-state empty-state-wrapper">
             <span
-                className="material-symbols-outlined screener-empty-state-icon"
-                style={{ color: iconColor, fontSize: '48px', marginBottom: '12px', display: 'inline-block' }}
+                className="material-symbols-outlined screener-empty-state-icon empty-state-icon"
+                style={{ color: iconColor }}
             >
                 {icon}
             </span>
-            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', color: 'var(--on-surface)' }}>{title}</h3>
-            <p style={{ margin: 0, color: 'var(--on-surface-variant)', fontSize: '14px', maxWidth: '420px', marginLeft: 'auto', marginRight: 'auto' }}>
+            <h3 className="empty-state-title">{title}</h3>
+            <p className="empty-state-message">
                 {message}
             </p>
         </div>

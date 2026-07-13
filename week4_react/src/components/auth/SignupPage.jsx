@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../api';
-import '../../styles/Auth.css';
+import './Auth.css';
 
 /**
  * Component: SignupPage

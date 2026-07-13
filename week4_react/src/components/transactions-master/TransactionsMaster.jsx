@@ -55,14 +55,7 @@ function TransactionsMaster({ showToast }) {
     };
 
     const handleTransactionDeleted = (id) => {
-        api.delete(`/transactions/${id}`)
-            .then(() => {
-                setTransactions(prev => prev.filter(tx => tx.id !== id));
-            })
-            .catch(error => {
-                console.error('Error deleting transaction:', error);
-                showToast?.('Failed to delete transaction on server.', 'error');
-            });
+        setTransactions(prev => prev.filter(tx => tx.id !== id));
     };
 
     const handleTransactionUpdated = (updatedTx) => {

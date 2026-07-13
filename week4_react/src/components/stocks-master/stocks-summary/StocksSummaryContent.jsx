@@ -15,8 +15,8 @@ import { getRefreshLabel, getPnlClass } from '../../../utils/helpers';
 import HoldingMiniCard from './components/HoldingMiniCard';
 import WatchlistManager from '../watchlist/components/WatchlistManager';
 import SectorCompetenceManager from '../watchlist/components/SectorCompetenceManager';
-import '../../../styles/Watchlist.css';
-import '../../../styles/StocksSummary.css';
+import '../watchlist/Watchlist.css';
+import './StocksSummary.css';
 
 /**
  * Component: StocksSummaryContent
@@ -67,7 +67,7 @@ function StocksSummaryContent({
             </div>
 
             {loading ? (
-                <div className="spinner-container" style={{ marginTop: '40px' }}>
+                <div className="spinner-container spinner-container--page">
                     <div className="spinner"></div>
                 </div>
             ) : !portfolio ? (
@@ -123,7 +123,7 @@ function StocksSummaryContent({
                                 <Link to="/stocks/portfolio" className="summary-card-link">View All ({holdings.length}) →</Link>
                             </div>
                             {topHoldings.length === 0 ? (
-                                <p style={{ color: 'var(--on-surface-variant)', fontSize: '14px', margin: '20px 0' }}>No active stock holdings found. Add trades or upload a CSV in the Stocks management view.</p>
+                                <p className="summary-no-holdings-note">No active stock holdings found. Add trades or upload a CSV in the Stocks management view.</p>
                             ) : (
                                 <div className="top-holdings-list">
                                     {topHoldings.map(item => (
@@ -156,7 +156,7 @@ function StocksSummaryContent({
                             <div className="strategy-cta-wrapper">
                                 <Link to="/stocks/screener" className="btn btn-primary summary-action-btn">
                                     <span>Launch Screener Terminal</span>
-                                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>arrow_forward</span>
+                                    <span className="material-symbols-outlined summary-arrow-sm">arrow_forward</span>
                                 </Link>
                             </div>
                         </div>

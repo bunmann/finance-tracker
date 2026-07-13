@@ -61,12 +61,11 @@ function CollapsibleFormSection({
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        className="collapsible-form-content"
+                        className="collapsible-form-content collapsible-form-body"
                         variants={accordionCollapse}
                         initial="initial"
                         animate="animate"
                         exit="exit"
-                        style={{ overflow: 'hidden' }}
                     >
                         <div className="collapsible-form-inner">
                             {children}

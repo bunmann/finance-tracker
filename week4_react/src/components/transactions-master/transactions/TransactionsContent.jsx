@@ -9,7 +9,7 @@ import TransactionCsvUpload from './components/TransactionCsvUpload';
 import TransactionList from './components/TransactionList';
 import PeriodSelector from '../../common/inputs/PeriodSelector';
 import CollapsibleFormSection from '../../common/layout/CollapsibleFormSection';
-import '../../../styles/Transactions.css';
+import './Transactions.css';
 import { CURRENCY } from '../../../utils/config';
 
 /**

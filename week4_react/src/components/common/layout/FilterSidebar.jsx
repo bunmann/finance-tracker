@@ -36,9 +36,9 @@ function FilterSidebar({
             <h2>{title}</h2>
 
             {infoMessage && (
-                <div style={{ padding: '12px', backgroundColor: 'var(--surface-container-high)', borderRadius: '8px', marginBottom: '16px', fontSize: '13px', color: 'var(--on-surface-variant)', lineHeight: 1.4 }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--primary)', flexShrink: 0, marginTop: '1px' }}>info</span>
+                <div className="filter-hint-box">
+                    <div className="filter-hint-row">
+                        <span className="material-symbols-outlined filter-hint-icon">info</span>
                         <span>{infoMessage}</span>
                     </div>
                 </div>

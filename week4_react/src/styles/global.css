@@ -674,3 +674,182 @@ tr:hover td {
   padding-top: 2px;
   padding-bottom: 0;
 }
+
+/* ============================================================================
+   Shared Utility Classes (Phase 2 CSS architecture cleanup)
+   ============================================================================ */
+
+/* Spinner — page-level offset */
+.spinner-container--page {
+  margin-top: 40px;
+}
+
+/* Icon size utilities */
+.icon-sm {
+  font-size: 13px;
+}
+
+.icon-md {
+  font-size: 18px;
+}
+
+.btn-icon {
+  font-size: 16px;
+}
+
+.btn-icon-sm {
+  font-size: 14px;
+  margin-right: 4px;
+}
+
+/* Success icon (primary-container neon green) */
+.icon-success-lg {
+  font-size: 24px;
+  color: var(--primary-container);
+}
+
+/* Alert banner icon spacing */
+.alert-banner-icon {
+  margin-right: 8px;
+}
+
+/* Empty state layout */
+.empty-state-wrapper {
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  display: inline-block;
+}
+
+.empty-state-title {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: var(--on-surface);
+}
+
+.empty-state-message {
+  margin: 0 auto;
+  color: var(--on-surface-variant);
+  font-size: 14px;
+  max-width: 420px;
+}
+
+/* Filter sidebar info hint */
+.filter-hint-box {
+  padding: 12px;
+  background-color: var(--surface-container-high);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--on-surface-variant);
+  line-height: 1.4;
+}
+
+.filter-hint-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.filter-hint-icon {
+  font-size: 18px;
+  color: var(--primary);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Collapsible form body — overflow clip for Framer Motion animation */
+.collapsible-form-body {
+  overflow: hidden;
+}
+
+/* Period selector */
+.period-selector-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.period-mode-toggle {
+  display: flex;
+  background: var(--surface-container-high);
+  border-radius: 8px;
+  padding: 3px;
+  border: 1px solid var(--outline-variant);
+}
+
+.period-mode-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.period-mode-btn.active {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.period-dropdown {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--outline);
+  background: var(--surface);
+  color: var(--on-surface);
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* CSV upload hint text */
+.csv-upload-hint {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--on-surface-variant);
+  line-height: 1.4;
+}
+
+/* Form submit full-width */
+.form-submit-full {
+  margin-top: 16px;
+  width: 100%;
+}
+
+/* Sortable table header — static styles (dynamic textAlign remains in col config) */
+.sortable-header-cell {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Watchlist table cell alignment */
+.watchlist-td--right {
+  text-align: right;
+}
+
+.watchlist-td--center {
+  text-align: center;
+}
+
+/* Sector note text */
+.sector-note {
+  font-size: 13px;
+  color: var(--on-surface-variant);
+  font-style: italic;
+}
+
+/* WatchlistContent header subtitle */
+.watchlist-header-subtitle {
+  color: var(--on-surface-variant);
+  margin: 0;
+  font-size: 14px;
+}

@@ -7,7 +7,7 @@ import React from 'react';
 import WatchlistManager from './components/WatchlistManager';
 import SectorCompetenceManager from './components/SectorCompetenceManager';
 import AlertBanner from '../../common/feedback/AlertBanner';
-import '../../../styles/Watchlist.css';
+import './Watchlist.css';
 
 /**
  * Component: WatchlistContent
@@ -35,10 +35,10 @@ function WatchlistContent({
     return (
         <div className="watchlist-page page-container">
             {/* Title Header */}
-            <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="dashboard-header">
                 <div>
                     <h2 className="dashboard-title">Watchlist & Circle of Competence</h2>
-                    <p style={{ color: 'var(--on-surface-variant)', margin: 0, fontSize: '14px' }}>
+                    <p className="watchlist-header-subtitle">
                         Curate target tickers for live price tracking and define domain expertise sectors for quantitative screening.
                     </p>
                 </div>

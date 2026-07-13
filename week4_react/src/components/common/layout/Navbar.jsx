@@ -3,7 +3,7 @@
 // Description: Application header navigation sidebar providing links to main views.
 // ============================================================================
 import { NavLink, Link } from 'react-router-dom';
-import '../../../styles/Navbar.css';
+import './Navbar.css';
 
 /**
  * Component: Navbar

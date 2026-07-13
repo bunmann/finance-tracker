@@ -315,3 +315,26 @@
   font-style: italic;
   font-size: 13px;
 }
+
+/* Transaction description cell */
+.transaction-description-cell {
+  font-weight: 500;
+}
+
+/* Amount cell text alignment modifiers */
+.amount-cell--right {
+  text-align: right;
+}
+
+.amount-cell--left {
+  text-align: left;
+}
+
+/* Delete button in transaction row */
+.transaction-delete-btn {
+  padding: 6px 12px;
+  font-size: 11px;
+  text-transform: none;
+  border: 1px solid var(--secondary-container);
+  color: var(--secondary);
+}

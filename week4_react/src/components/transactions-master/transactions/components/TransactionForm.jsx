@@ -151,7 +151,7 @@ function TransactionForm({ onTransactionAdded, showToast }) {
                 </div>
             </div>
 
-            <button type="submit" className="btn btn-primary" style={{ marginTop: '16px', width: '100%' }}>
+            <button type="submit" className="btn btn-primary form-submit-full">
                 <span className="material-symbols-outlined">add_card</span>
                 Add Transaction
             </button>

@@ -79,3 +79,9 @@
   border-radius: var(--radius-md);
   border: 1px dashed var(--outline-variant);
 }
+
+/* Recharts wrapper — fixed height container */
+.dashboard-chart-wrapper {
+  width: 100%;
+  height: 320px;
+}

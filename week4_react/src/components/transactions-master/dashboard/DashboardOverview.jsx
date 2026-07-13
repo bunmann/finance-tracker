@@ -5,7 +5,7 @@
 import { useState, useEffect, useRef } from 'react';
 import api from '../../../api';
 import DashboardContent from './DashboardContent';
-import '../../../styles/Dashboard.css';
+import './Dashboard.css';
 
 /**
  * Component: DashboardOverview (Container)
@@ -61,6 +61,7 @@ function DashboardOverview({
             onMonthChange={onMonthChange}
             year={year}
             onYearChange={onYearChange}
+            transactions={transactions}
             loading={loading}
         />
     );

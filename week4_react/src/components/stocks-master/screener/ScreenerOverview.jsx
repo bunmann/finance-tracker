@@ -6,7 +6,7 @@
 // ============================================================================
 import { useState, useMemo } from 'react';
 import ScreenerContent from './ScreenerContent';
-import '../../../styles/Screener.css';
+import './Screener.css';
 
 /**
  * Component: ScreenerOverview (Container)

@@ -45,28 +45,28 @@ function WatchlistManager({ items = [], onAddToWatchlist, onRemoveFromWatchlist,
         return (
             <>
                 <td className="watchlist-ticker-mono">{item.ticker}</td>
-                <td className="watchlist-price-mono" style={{ textAlign: 'right' }}>{priceDisplay}</td>
-                <td style={{ textAlign: 'center' }}>
+                <td className="watchlist-price-mono watchlist-cell-right">{priceDisplay}</td>
+                <td className="watchlist-cell-center">
                     {item.is_stale ? (
                         <span className="watchlist-status-badge stale" title="Price may be cached or delayed">
-                            <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>history</span>
+                            <span className="material-symbols-outlined">history</span>
                             Stale
                         </span>
                     ) : (
                         <span className="watchlist-status-badge live" title="Live exchange price">
-                            <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>bolt</span>
+                            <span className="material-symbols-outlined">bolt</span>
                             Live
                         </span>
                     )}
                 </td>
-                <td style={{ textAlign: 'center' }}>
+                <td className="watchlist-cell-center">
                     <button
                         type="button"
                         className="watchlist-delete-btn"
                         onClick={() => onRemoveFromWatchlist && onRemoveFromWatchlist(item.ticker)}
                         title={`Remove ${item.ticker} from Watchlist`}
                     >
-                        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>delete</span>
+                        <span className="material-symbols-outlined">delete</span>
                     </button>
                 </td>
             </>
@@ -77,7 +77,7 @@ function WatchlistManager({ items = [], onAddToWatchlist, onRemoveFromWatchlist,
         <div className="card watchlist-card">
             <div className="manager-header">
                 <h3 className="manager-title">
-                    <span className="material-symbols-outlined" style={{ color: '#00D166', fontSize: '24px' }}>visibility</span>
+                    <span className="material-symbols-outlined watchlist-empty-icon">visibility</span>
                     <span>Active Watchlist</span>
                 </h3>
                 <p className="manager-subtitle">
@@ -99,12 +99,12 @@ function WatchlistManager({ items = [], onAddToWatchlist, onRemoveFromWatchlist,
                 <button type="submit" className="manager-submit-btn" disabled={loading || !tickerInput.trim()}>
                     {loading ? (
                         <>
-                            <span className="material-symbols-outlined spin" style={{ fontSize: '18px' }}>sync</span>
+                            <span className="material-symbols-outlined spin watchlist-action-icon">sync</span>
                             <span>Processing...</span>
                         </>
                     ) : (
                         <>
-                            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add</span>
+                            <span className="material-symbols-outlined watchlist-action-icon">add</span>
                             <span>Add Ticker</span>
                         </>
                     )}

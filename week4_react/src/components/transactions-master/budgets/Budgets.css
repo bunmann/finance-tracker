@@ -18,6 +18,10 @@
   margin-bottom: 0;
 }
 
+.budget-controls--no-margin {
+  margin: 0;
+}
+
 .budget-controls label {
   font-family: var(--font-brand);
   font-size: 11px;
@@ -88,8 +92,23 @@
 }
 
 .expand-arrow {
+  display: inline-block;
+  width: 12px;
+  margin-right: 8px;
   font-size: 10px;
   color: var(--on-surface-variant);
+  transition: transform 0.2s ease;
+}
+
+/* Clickable budget header state */
+.budget-header--clickable {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Overflow clip for Framer Motion height animation on budget expand */
+.budget-expand-body {
+  overflow: hidden;
 }
 
 .budget-amounts {
