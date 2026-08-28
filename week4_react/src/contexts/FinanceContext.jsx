@@ -56,7 +56,7 @@ export const FinanceProvider = ({ children }) => {
 
     const lastWealthPeriodRef = useRef({ month: -1, year: -1 });
 
-    // Fetch Wealth Data (STABLE REFS, PROMISE.ALLSETTLED)
+    // Fetch Wealth Data (STABLE REFS, PROMISE.ALLSETTLED, INSTANT HEALTH FETCH)
     const fetchWealthData = useCallback(async (month = 0, year = 0, force = false) => {
         const { wealthData: currentNw, healthData: currentH } = wealthDataRef.current;
         const periodChanged = lastWealthPeriodRef.current.month !== month || lastWealthPeriodRef.current.year !== year;
@@ -69,21 +69,24 @@ export const FinanceProvider = ({ children }) => {
         setIsWealthLoading(true);
 
         try {
-            const results = await Promise.allSettled([
-                api.get('/wealth/net-worth'),
-                api.get(`/wealth/health?month=${month}&year=${year}`)
-            ]);
+            // Fast 15ms database health query
+            const hPromise = api.get(`/wealth/health?month=${month}&year=${year}`)
+                .then(res => {
+                    setHealthData(res.data);
+                })
+                .catch(err => console.error("Health fetch error:", err));
 
-            const [nwRes, hRes] = results;
+            // Only query net-worth (which calls external stock APIs) if missing or forced
+            const nwPromise = (!currentNw || force)
+                ? api.get('/wealth/net-worth')
+                    .then(res => {
+                        setWealthData(res.data);
+                    })
+                    .catch(err => console.error("Net worth fetch error:", err))
+                : Promise.resolve();
 
-            if (nwRes.status === 'fulfilled') setWealthData(nwRes.value.data);
-            if (hRes.status === 'fulfilled') setHealthData(hRes.value.data);
-
-            if (nwRes.status === 'fulfilled' || hRes.status === 'fulfilled') {
-                setWealthError(null);
-            } else {
-                setWealthError("Failed to load wealth data. Ensure backend is running.");
-            }
+            await Promise.allSettled([hPromise, nwPromise]);
+            setWealthError(null);
         } catch (err) {
             console.error("Error fetching wealth data:", err);
             setWealthError("Failed to load wealth data.");
