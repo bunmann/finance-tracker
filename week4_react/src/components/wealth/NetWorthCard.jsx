@@ -95,20 +95,20 @@ function NetWorthCard({ data, onUpdate }) {
                         <AreaChart data={data.history} margin={{ top: 10, right: 10, left: 10, bottom: 5 }}>
                             <defs>
                                 <linearGradient id="netWorthGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#00D166" stopOpacity={0.35}/>
-                                    <stop offset="95%" stopColor="#00D166" stopOpacity={0.0}/>
+                                    <stop offset="5%" stopColor="#006D32" stopOpacity={0.25}/>
+                                    <stop offset="95%" stopColor="#006D32" stopOpacity={0.0}/>
                                 </linearGradient>
                             </defs>
                             <YAxis domain={['dataMin - 50', 'dataMax + 50']} hide={true} />
                             <Tooltip 
                                 formatter={(value) => [formatCurrency(value), 'Net Worth']}
                                 labelFormatter={(label) => `Date: ${label}`}
-                                contentStyle={{ backgroundColor: '#1E2337', borderColor: '#2A3047', borderRadius: '8px', color: '#FFF' }}
+                                contentStyle={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0', borderRadius: '8px', color: '#0F172A', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                             />
                             <Area 
                                 type="monotone" 
                                 dataKey="net_worth" 
-                                stroke="#00D166" 
+                                stroke="#006D32" 
                                 strokeWidth={2.5} 
                                 fillOpacity={1}
                                 fill="url(#netWorthGradient)"

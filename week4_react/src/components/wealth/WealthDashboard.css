@@ -32,14 +32,15 @@
 }
 
 /* ============================================================================
-   Net Worth Card (Hero Dark Card)
+   Net Worth Card (Crisp Light Card)
 ============================================================================ */
 .net-worth-card {
-    background-color: #0F172A;
+    background-color: #FFFFFF;
+    border: 1px solid #E2E8F0;
     border-radius: 16px;
     padding: 32px;
-    color: #F8FAFC;
-    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.15);
+    color: #0F172A;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -51,7 +52,7 @@
     font-family: 'Inter', sans-serif;
     font-size: 13px;
     font-weight: 600;
-    color: #94A3B8;
+    color: #64748B;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 8px;
@@ -62,7 +63,7 @@
     font-size: 48px;
     font-weight: 700;
     margin: 0 0 24px 0;
-    color: #FFFFFF;
+    color: #0F172A;
 }
 
 .net-worth-breakdown {
@@ -70,7 +71,7 @@
     grid-template-columns: 1fr 1fr 1fr;
     gap: 16px;
     margin-bottom: 24px;
-    border-top: 1px solid #334155;
+    border-top: 1px solid #E2E8F0;
     padding-top: 20px;
 }
 
@@ -83,34 +84,34 @@
 .breakdown-label {
     font-family: 'Inter', sans-serif;
     font-size: 12px;
-    color: #94A3B8;
+    color: #64748B;
 }
 
 .breakdown-value {
     font-family: 'JetBrains Mono', monospace;
     font-size: 16px;
     font-weight: 600;
-    color: #F8FAFC;
+    color: #0F172A;
 }
 
 .breakdown-value.positive {
-    color: #00D166;
+    color: #006D32;
 }
 
 .breakdown-value.negative {
-    color: #FF3B3B;
+    color: #BB0017;
 }
 
 .edit-liabilities-btn {
     background: none;
     border: none;
-    color: #94A3B8;
+    color: #64748B;
     cursor: pointer;
     margin-left: 8px;
     font-size: 14px;
 }
 .edit-liabilities-btn:hover {
-    color: #FFFFFF;
+    color: #0F172A;
 }
 
 .liabilities-input-container {
@@ -120,10 +121,10 @@
 }
 
 .liabilities-input {
-    background: #1E293B;
-    border: 1px solid #334155;
+    background: #F8FAFC;
+    border: 1px solid #CBD5E1;
     border-radius: 4px;
-    color: #FFFFFF;
+    color: #0F172A;
     font-family: 'JetBrains Mono', monospace;
     padding: 4px 8px;
     width: 100px;
@@ -131,8 +132,8 @@
 }
 
 .save-btn {
-    background: #00D166;
-    color: #0F172A;
+    background: #006D32;
+    color: #FFFFFF;
     border: none;
     border-radius: 4px;
     padding: 4px 8px;

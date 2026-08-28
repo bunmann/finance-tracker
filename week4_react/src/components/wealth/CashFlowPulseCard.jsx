@@ -42,7 +42,7 @@ function CashFlowPulseCard({ data, periodLabel }) {
         >
             <div className="pulse-header">
                 <div>
-                    <h2 className="pulse-title">Cash Flow Pulse</h2>
+                    <h2 className="pulse-title">Savings Rate</h2>
                     <p className="pulse-subtitle">{periodLabel || 'All Time'}</p>
                 </div>
                 <div className={`savings-rate-badge ${badgeClass}`}>
