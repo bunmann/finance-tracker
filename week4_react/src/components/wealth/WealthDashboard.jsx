@@ -26,8 +26,16 @@ function WealthDashboard() {
     if (globalPeriod.mode === 'year' || (mVal === 0 && yVal > 0)) {
         periodLabel = `Year ${yVal}`;
     } else if (mVal > 0 && yVal > 0) {
-        const dateObj = new Date(yVal, mVal - 1);
-        periodLabel = `${dateObj.toLocaleString('default', { month: 'long' })} ${yVal}`;
+        try {
+            const dateObj = new Date(yVal, mVal - 1);
+            if (!isNaN(dateObj.getTime())) {
+                periodLabel = `${dateObj.toLocaleString('default', { month: 'long' })} ${yVal}`;
+            } else {
+                periodLabel = `Period ${mVal}/${yVal}`;
+            }
+        } catch (e) {
+            periodLabel = `Period ${mVal}/${yVal}`;
+        }
     }
 
     const selectedPeriod = { month: mVal, year: yVal, label: periodLabel };

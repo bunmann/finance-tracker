@@ -44,10 +44,17 @@ class ErrorBoundary extends Component {
     render() {
         if (this.state.hasError) {
             return (
-                <div className="error-boundary">
+                <div className="error-boundary" style={{ padding: '24px', textAlign: 'center' }}>
                     <h2>Something went wrong</h2>
-                    <p>An unexpected error occurred. Please try refreshing the page.</p>
-                    <button onClick={() => this.setState({ hasError: false })}>
+                    <p style={{ color: '#EF4444', fontFamily: 'monospace', fontSize: '14px', margin: '12px 0' }}>
+                        {this.state.error?.toString()}
+                    </p>
+                    {this.state.error?.stack && (
+                        <pre style={{ textAlign: 'left', background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '12px', borderRadius: '8px', fontSize: '11px', overflowX: 'auto', maxHeight: '200px', margin: '12px 0' }}>
+                            {this.state.error.stack}
+                        </pre>
+                    )}
+                    <button onClick={() => this.setState({ hasError: false, error: null })}>
                         Try Again
                     </button>
                 </div>

@@ -18,18 +18,11 @@ const formatCurrency = (value) => {
 
 function NetWorthCard({ data, onUpdate }) {
     const { setWealthData } = useFinance();
-    const [localData, setLocalData] = useState(data);
     const [isEditing, setIsEditing] = useState(false);
-    const [liabilityInput, setLiabilityInput] = useState(data?.liabilities || 0);
+    const [liabilityInput, setLiabilityInput] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
 
-    useEffect(() => {
-        setLocalData(data);
-    }, [data]);
-
-    const activeData = localData || data;
-
-    if (!activeData) return (
+    if (!data) return (
         <div className="net-worth-card loading-card">
             <div className="net-worth-header">
                 <div>
@@ -44,20 +37,22 @@ function NetWorthCard({ data, onUpdate }) {
     );
 
     const handleStartEdit = () => {
-        setLiabilityInput(activeData?.liabilities !== undefined ? activeData.liabilities : 0);
+        setLiabilityInput(data.liabilities !== undefined ? data.liabilities : 0);
         setIsEditing(true);
     };
 
     const handleSave = async (e) => {
         if (e) e.preventDefault();
         const newAmount = parseFloat(liabilityInput) || 0;
-        
-        // Instant Optimistic UI Update
-        if (activeData) {
-            const newNw = (activeData.cash_balance || 0) + (activeData.stock_value || 0) - newAmount;
-            const updatedObj = { ...activeData, liabilities: newAmount, net_worth: newNw };
-            setLocalData(updatedObj);
-            if (setWealthData) setWealthData(updatedObj);
+
+        // Instant Optimistic Context Update
+        if (setWealthData && data) {
+            const newNw = (data.cash_balance || 0) + (data.stock_value || 0) - newAmount;
+            setWealthData({
+                ...data,
+                liabilities: newAmount,
+                net_worth: newNw
+            });
         }
 
         setIsEditing(false);
@@ -65,9 +60,8 @@ function NetWorthCard({ data, onUpdate }) {
 
         try {
             const res = await api.put('/wealth/liabilities', { amount: newAmount });
-            if (res.data) {
-                setLocalData(res.data);
-                if (setWealthData) setWealthData(res.data);
+            if (res.data && setWealthData) {
+                setWealthData(res.data);
             }
             if (onUpdate) onUpdate();
         } catch (error) {
@@ -90,19 +84,19 @@ function NetWorthCard({ data, onUpdate }) {
                     <p className="net-worth-subtitle">All-Time Cumulative Assets & Liabilities</p>
                 </div>
             </div>
-            <h1 className="net-worth-value">{formatCurrency(activeData?.net_worth)}</h1>
+            <h1 className="net-worth-value">{formatCurrency(data?.net_worth)}</h1>
 
             <div className="net-worth-breakdown">
                 <div className="breakdown-item">
                     <span className="breakdown-label">Cash & Spending</span>
-                    <span className={`breakdown-value ${(activeData?.cash_balance || 0) >= 0 ? 'positive' : 'negative'}`}>
-                        {formatCurrency(activeData?.cash_balance)}
+                    <span className={`breakdown-value ${(data?.cash_balance || 0) >= 0 ? 'positive' : 'negative'}`}>
+                        {formatCurrency(data?.cash_balance)}
                     </span>
                 </div>
                 <div className="breakdown-item">
                     <span className="breakdown-label">Stock Portfolio</span>
                     <span className="breakdown-value positive">
-                        {formatCurrency(activeData?.stock_value)}
+                        {formatCurrency(data?.stock_value)}
                     </span>
                 </div>
                 <div className="breakdown-item">
@@ -148,7 +142,7 @@ function NetWorthCard({ data, onUpdate }) {
                         </form>
                     ) : (
                         <span className="breakdown-value negative">
-                            -{formatCurrency(activeData?.liabilities)}
+                            -{formatCurrency(data?.liabilities)}
                         </span>
                     )}
                 </div>
