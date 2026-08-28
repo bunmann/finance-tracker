@@ -171,12 +171,48 @@ def update_liabilities(
     liabilities = Decimal(str(data.amount))
     net_worth = cash_balance + stock_value - liabilities
 
+    today = date.today()
+    history = []
+    for i in range(5, -1, -1):
+        if i == 0:
+            cutoff_date = today
+            date_label = "Today"
+        else:
+            m_target = today.month - i
+            y_target = today.year
+            while m_target <= 0:
+                m_target += 12
+                y_target -= 1
+            _, last_d = calendar.monthrange(y_target, m_target)
+            cutoff_date = date(y_target, m_target, last_d)
+            date_label = cutoff_date.strftime("%b %Y")
+
+        inc_sub = db.query(func.sum(models.Transaction.amount)).filter(
+            models.Transaction.user_id == current_user.id,
+            models.Transaction.type == "income",
+            models.Transaction.date <= cutoff_date
+        ).scalar() or 0.0
+
+        exp_sub = db.query(func.sum(models.Transaction.amount)).filter(
+            models.Transaction.user_id == current_user.id,
+            models.Transaction.type == "expense",
+            models.Transaction.date <= cutoff_date
+        ).scalar() or 0.0
+
+        cash_sub = Decimal(str(inc_sub)) - Decimal(str(exp_sub))
+        nw_sub = cash_sub + stock_value - liabilities
+
+        history.append({
+            "date": date_label,
+            "net_worth": float(nw_sub)
+        })
+
     return {
         "cash_balance": float(cash_balance),
         "stock_value": float(stock_value),
         "liabilities": float(liabilities),
         "net_worth": float(net_worth),
-        "history": []
+        "history": history
     }
 
 @router.get("/health", response_model=schemas.WealthHealthResponse)

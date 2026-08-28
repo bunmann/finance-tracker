@@ -42,13 +42,13 @@ function NetWorthCard({ data, onUpdate }) {
 
     const handleSave = async (e) => {
         if (e) e.preventDefault();
+        setIsEditing(false);
         setIsLoading(true);
         try {
             const res = await api.put('/wealth/liabilities', { amount: parseFloat(liabilityInput) || 0 });
-            setIsEditing(false);
             if (setWealthData && res.data) {
                 setWealthData(prev => ({
-                    ...prev,
+                    ...(prev || {}),
                     ...res.data
                 }));
             }
