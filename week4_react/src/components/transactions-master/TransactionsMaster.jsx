@@ -26,18 +26,23 @@ const pageTransition = {
  *   - showToast (Function): Toast notification callback from App.
  */
 function TransactionsMaster({ showToast }) {
-    const today = new Date();
-    const [periodMode, setPeriodMode] = useState('month');
-    const [month, setMonth] = useState(today.getMonth() + 1);
-    const [year, setYear] = useState(today.getFullYear());
-
     const {
+        globalPeriod,
+        setGlobalPeriod,
         transactionsData: transactions,
         isTransactionsLoading: loading,
         fetchTransactionsData,
         setTransactionsData,
         fetchWealthData
     } = useFinance();
+
+    const periodMode = globalPeriod.mode;
+    const month = globalPeriod.month === 0 && globalPeriod.mode === 'month' ? new Date().getMonth() + 1 : globalPeriod.month;
+    const year = globalPeriod.year === 0 && globalPeriod.mode !== 'all' ? new Date().getFullYear() : globalPeriod.year;
+
+    const setPeriodMode = (mode) => setGlobalPeriod({ mode });
+    const setMonth = (m) => setGlobalPeriod({ month: m });
+    const setYear = (y) => setGlobalPeriod({ year: y });
 
     const location = useLocation();
 

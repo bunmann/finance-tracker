@@ -15,26 +15,35 @@ import WealthSummaryWidgets from './WealthSummaryWidgets';
 import AiFinancialAssistant from './AiFinancialAssistant';
 
 function WealthDashboard() {
-    const { wealthData, healthData, portfolioData, isStocksLoading, fetchWealthData, fetchStocksData } = useFinance();
-    const [periodMode, setPeriodMode] = useState('all'); // 'all' | 'year' | 'month'
-    const [selectedPeriod, setSelectedPeriod] = useState({ month: 0, year: 0, label: 'All Time' });
+    const { globalPeriod, setGlobalPeriod, wealthData, healthData, portfolioData, isStocksLoading, fetchWealthData, fetchStocksData } = useFinance();
     const [dashboardData, setDashboardData] = useState(null);
+
+    const periodMode = globalPeriod.mode;
+    const mVal = globalPeriod.mode === 'all' ? 0 : (globalPeriod.month || new Date().getMonth() + 1);
+    const yVal = globalPeriod.mode === 'all' ? 0 : (globalPeriod.year || new Date().getFullYear());
+
+    let periodLabel = 'All Time';
+    if (globalPeriod.mode === 'year' || (mVal === 0 && yVal > 0)) {
+        periodLabel = `Year ${yVal}`;
+    } else if (mVal > 0 && yVal > 0) {
+        const dateObj = new Date(yVal, mVal - 1);
+        periodLabel = `${dateObj.toLocaleString('default', { month: 'long' })} ${yVal}`;
+    }
+
+    const selectedPeriod = { month: mVal, year: yVal, label: periodLabel };
 
     // Initial load for wealth & stocks data
     useEffect(() => {
         fetchWealthData(selectedPeriod.month, selectedPeriod.year, false);
         fetchStocksData(false);
-    }, [selectedPeriod, fetchWealthData, fetchStocksData]);
+    }, [selectedPeriod.month, selectedPeriod.year, fetchWealthData, fetchStocksData]);
 
     // Fetch filtered expense breakdown dashboard data
     useEffect(() => {
-        const m = periodMode === 'all' ? 0 : selectedPeriod.month;
-        const y = periodMode === 'all' ? 0 : selectedPeriod.year;
-
-        api.get(`/dashboard?month=${m}&year=${y}`)
+        api.get(`/dashboard?month=${selectedPeriod.month}&year=${selectedPeriod.year}`)
             .then(res => setDashboardData(res.data))
             .catch(err => console.error("Error fetching wealth dashboard category data:", err));
-    }, [periodMode, selectedPeriod]);
+    }, [selectedPeriod.month, selectedPeriod.year]);
 
     const handleUpdate = () => {
         fetchWealthData(selectedPeriod.month, selectedPeriod.year, true);
@@ -42,30 +51,20 @@ function WealthDashboard() {
     };
 
     const handleModeChange = (newMode) => {
-        setPeriodMode(newMode);
         if (newMode === 'all') {
-            setSelectedPeriod({ month: 0, year: 0, label: 'All Time' });
+            setGlobalPeriod({ mode: 'all', month: 0, year: 0 });
         } else if (newMode === 'year') {
-            const y = selectedPeriod.year || new Date().getFullYear();
-            setSelectedPeriod({ month: 0, year: y, label: `Year ${y}` });
+            const y = globalPeriod.year || new Date().getFullYear();
+            setGlobalPeriod({ mode: 'year', month: 0, year: y });
         } else if (newMode === 'month') {
-            const m = selectedPeriod.month || new Date().getMonth() + 1;
-            const y = selectedPeriod.year || new Date().getFullYear();
-            const dateObj = new Date(y, m - 1);
-            const label = `${dateObj.toLocaleString('default', { month: 'long' })} ${y}`;
-            setSelectedPeriod({ month: m, year: y, label });
+            const m = globalPeriod.month || new Date().getMonth() + 1;
+            const y = globalPeriod.year || new Date().getFullYear();
+            setGlobalPeriod({ mode: 'month', month: m, year: y });
         }
     };
 
     const handlePeriodChange = (month, year) => {
-        let label = 'All Time';
-        if (month === 0 && year > 0) {
-            label = `Year ${year}`;
-        } else if (month > 0 && year > 0) {
-            const dateObj = new Date(year, month - 1);
-            label = `${dateObj.toLocaleString('default', { month: 'long' })} ${year}`;
-        }
-        setSelectedPeriod({ month, year, label });
+        setGlobalPeriod({ month, year });
     };
 
     return (

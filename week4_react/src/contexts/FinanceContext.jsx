@@ -12,6 +12,20 @@ export const useFinance = () => {
 };
 
 export const FinanceProvider = ({ children }) => {
+    // Global Synced Date Period State (Shared across Wealth, Cash Flow, Transactions, Budgets)
+    const [globalPeriod, setGlobalPeriodState] = useState({
+        mode: 'all', // 'all' | 'year' | 'month'
+        month: 0,
+        year: 0
+    });
+
+    const setGlobalPeriod = useCallback((newPeriod) => {
+        setGlobalPeriodState(prev => ({
+            ...prev,
+            ...newPeriod
+        }));
+    }, []);
+
     // Wealth State
     const [wealthData, setWealthData] = useState(null);
     const [healthData, setHealthData] = useState(null);
@@ -170,6 +184,10 @@ export const FinanceProvider = ({ children }) => {
 
     return (
         <FinanceContext.Provider value={{
+            // Global Period Filter
+            globalPeriod,
+            setGlobalPeriod,
+
             // Wealth
             wealthData,
             healthData,
