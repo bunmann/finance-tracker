@@ -174,8 +174,8 @@ def chat_with_ai(
     fin_context = build_user_financial_context(db, current_user)
     api_key = os.getenv("GEMINI_API_KEY", "").strip()
 
-    # Check if key is empty or clearly invalid placeholder
-    if not api_key or not api_key.startswith("AIzaSy"):
+    # Check if key is empty
+    if not api_key:
         fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
         return {"response": fallback_reply, "rate_limit_remaining": remaining}
 
@@ -195,31 +195,39 @@ def chat_with_ai(
         }]
     }
 
+    # Support all key auth formats (x-goog-api-key, Bearer token, query param)
+    headers_options = [
+        {"Content-Type": "application/json", "x-goog-api-key": api_key},
+        {"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
+        {"Content-Type": "application/json"}
+    ]
+
     for model_name in models_to_try:
-        gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
-        try:
-            req = urllib.request.Request(
-                gemini_url,
-                data=json.dumps(req_payload).encode("utf-8"),
-                headers={"Content-Type": "application/json"}
-            )
-            with urllib.request.urlopen(req, timeout=8) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-                candidates = data.get("candidates", [])
-                if candidates:
-                    parts = candidates[0].get("content", {}).get("parts", [])
-                    if parts:
-                        ai_reply = parts[0].get("text", "")
-                        if ai_reply:
-                            return {"response": ai_reply, "rate_limit_remaining": remaining}
-        except urllib.error.HTTPError as e:
-            if e.code == 429:
-                raise HTTPException(status_code=429, detail="Google Gemini API rate limit reached. Please wait a moment.")
-            print(f"Gemini API model {model_name} HTTP Error {e.code}")
-            continue
-        except Exception as err:
-            print(f"Gemini API model {model_name} Error:", err)
-            continue
+        for headers in headers_options:
+            gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+            try:
+                req = urllib.request.Request(
+                    gemini_url,
+                    data=json.dumps(req_payload).encode("utf-8"),
+                    headers=headers
+                )
+                with urllib.request.urlopen(req, timeout=8) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                    candidates = data.get("candidates", [])
+                    if candidates:
+                        parts = candidates[0].get("content", {}).get("parts", [])
+                        if parts:
+                            ai_reply = parts[0].get("text", "")
+                            if ai_reply:
+                                return {"response": ai_reply, "rate_limit_remaining": remaining}
+            except urllib.error.HTTPError as e:
+                if e.code == 429:
+                    raise HTTPException(status_code=429, detail="Google Gemini API rate limit reached. Please wait a moment.")
+                print(f"Gemini API model {model_name} HTTP Error {e.code}")
+                continue
+            except Exception as err:
+                print(f"Gemini API model {model_name} Error:", err)
+                continue
 
     # Fallback to Smart DB Insight if API call failed
     fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
