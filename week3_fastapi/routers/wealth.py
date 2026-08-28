@@ -137,7 +137,7 @@ def update_liabilities(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """Updates user's manual liabilities and returns refreshed net worth."""
+    """Updates user's manual liabilities and returns refreshed net worth instantly."""
     profile = db.query(models.UserProfile).filter(models.UserProfile.user_id == current_user.id).first()
     if profile:
         profile.liabilities = data.amount
@@ -145,8 +145,39 @@ def update_liabilities(
         profile = models.UserProfile(user_id=current_user.id, liabilities=data.amount)
         db.add(profile)
     db.commit()
-    # Call get_net_worth to return updated numbers
-    return get_net_worth(db, current_user)
+
+    # Fast 10ms local calculation without external Yahoo Finance network queries
+    income_res = db.query(func.sum(models.Transaction.amount)).filter(
+        models.Transaction.user_id == current_user.id,
+        models.Transaction.type == "income"
+    ).scalar() or 0.0
+
+    expense_res = db.query(func.sum(models.Transaction.amount)).filter(
+        models.Transaction.user_id == current_user.id,
+        models.Transaction.type == "expense"
+    ).scalar() or 0.0
+
+    cash_balance = Decimal(str(income_res)) - Decimal(str(expense_res))
+
+    holdings = db.query(models.Holding).filter(models.Holding.user_id == current_user.id).all()
+    stock_value = Decimal("0")
+    for h in holdings:
+        price_rec = db.query(models.StockPrice).filter(models.StockPrice.ticker == h.ticker).first()
+        p_val = price_rec.price if price_rec else h.avg_price
+        p_cad = _get_cad_price(float(p_val), h.currency, db, ticker=h.ticker) if p_val else 0.0
+        val = h.shares * Decimal(str(p_cad if p_cad is not None else p_val or 0.0))
+        stock_value += val
+
+    liabilities = Decimal(str(data.amount))
+    net_worth = cash_balance + stock_value - liabilities
+
+    return {
+        "cash_balance": float(cash_balance),
+        "stock_value": float(stock_value),
+        "liabilities": float(liabilities),
+        "net_worth": float(net_worth),
+        "history": []
+    }
 
 @router.get("/health", response_model=schemas.WealthHealthResponse)
 def get_wealth_health(

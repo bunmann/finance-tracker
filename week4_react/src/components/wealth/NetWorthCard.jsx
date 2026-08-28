@@ -6,6 +6,8 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import api from '../../api';
 
+import { useFinance } from '../../contexts/FinanceContext';
+
 const formatCurrency = (value) => {
     return new Intl.NumberFormat('en-CA', {
         style: 'currency',
@@ -14,6 +16,7 @@ const formatCurrency = (value) => {
 };
 
 function NetWorthCard({ data, onUpdate }) {
+    const { setWealthData } = useFinance();
     const [isEditing, setIsEditing] = useState(false);
     const [liabilityInput, setLiabilityInput] = useState(data?.liabilities || 0);
     const [isLoading, setIsLoading] = useState(false);
@@ -41,9 +44,14 @@ function NetWorthCard({ data, onUpdate }) {
         if (e) e.preventDefault();
         setIsLoading(true);
         try {
-            await api.put('/wealth/liabilities', { amount: parseFloat(liabilityInput) || 0 });
+            const res = await api.put('/wealth/liabilities', { amount: parseFloat(liabilityInput) || 0 });
             setIsEditing(false);
-            if (onUpdate) onUpdate();
+            if (setWealthData && res.data) {
+                setWealthData(prev => ({
+                    ...prev,
+                    ...res.data
+                }));
+            }
         } catch (error) {
             console.error("Failed to update liabilities", error);
         } finally {
