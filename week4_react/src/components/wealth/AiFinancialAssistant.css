@@ -320,11 +320,30 @@
     color: #991B1B;
 }
 
+.chat-msg-line {
+    margin: 0 0 6px 0;
+    line-height: 1.5;
+}
+.chat-msg-line:last-child {
+    margin-bottom: 0;
+}
+
 .bubble-text p {
     margin: 0 0 6px 0;
 }
 .bubble-text p:last-child {
     margin-bottom: 0;
+}
+
+.bubble-text strong {
+    font-weight: 700;
+    color: inherit;
+}
+
+.bubble-text em {
+    font-style: italic;
+    color: inherit;
+    opacity: 0.9;
 }
 
 .bubble-timestamp {

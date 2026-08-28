@@ -15,6 +15,33 @@ const QUICK_PROMPTS = [
     "Give me 3 actionable tips to increase my savings rate"
 ];
 
+const renderFormattedText = (text) => {
+    if (!text) return null;
+    const lines = text.split('\n');
+
+    return lines.map((line, lIdx) => {
+        if (!line.trim()) return <div key={lIdx} style={{ height: '6px' }} />;
+
+        const parts = line.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+
+        const renderedLine = parts.map((part, pIdx) => {
+            if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
+                return <strong key={pIdx}>{part.slice(2, -2)}</strong>;
+            }
+            if (part.startsWith('*') && part.endsWith('*') && part.length >= 2) {
+                return <em key={pIdx}>{part.slice(1, -1)}</em>;
+            }
+            return part;
+        });
+
+        return (
+            <p key={lIdx} className="chat-msg-line">
+                {renderedLine}
+            </p>
+        );
+    });
+};
+
 function AiFinancialAssistant() {
     const [messages, setMessages] = useState([
         {
@@ -25,7 +52,6 @@ function AiFinancialAssistant() {
     ]);
     const [inputPrompt, setInputPrompt] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [errorMsg, setErrorMsg] = useState(null);
     const chatEndRef = useRef(null);
 
     const scrollToBottom = () => {
@@ -36,43 +62,27 @@ function AiFinancialAssistant() {
         scrollToBottom();
     }, [messages, isLoading]);
 
-    const handleSendPrompt = async (promptToSend) => {
-        const text = (promptToSend || inputPrompt).strip?.() || (promptToSend || inputPrompt).trim();
-        if (!text || isLoading) return;
+    const handleSendPrompt = async (promptToSend = null) => {
+        const textToSubmit = promptToSend || inputPrompt;
+        if (!textToSubmit || !textToSubmit.trim() || isLoading) return;
 
-        setErrorMsg(null);
-        const userTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const userMsg = { sender: 'user', text: textToSubmit.trim(), timestamp: timeStr };
 
-        // Optimistically add user message
-        const newMsg = { sender: 'user', text, timestamp: userTime };
-        setMessages(prev => [...prev, newMsg]);
+        setMessages(prev => [...prev, userMsg]);
         if (!promptToSend) setInputPrompt('');
         setIsLoading(true);
 
         try {
-            const res = await api.post('/ai/chat', { prompt: text });
-            const aiReply = res.data.response;
-            const aiTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-            setMessages(prev => [
-                ...prev,
-                { sender: 'ai', text: aiReply, timestamp: aiTime }
-            ]);
-        } catch (err) {
-            console.error("AI Chat error:", err);
-            const detail = err.response?.data?.detail || "Failed to communicate with AI Assistant. Ensure your Gemini API key is configured.";
-            setErrorMsg(detail);
-            
-            // Add error bubble
-            setMessages(prev => [
-                ...prev,
-                { 
-                    sender: 'ai', 
-                    text: `⚠️ **Notice**: ${detail}`, 
-                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    isError: true 
-                }
-            ]);
+            const res = await api.post('/ai/chat', { prompt: textToSubmit.trim() });
+            const aiReply = res.data?.response || "Analyzed your financial context.";
+            const aiMsg = { sender: 'ai', text: aiReply, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+            setMessages(prev => [...prev, aiMsg]);
+        } catch (error) {
+            console.error("AI Assistant error:", error);
+            const errDetail = error.response?.data?.detail || "Could not reach AI Assistant. Please try again.";
+            const errMsg = { sender: 'ai', text: `⚠️ **Notice**: ${errDetail}`, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), isError: true };
+            setMessages(prev => [...prev, errMsg]);
         } finally {
             setIsLoading(false);
         }
@@ -87,26 +97,26 @@ function AiFinancialAssistant() {
 
     return (
         <motion.div 
-            className="ai-assistant-container"
+            className="ai-assistant-card"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
         >
-            <div className="ai-assistant-header">
-                <div className="ai-header-title-group">
-                    <div className="ai-robot-badge">🤖</div>
+            {/* Header */}
+            <div className="ai-card-header">
+                <div className="ai-header-left">
+                    <span className="ai-robot-icon">🤖</span>
                     <div>
-                        <h3 className="ai-assistant-title">AI Financial Coach & Analyst</h3>
-                        <p className="ai-assistant-subtitle">Powered by Google Gemini 1.5 & Live Database Context</p>
+                        <h2 className="ai-card-title">AI Financial Coach & Analyst</h2>
+                        <p className="ai-card-subtitle">Powered by Google Gemini 1.5 & Live Database Context</p>
                     </div>
                 </div>
-                <div className="ai-status-pill">
-                    <span className="online-dot" />
-                    <span>Gemini Connected</span>
+                <div className="ai-status-badge">
+                    <span className="status-dot"></span> Gemini Connected
                 </div>
             </div>
 
-            {/* Quick Prompt Suggestion Pills */}
+            {/* Quick Prompt Pills */}
             <div className="quick-prompts-row">
                 {QUICK_PROMPTS.map((promptText, idx) => (
                     <button 
@@ -131,9 +141,7 @@ function AiFinancialAssistant() {
                         {msg.sender === 'ai' && <div className="chat-avatar">🤖</div>}
                         <div className={`chat-bubble ${msg.sender === 'user' ? 'bubble-user' : 'bubble-ai'} ${msg.isError ? 'bubble-error' : ''}`}>
                             <div className="bubble-text">
-                                {msg.text.split('\n').map((line, i) => (
-                                    <p key={i}>{line}</p>
-                                ))}
+                                {renderFormattedText(msg.text)}
                             </div>
                             <span className="bubble-timestamp">{msg.timestamp}</span>
                         </div>
