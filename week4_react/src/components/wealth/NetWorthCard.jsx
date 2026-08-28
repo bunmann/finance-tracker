@@ -9,10 +9,11 @@ import api from '../../api';
 import { useFinance } from '../../contexts/FinanceContext';
 
 const formatCurrency = (value) => {
+    const num = Number(value);
     return new Intl.NumberFormat('en-CA', {
         style: 'currency',
         currency: 'CAD'
-    }).format(value);
+    }).format(isNaN(num) ? 0 : num);
 };
 
 function NetWorthCard({ data, onUpdate }) {
@@ -89,19 +90,19 @@ function NetWorthCard({ data, onUpdate }) {
                     <p className="net-worth-subtitle">All-Time Cumulative Assets & Liabilities</p>
                 </div>
             </div>
-            <h1 className="net-worth-value">{formatCurrency(activeData.net_worth)}</h1>
+            <h1 className="net-worth-value">{formatCurrency(activeData?.net_worth)}</h1>
 
             <div className="net-worth-breakdown">
                 <div className="breakdown-item">
                     <span className="breakdown-label">Cash & Spending</span>
-                    <span className={`breakdown-value ${activeData.cash_balance >= 0 ? 'positive' : 'negative'}`}>
-                        {formatCurrency(activeData.cash_balance)}
+                    <span className={`breakdown-value ${(activeData?.cash_balance || 0) >= 0 ? 'positive' : 'negative'}`}>
+                        {formatCurrency(activeData?.cash_balance)}
                     </span>
                 </div>
                 <div className="breakdown-item">
                     <span className="breakdown-label">Stock Portfolio</span>
                     <span className="breakdown-value positive">
-                        {formatCurrency(activeData.stock_value)}
+                        {formatCurrency(activeData?.stock_value)}
                     </span>
                 </div>
                 <div className="breakdown-item">
@@ -147,7 +148,7 @@ function NetWorthCard({ data, onUpdate }) {
                         </form>
                     ) : (
                         <span className="breakdown-value negative">
-                            -{formatCurrency(activeData.liabilities)}
+                            -{formatCurrency(activeData?.liabilities)}
                         </span>
                     )}
                 </div>

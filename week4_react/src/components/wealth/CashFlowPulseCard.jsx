@@ -6,10 +6,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const formatCurrency = (value) => {
+    const num = Number(value);
     return new Intl.NumberFormat('en-CA', {
         style: 'currency',
         currency: 'CAD'
-    }).format(value);
+    }).format(isNaN(num) ? 0 : num);
 };
 
 function CashFlowPulseCard({ data, periodLabel }) {
