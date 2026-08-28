@@ -46,12 +46,10 @@ function NetWorthCard({ data, onUpdate }) {
         setIsLoading(true);
         try {
             const res = await api.put('/wealth/liabilities', { amount: parseFloat(liabilityInput) || 0 });
-            if (setWealthData && res.data) {
-                setWealthData(prev => ({
-                    ...(prev || {}),
-                    ...res.data
-                }));
+            if (res.data && setWealthData) {
+                setWealthData({ ...res.data });
             }
+            if (onUpdate) onUpdate();
         } catch (error) {
             console.error("Failed to update liabilities", error);
         } finally {
