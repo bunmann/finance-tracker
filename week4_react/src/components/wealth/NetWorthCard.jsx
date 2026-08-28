@@ -105,7 +105,7 @@ function NetWorthCard({ data, onUpdate }) {
                                     if (e.key === 'Escape') setIsEditing(false);
                                 }}
                                 disabled={isLoading}
-                                step="100"
+                                step="any"
                                 min="0"
                                 autoFocus
                             />
@@ -129,34 +129,42 @@ function NetWorthCard({ data, onUpdate }) {
                 </div>
             </div>
 
-            {/* Sparkline for last 12 snapshots */}
+            {/* Sparkline for 6-month historical net worth progression */}
             {data.history && data.history.length > 1 && (
-                <div className="sparkline-container">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={data.history} margin={{ top: 10, right: 10, left: 10, bottom: 5 }}>
-                            <defs>
-                                <linearGradient id="netWorthGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#006D32" stopOpacity={0.25}/>
-                                    <stop offset="95%" stopColor="#006D32" stopOpacity={0.0}/>
-                                </linearGradient>
-                            </defs>
-                            <YAxis domain={['dataMin - 50', 'dataMax + 50']} hide={true} />
-                            <Tooltip 
-                                formatter={(value) => [formatCurrency(value), 'Net Worth']}
-                                labelFormatter={(label) => `Date: ${label}`}
-                                contentStyle={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0', borderRadius: '8px', color: '#0F172A', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                            />
-                            <Area 
-                                type="monotone" 
-                                dataKey="net_worth" 
-                                stroke="#006D32" 
-                                strokeWidth={2.5} 
-                                fillOpacity={1}
-                                fill="url(#netWorthGradient)"
-                                isAnimationActive={true}
-                            />
-                        </AreaChart>
-                    </ResponsiveContainer>
+                <div className="sparkline-section">
+                    <div className="sparkline-header">
+                        <span className="sparkline-title">6-Month Net Worth Trajectory</span>
+                        <span className="sparkline-period">
+                            {data.history[0]?.date} &rarr; {data.history[data.history.length - 1]?.date}
+                        </span>
+                    </div>
+                    <div className="sparkline-container">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={data.history} margin={{ top: 10, right: 10, left: 10, bottom: 5 }}>
+                                <defs>
+                                    <linearGradient id="netWorthGradient" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#006D32" stopOpacity={0.25}/>
+                                        <stop offset="95%" stopColor="#006D32" stopOpacity={0.0}/>
+                                    </linearGradient>
+                                </defs>
+                                <YAxis domain={['dataMin - 50', 'dataMax + 50']} hide={true} />
+                                <Tooltip 
+                                    formatter={(value) => [formatCurrency(value), 'Net Worth']}
+                                    labelFormatter={(label) => `Period: ${label}`}
+                                    contentStyle={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0', borderRadius: '8px', color: '#0F172A', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                                />
+                                <Area 
+                                    type="monotone" 
+                                    dataKey="net_worth" 
+                                    stroke="#006D32" 
+                                    strokeWidth={2.5} 
+                                    fillOpacity={1}
+                                    fill="url(#netWorthGradient)"
+                                    isAnimationActive={true}
+                                />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </div>
                 </div>
             )}
         </motion.div>

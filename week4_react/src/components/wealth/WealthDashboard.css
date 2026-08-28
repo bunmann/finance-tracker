@@ -147,6 +147,16 @@
     outline: none;
 }
 
+.liabilities-input::-webkit-outer-spin-button,
+.liabilities-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.liabilities-input[type=number] {
+  -moz-appearance: textfield;
+}
+
 .liabilities-input:focus {
     border-color: #006D32;
     background: #FFFFFF;
