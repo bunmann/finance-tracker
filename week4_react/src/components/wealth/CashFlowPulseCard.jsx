@@ -15,6 +15,12 @@ const formatCurrency = (value) => {
 function CashFlowPulseCard({ data, periodLabel }) {
     if (!data) return (
         <div className="pulse-card loading-card">
+            <div className="pulse-header">
+                <div>
+                    <h2 className="pulse-title">Savings Rate</h2>
+                    <p className="pulse-subtitle">{periodLabel || 'All Time'}</p>
+                </div>
+            </div>
             <div className="spinner-container" style={{ minHeight: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div className="spinner"></div>
             </div>

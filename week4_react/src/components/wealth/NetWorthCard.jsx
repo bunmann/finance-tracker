@@ -21,6 +21,7 @@ function NetWorthCard({ data, onUpdate }) {
 
     if (!data) return (
         <div className="net-worth-card loading-card">
+            <h2 className="net-worth-title">Total Net Worth</h2>
             <div className="spinner-container" style={{ minHeight: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div className="spinner"></div>
             </div>
