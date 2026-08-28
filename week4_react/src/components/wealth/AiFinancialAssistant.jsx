@@ -97,22 +97,22 @@ function AiFinancialAssistant() {
 
     return (
         <motion.div 
-            className="ai-assistant-card"
+            className="ai-assistant-container"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
         >
             {/* Header */}
-            <div className="ai-card-header">
-                <div className="ai-header-left">
-                    <span className="ai-robot-icon">🤖</span>
+            <div className="ai-assistant-header">
+                <div className="ai-header-title-group">
+                    <div className="ai-robot-badge">🤖</div>
                     <div>
-                        <h2 className="ai-card-title">AI Financial Coach & Analyst</h2>
-                        <p className="ai-card-subtitle">Powered by Google Gemini 1.5 & Live Database Context</p>
+                        <h3 className="ai-assistant-title">AI Financial Coach & Analyst</h3>
+                        <p className="ai-assistant-subtitle">Powered by Google Gemini 1.5 & Live Database Context</p>
                     </div>
                 </div>
-                <div className="ai-status-badge">
-                    <span className="status-dot"></span> Gemini Connected
+                <div className="ai-status-pill">
+                    <span className="online-dot"></span> Gemini Connected
                 </div>
             </div>
 
