@@ -33,7 +33,13 @@ function NetWorthCard({ data, onUpdate }) {
         </div>
     );
 
-    const handleSave = async () => {
+    const handleStartEdit = () => {
+        setLiabilityInput(data?.liabilities !== undefined ? data.liabilities : 0);
+        setIsEditing(true);
+    };
+
+    const handleSave = async (e) => {
+        if (e) e.preventDefault();
         setIsLoading(true);
         try {
             await api.put('/wealth/liabilities', { amount: parseFloat(liabilityInput) || 0 });
@@ -41,7 +47,6 @@ function NetWorthCard({ data, onUpdate }) {
             if (onUpdate) onUpdate();
         } catch (error) {
             console.error("Failed to update liabilities", error);
-            // Optionally add toast error here
         } finally {
             setIsLoading(false);
         }
@@ -79,24 +84,43 @@ function NetWorthCard({ data, onUpdate }) {
                     <span className="breakdown-label">
                         Liabilities 
                         {!isEditing && (
-                            <button className="edit-liabilities-btn" onClick={() => setIsEditing(true)}>
+                            <button 
+                                type="button" 
+                                className="edit-liabilities-btn" 
+                                onClick={handleStartEdit}
+                                title="Edit Liabilities Amount"
+                            >
                                 ✎
                             </button>
                         )}
                     </span>
                     {isEditing ? (
-                        <div className="liabilities-input-container">
+                        <form className="liabilities-input-container" onSubmit={handleSave}>
                             <input 
                                 type="number" 
                                 className="liabilities-input"
                                 value={liabilityInput}
                                 onChange={(e) => setLiabilityInput(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Escape') setIsEditing(false);
+                                }}
                                 disabled={isLoading}
                                 step="100"
                                 min="0"
+                                autoFocus
                             />
-                            <button className="save-btn" onClick={handleSave} disabled={isLoading}>Save</button>
-                        </div>
+                            <button type="submit" className="save-btn" disabled={isLoading}>
+                                {isLoading ? '...' : 'Save'}
+                            </button>
+                            <button 
+                                type="button" 
+                                className="cancel-btn" 
+                                onClick={() => setIsEditing(false)}
+                                disabled={isLoading}
+                            >
+                                ✕
+                            </button>
+                        </form>
                     ) : (
                         <span className="breakdown-value negative">
                             -{formatCurrency(data.liabilities)}

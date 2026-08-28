@@ -131,30 +131,59 @@
 .liabilities-input-container {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    margin-top: 4px;
 }
 
 .liabilities-input {
     background: #F8FAFC;
     border: 1px solid #CBD5E1;
-    border-radius: 4px;
+    border-radius: 6px;
     color: #0F172A;
     font-family: 'JetBrains Mono', monospace;
-    padding: 4px 8px;
-    width: 100px;
+    padding: 6px 10px;
+    width: 110px;
     font-size: 14px;
+    outline: none;
+}
+
+.liabilities-input:focus {
+    border-color: #006D32;
+    background: #FFFFFF;
 }
 
 .save-btn {
     background: #006D32;
     color: #FFFFFF;
     border: none;
-    border-radius: 4px;
-    padding: 4px 8px;
+    border-radius: 6px;
+    padding: 6px 12px;
     cursor: pointer;
     font-family: 'Inter', sans-serif;
     font-weight: 600;
-    font-size: 12px;
+    font-size: 13px;
+    transition: background-color 0.2s ease;
+}
+
+.save-btn:hover:not(:disabled) {
+    background: #005324;
+}
+
+.cancel-btn {
+    background: #F1F5F9;
+    color: #64748B;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.cancel-btn:hover {
+    background: #E2E8F0;
+    color: #0F172A;
 }
 
 .sparkline-container {
