@@ -130,6 +130,5 @@ function NetWorthCard({ data, onUpdate }) {
         </motion.div>
     );
 }
-}
 
 export default NetWorthCard;
