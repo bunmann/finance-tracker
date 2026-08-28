@@ -48,14 +48,28 @@
     overflow: hidden;
 }
 
+.net-worth-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
 .net-worth-title {
     font-family: 'Inter', sans-serif;
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 600;
+    color: #0F172A;
+    margin: 0 0 4px 0;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.net-worth-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
     color: #64748B;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 8px;
+    margin: 0;
 }
 
 .net-worth-value {

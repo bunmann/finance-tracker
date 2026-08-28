@@ -33,6 +33,11 @@ function AppContent({
     const location = useLocation();
     const { fetchWealthData, fetchTransactionsData, fetchStocksData } = useFinance();
 
+    // Scroll to top of page on route/tab change
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [location.pathname]);
+
     // Automatic background pre-fetching: Load all domain data on login/mount
     useEffect(() => {
         if (isLoggedIn) {

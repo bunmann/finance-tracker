@@ -21,7 +21,12 @@ function NetWorthCard({ data, onUpdate }) {
 
     if (!data) return (
         <div className="net-worth-card loading-card">
-            <h2 className="net-worth-title">Total Net Worth</h2>
+            <div className="net-worth-header">
+                <div>
+                    <h2 className="net-worth-title">Total Net Worth</h2>
+                    <p className="net-worth-subtitle">All-Time Cumulative Assets & Liabilities</p>
+                </div>
+            </div>
             <div className="spinner-container" style={{ minHeight: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div className="spinner"></div>
             </div>
@@ -49,7 +54,12 @@ function NetWorthCard({ data, onUpdate }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
         >
-            <h2 className="net-worth-title">Total Net Worth</h2>
+            <div className="net-worth-header">
+                <div>
+                    <h2 className="net-worth-title">Total Net Worth</h2>
+                    <p className="net-worth-subtitle">All-Time Cumulative Assets & Liabilities</p>
+                </div>
+            </div>
             <h1 className="net-worth-value">{formatCurrency(data.net_worth)}</h1>
 
             <div className="net-worth-breakdown">
