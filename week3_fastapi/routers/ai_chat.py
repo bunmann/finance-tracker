@@ -125,6 +125,31 @@ USER FINANCIAL DATA CONTEXT:
 """
     return context
 
+def generate_smart_db_insight(prompt: str, fin_context: str) -> str:
+    prompt_lower = prompt.lower()
+    
+    if "spend" in prompt_lower or "expense" in prompt_lower or "category" in prompt_lower or "most money" in prompt_lower:
+        categories = fin_context.split("Top Expense Categories: ")[1].split("\n")[0] if "Top Expense Categories: " in fin_context else "No logged expenses"
+        return f"Based on your live transaction records, your top spending breakdown is:\n\n• **{categories}**\n\n*Tip: Keep track of these categories in your Budgets tab to control discretionary spending.*"
+    
+    if "stock" in prompt_lower or "portfolio" in prompt_lower or "holding" in prompt_lower:
+        holdings = fin_context.split("Stock Holdings: ")[1].split("\n")[0] if "Stock Holdings: " in fin_context else "No holdings"
+        val = fin_context.split("Stock Portfolio Value: CAD $")[1].split("\n")[0] if "Stock Portfolio Value: CAD $" in fin_context else "0.00"
+        return f"Your stock portfolio is currently valued at **CAD ${val}**.\n\n• **Active Holdings**: {holdings}"
+    
+    if "net worth" in prompt_lower or "overall health" in prompt_lower or "summarize" in prompt_lower:
+        nw = fin_context.split("Total Net Worth: CAD $")[1].split("\n")[0] if "Total Net Worth: CAD $" in fin_context else "0.00"
+        cash = fin_context.split("Cash Balance: CAD $")[1].split("\n")[0] if "Cash Balance: CAD $" in fin_context else "0.00"
+        liab = fin_context.split("Liabilities/Debts: CAD $")[1].split("\n")[0] if "Liabilities/Debts: CAD $" in fin_context else "0.00"
+        return f"Here is your real-time financial breakdown:\n\n• **Total Net Worth**: CAD ${nw}\n• **Cash & Savings**: CAD ${cash}\n• **Liabilities/Debts**: CAD ${liab}"
+    
+    if "tip" in prompt_lower or "increase" in prompt_lower or "savings rate" in prompt_lower or "save" in prompt_lower:
+        sr = fin_context.split("Savings Rate: ")[1].split("%")[0] if "Savings Rate: " in fin_context else "0.0"
+        return f"Your current savings rate is **{sr}%**. Here are 3 actionable tips to increase it:\n\n1. **Audit Monthly Subscriptions**: Cancel recurring expenses you no longer use.\n2. **Automate Payday Savings**: Direct 15-20% of your income into savings immediately.\n3. **Enforce Category Budgets**: Set alerts in your Budgets tab when approaching monthly spending caps."
+    
+    nw = fin_context.split("Total Net Worth: CAD $")[1].split("\n")[0] if "Total Net Worth: CAD $" in fin_context else "0.00"
+    return f"Here is your financial snapshot:\n\n• **Net Worth**: CAD ${nw}\n\n*Note: To enable live conversational AI, obtain a free API key at [aistudio.google.com](https://aistudio.google.com) (starting with `AIzaSy...`) and add it to `week3_fastapi/.env`.*"
+
 # ----------------------------------------------------------------------------
 # Endpoint: POST /ai/chat
 # ----------------------------------------------------------------------------
@@ -137,7 +162,6 @@ def chat_with_ai(
     # 1. Rate Limit Guard (Max 5 requests per minute)
     check_rate_limit(current_user.id)
     
-    # Calculate rate limit remaining
     now = time.time()
     history = [t for t in USER_CHAT_TIMESTAMPS.get(current_user.id, []) if now - t < RATE_LIMIT_WINDOW_SECONDS]
     remaining = max(0, MAX_REQUESTS_PER_WINDOW - len(history))
@@ -148,27 +172,21 @@ def chat_with_ai(
 
     # 2. Build User Financial Context
     fin_context = build_user_financial_context(db, current_user)
+    api_key = os.getenv("GEMINI_API_KEY", "").strip()
 
-    api_key = os.getenv("GEMINI_API_KEY")
+    # Check if key is empty or clearly invalid placeholder
+    if not api_key or not api_key.startswith("AIzaSy"):
+        fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
+        return {"response": fallback_reply, "rate_limit_remaining": remaining}
 
-    if not api_key or api_key.startswith("AQ.") == False and len(api_key) < 10:
-        # Fallback smart insight if key missing
-        fallback_text = (
-            f"Based on your current numbers: Your total Net Worth is **CAD ${fin_context.split('Total Net Worth: CAD $')[1].split('\\n')[0]}**. "
-            f"Your savings rate is **{fin_context.split('Savings Rate: ')[1].split('%')[0]}%**. "
-            "To unlock full conversational AI analysis, ensure your Google Gemini API key is valid in `.env`."
-        )
-        return {"response": fallback_text, "rate_limit_remaining": remaining}
+    # 3. Try Google Gemini API Models (Primary: gemini-2.0-flash, Fallbacks)
+    models_to_try = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-flash-latest"]
 
-    # 3. Call Google Gemini 1.5 Flash API
-    gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
-    
     system_instruction = (
         "You are an expert, friendly AI Personal Financial Assistant for Veridian Finance. "
         "Use the provided user financial data context to answer the user's question concisely, accurately, and encouragingly. "
         "Use bullet points or bold formatting for readability. Keep your response under 150 words."
     )
-
     full_prompt = f"{system_instruction}\n\n{fin_context}\n\nUSER QUESTION: {user_prompt}"
 
     req_payload = {
@@ -177,31 +195,32 @@ def chat_with_ai(
         }]
     }
 
-    try:
-        req = urllib.request.Request(
-            gemini_url,
-            data=json.dumps(req_payload).encode("utf-8"),
-            headers={"Content-Type": "application/json"}
-        )
-        with urllib.request.urlopen(req, timeout=12) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            
-            # Extract candidate text
-            candidates = data.get("candidates", [])
-            if candidates:
-                parts = candidates[0].get("content", {}).get("parts", [])
-                if parts:
-                    ai_reply = parts[0].get("text", "I analyzed your financial data, but couldn't generate a response.")
-                    return {"response": ai_reply, "rate_limit_remaining": remaining}
-            
-            return {"response": "Analyzed your financial context. How else can I assist with your budget or investments?", "rate_limit_remaining": remaining}
+    for model_name in models_to_try:
+        gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+        try:
+            req = urllib.request.Request(
+                gemini_url,
+                data=json.dumps(req_payload).encode("utf-8"),
+                headers={"Content-Type": "application/json"}
+            )
+            with urllib.request.urlopen(req, timeout=8) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                candidates = data.get("candidates", [])
+                if candidates:
+                    parts = candidates[0].get("content", {}).get("parts", [])
+                    if parts:
+                        ai_reply = parts[0].get("text", "")
+                        if ai_reply:
+                            return {"response": ai_reply, "rate_limit_remaining": remaining}
+        except urllib.error.HTTPError as e:
+            if e.code == 429:
+                raise HTTPException(status_code=429, detail="Google Gemini API rate limit reached. Please wait a moment.")
+            print(f"Gemini API model {model_name} HTTP Error {e.code}")
+            continue
+        except Exception as err:
+            print(f"Gemini API model {model_name} Error:", err)
+            continue
 
-    except urllib.error.HTTPError as e:
-        err_body = e.read().decode("utf-8")
-        print(f"Gemini API HTTP Error {e.code}: {err_body}")
-        if e.code == 429:
-            raise HTTPException(status_code=429, detail="Google Gemini API rate limit reached. Please wait a moment before asking again.")
-        raise HTTPException(status_code=500, detail=f"Gemini API returned error code {e.code}.")
-    except Exception as err:
-        print("Error calling Gemini API:", err)
-        raise HTTPException(status_code=500, detail="Failed to connect to Google Gemini AI service.")
+    # Fallback to Smart DB Insight if API call failed
+    fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
+    return {"response": fallback_reply, "rate_limit_remaining": remaining}
