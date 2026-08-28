@@ -95,29 +95,34 @@ function DashboardContent({
                 />
             ) : (
                 <>
-                    {/* Summary Cards */}
-                    <motion.div
-                        className="summary-cards"
-                        variants={staggerContainer}
-                        initial="initial"
-                        animate="animate"
-                    >
-                        <MetricCard
-                            title={`Monthly Income (${CURRENCY})`}
-                            value={dashboardData.total_income || 0}
-                            className="income"
-                        />
-                        <MetricCard
-                            title={`Monthly Expenses (${CURRENCY})`}
-                            value={dashboardData.total_expense || 0}
-                            className="expense"
-                        />
-                        <MetricCard
-                            title={`Net Savings (${CURRENCY})`}
-                            value={dashboardData.net_savings || 0}
-                            className={getPnlClass(dashboardData.net_savings)}
-                        />
-                    </motion.div>
+                    {/* Dynamic Period Label Helper */}
+                    {(() => {
+                        const periodPrefix = periodMode === 'all' ? 'Total' : (periodMode === 'year' ? 'Annual' : 'Monthly');
+                        return (
+                            <motion.div
+                                className="summary-cards"
+                                variants={staggerContainer}
+                                initial="initial"
+                                animate="animate"
+                            >
+                                <MetricCard
+                                    title={`${periodPrefix} Income (${CURRENCY})`}
+                                    value={dashboardData.total_income || 0}
+                                    className="income"
+                                />
+                                <MetricCard
+                                    title={`${periodPrefix} Expenses (${CURRENCY})`}
+                                    value={dashboardData.total_expense || 0}
+                                    className="expense"
+                                />
+                                <MetricCard
+                                    title={`Net Savings (${CURRENCY})`}
+                                    value={dashboardData.net_savings || 0}
+                                    className={getPnlClass(dashboardData.net_savings)}
+                                />
+                            </motion.div>
+                        );
+                    })()}
 
                     {/* Budget Alerts */}
                     {activeAlerts.length > 0 && (
@@ -167,7 +172,7 @@ function DashboardContent({
                             <EmptyState
                                 icon="pie_chart"
                                 title="No Expense Data Found"
-                                message="There are no categorized expenses logged for this month."
+                                message="There are no categorized expenses logged for this selected period."
                             />
                         )}
                     </div>
