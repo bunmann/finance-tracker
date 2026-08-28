@@ -19,7 +19,13 @@ function NetWorthCard({ data, onUpdate }) {
     const [liabilityInput, setLiabilityInput] = useState(data?.liabilities || 0);
     const [isLoading, setIsLoading] = useState(false);
 
-    if (!data) return <div className="net-worth-card skeleton">Loading...</div>;
+    if (!data) return (
+        <div className="net-worth-card loading-card">
+            <div className="spinner-container" style={{ minHeight: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div className="spinner"></div>
+            </div>
+        </div>
+    );
 
     const handleSave = async () => {
         setIsLoading(true);

@@ -15,7 +15,7 @@ const formatCurrency = (val) => {
     }).format(val || 0);
 };
 
-function WealthSummaryWidgets({ portfolio, dashboardData, periodLabel }) {
+function WealthSummaryWidgets({ portfolio, isStocksLoading = false, dashboardData, periodLabel }) {
     const holdings = portfolio?.holdings || [];
     const topHoldings = [...holdings].sort((a, b) => (b.market_value || 0) - (a.market_value || 0)).slice(0, 3);
 
@@ -48,35 +48,43 @@ function WealthSummaryWidgets({ portfolio, dashboardData, periodLabel }) {
                     </Link>
                 </div>
 
-                <div className="portfolio-kpi-row">
-                    <div className="kpi-mini-box">
-                        <span className="kpi-label">Market Value</span>
-                        <span className="kpi-val">{formatCurrency(totalVal)}</span>
+                {isStocksLoading && !portfolio ? (
+                    <div className="spinner-container" style={{ minHeight: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div className="spinner"></div>
                     </div>
-                    <div className="kpi-mini-box">
-                        <span className="kpi-label">Cost Basis</span>
-                        <span className="kpi-val">{formatCurrency(totalCost)}</span>
-                    </div>
-                    <div className="kpi-mini-box">
-                        <span className="kpi-label">Unrealized P&L</span>
-                        <span className={`kpi-val ${isGainPositive ? 'positive' : 'negative'}`}>
-                            {isGainPositive ? '+' : ''}{formatCurrency(totalGain)}
-                        </span>
-                    </div>
-                </div>
-
-                <div className="widget-list-section">
-                    <h4 className="widget-section-subhead">Top Stock Holdings</h4>
-                    {topHoldings.length === 0 ? (
-                        <p className="widget-empty-text">No active stock holdings found. Upload a brokerage CSV or log trades in Stocks.</p>
-                    ) : (
-                        <div className="mini-holdings-list">
-                            {topHoldings.map((h) => (
-                                <HoldingMiniCard key={h.ticker} holding={h} />
-                            ))}
+                ) : (
+                    <>
+                        <div className="portfolio-kpi-row">
+                            <div className="kpi-mini-box">
+                                <span className="kpi-label">Market Value</span>
+                                <span className="kpi-val">{formatCurrency(totalVal)}</span>
+                            </div>
+                            <div className="kpi-mini-box">
+                                <span className="kpi-label">Cost Basis</span>
+                                <span className="kpi-val">{formatCurrency(totalCost)}</span>
+                            </div>
+                            <div className="kpi-mini-box">
+                                <span className="kpi-label">Unrealized P&L</span>
+                                <span className={`kpi-val ${isGainPositive ? 'positive' : 'negative'}`}>
+                                    {isGainPositive ? '+' : ''}{formatCurrency(totalGain)}
+                                </span>
+                            </div>
                         </div>
-                    )}
-                </div>
+
+                        <div className="widget-list-section">
+                            <h4 className="widget-section-subhead">Top Stock Holdings</h4>
+                            {topHoldings.length === 0 ? (
+                                <p className="widget-empty-text">No active stock holdings found. Upload a brokerage CSV or log trades in Stocks.</p>
+                            ) : (
+                                <div className="mini-holdings-list">
+                                    {topHoldings.map((h) => (
+                                        <HoldingMiniCard key={h.ticker} holding={h} />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* Widget 2: Expenses & Category Allocation (Date Filtered) */}
@@ -91,49 +99,57 @@ function WealthSummaryWidgets({ portfolio, dashboardData, periodLabel }) {
                     </Link>
                 </div>
 
-                <div className="portfolio-kpi-row">
-                    <div className="kpi-mini-box">
-                        <span className="kpi-label">Total Expenses</span>
-                        <span className="kpi-val negative">{formatCurrency(totalExpense)}</span>
+                {!dashboardData ? (
+                    <div className="spinner-container" style={{ minHeight: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div className="spinner"></div>
                     </div>
-                    <div className="kpi-mini-box">
-                        <span className="kpi-label">Total Income</span>
-                        <span className="kpi-val positive">{formatCurrency(totalIncome)}</span>
-                    </div>
-                    <div className="kpi-mini-box">
-                        <span className="kpi-label">Net Savings</span>
-                        <span className={`kpi-val ${netSavings >= 0 ? 'positive' : 'negative'}`}>
-                            {netSavings >= 0 ? '+' : ''}{formatCurrency(netSavings)}
-                        </span>
-                    </div>
-                </div>
-
-                <div className="widget-list-section">
-                    <h4 className="widget-section-subhead">Top Spending Categories</h4>
-                    {topCategories.length === 0 ? (
-                        <p className="widget-empty-text">No expense transactions logged for this selected period.</p>
-                    ) : (
-                        <div className="category-bars-list">
-                            {topCategories.map((cat) => {
-                                const pct = totalExpense > 0 ? Math.min(100, Math.round((cat.amount / totalExpense) * 100)) : 0;
-                                return (
-                                    <div key={cat.category_name} className="category-bar-row">
-                                        <div className="category-bar-info">
-                                            <span className="cat-name">{cat.category_name}</span>
-                                            <span className="cat-amt">{formatCurrency(cat.amount)} ({pct}%)</span>
-                                        </div>
-                                        <div className="category-progress-track">
-                                            <div 
-                                                className="category-progress-fill" 
-                                                style={{ width: `${pct}%` }}
-                                            />
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                ) : (
+                    <>
+                        <div className="portfolio-kpi-row">
+                            <div className="kpi-mini-box">
+                                <span className="kpi-label">Total Expenses</span>
+                                <span className="kpi-val negative">{formatCurrency(totalExpense)}</span>
+                            </div>
+                            <div className="kpi-mini-box">
+                                <span className="kpi-label">Total Income</span>
+                                <span className="kpi-val positive">{formatCurrency(totalIncome)}</span>
+                            </div>
+                            <div className="kpi-mini-box">
+                                <span className="kpi-label">Net Savings</span>
+                                <span className={`kpi-val ${netSavings >= 0 ? 'positive' : 'negative'}`}>
+                                    {netSavings >= 0 ? '+' : ''}{formatCurrency(netSavings)}
+                                </span>
+                            </div>
                         </div>
-                    )}
-                </div>
+
+                        <div className="widget-list-section">
+                            <h4 className="widget-section-subhead">Top Spending Categories</h4>
+                            {topCategories.length === 0 ? (
+                                <p className="widget-empty-text">No expense transactions logged for this selected period.</p>
+                            ) : (
+                                <div className="category-bars-list">
+                                    {topCategories.map((cat) => {
+                                        const pct = totalExpense > 0 ? Math.min(100, Math.round((cat.amount / totalExpense) * 100)) : 0;
+                                        return (
+                                            <div key={cat.category_name} className="category-bar-row">
+                                                <div className="category-bar-info">
+                                                    <span className="cat-name">{cat.category_name}</span>
+                                                    <span className="cat-amt">{formatCurrency(cat.amount)} ({pct}%)</span>
+                                                </div>
+                                                <div className="category-progress-track">
+                                                    <div 
+                                                        className="category-progress-fill" 
+                                                        style={{ width: `${pct}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );

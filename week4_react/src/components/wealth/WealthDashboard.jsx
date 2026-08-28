@@ -15,7 +15,7 @@ import WealthSummaryWidgets from './WealthSummaryWidgets';
 import AiFinancialAssistant from './AiFinancialAssistant';
 
 function WealthDashboard() {
-    const { wealthData, healthData, portfolioData, fetchWealthData, fetchStocksData } = useFinance();
+    const { wealthData, healthData, portfolioData, isStocksLoading, fetchWealthData, fetchStocksData } = useFinance();
     const [periodMode, setPeriodMode] = useState('all'); // 'all' | 'year' | 'month'
     const [selectedPeriod, setSelectedPeriod] = useState({ month: 0, year: 0, label: 'All Time' });
     const [dashboardData, setDashboardData] = useState(null);
@@ -97,6 +97,7 @@ function WealthDashboard() {
             {/* Row 2: Stock Portfolio Performance & Date-Filtered Expense Breakdown */}
             <WealthSummaryWidgets 
                 portfolio={portfolioData}
+                isStocksLoading={isStocksLoading}
                 dashboardData={dashboardData}
                 periodLabel={selectedPeriod.label}
             />

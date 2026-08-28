@@ -13,7 +13,13 @@ const formatCurrency = (value) => {
 };
 
 function CashFlowPulseCard({ data, periodLabel }) {
-    if (!data) return <div className="pulse-card skeleton">Loading...</div>;
+    if (!data) return (
+        <div className="pulse-card loading-card">
+            <div className="spinner-container" style={{ minHeight: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div className="spinner"></div>
+            </div>
+        </div>
+    );
 
     const {
         total_income,
