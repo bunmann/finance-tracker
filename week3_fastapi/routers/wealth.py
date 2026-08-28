@@ -140,6 +140,10 @@ def get_wealth_health(
         _, last_day = calendar.monthrange(year, month)
         end_date = date(year, month, last_day)
         query = query.filter(models.Transaction.date >= start_date, models.Transaction.date <= end_date)
+    elif year > 0:
+        start_date = date(year, 1, 1)
+        end_date = date(year, 12, 31)
+        query = query.filter(models.Transaction.date >= start_date, models.Transaction.date <= end_date)
 
     txs = query.all()
 

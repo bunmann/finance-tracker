@@ -54,13 +54,18 @@ export const FinanceProvider = ({ children }) => {
         transactionsDataRef.current = { transactionsData, categoriesData };
     }, [transactionsData, categoriesData]);
 
+    const lastWealthPeriodRef = useRef({ month: -1, year: -1 });
+
     // Fetch Wealth Data (STABLE REFS, PROMISE.ALLSETTLED)
     const fetchWealthData = useCallback(async (month = 0, year = 0, force = false) => {
         const { wealthData: currentNw, healthData: currentH } = wealthDataRef.current;
-        if (!force && currentNw && currentH) return;
+        const periodChanged = lastWealthPeriodRef.current.month !== month || lastWealthPeriodRef.current.year !== year;
+
+        if (!force && !periodChanged && currentNw && currentH) return;
         if (isFetchingWealthRef.current) return;
 
         isFetchingWealthRef.current = true;
+        lastWealthPeriodRef.current = { month, year };
         setIsWealthLoading(true);
 
         try {
