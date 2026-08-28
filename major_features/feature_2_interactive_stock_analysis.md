@@ -22,8 +22,8 @@ This module transforms static stock listings into interactive, drill-down equity
 - [x] Display core financial ratios grid (PE Ratio, Profit Margin, Debt/Equity, 52-Week High/Low).
 
 ### 💼 Task 4: Aggregated Portfolio Performance Chart
-- [ ] Create endpoint aggregating historical price trajectories across all active shares held in the user's `Holding` table.
-- [ ] Render an overall portfolio valuation curve over time strictly on the **Portfolio Page** (`StockPortfolio.jsx`).
+- [x] Create endpoint aggregating historical price trajectories across all active shares held in the user's `Holding` table.
+- [x] Render an overall portfolio valuation curve over time strictly on the **Portfolio Page** (`StockPortfolio.jsx`).
 
 ---
 

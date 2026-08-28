@@ -65,13 +65,12 @@ function Navbar({ isLoggedIn, onLogout }) {
                     </div>
                 </div>
 
-                {/* Part 3: Financial Statements */}
+                {/* Part 3: Wealth & Health */}
                 <div className="sidebar-section">
-                    <div className="sidebar-link-disabled" title="Coming Soon: Balance Sheet & Net Worth Bridge">
+                    <NavLink to="/wealth" end className={({ isActive }) => `sidebar-link-primary ${isActive ? 'active' : ''}`}>
                         <span className="material-symbols-outlined">account_balance</span>
-                        <span>Financial Statements</span>
-                        <span className="badge-soon">Soon</span>
-                    </div>
+                        <span>Wealth & Health</span>
+                    </NavLink>
                 </div>
             </nav>
             <div className="sidebar-footer">

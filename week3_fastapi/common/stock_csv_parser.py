@@ -88,13 +88,19 @@ def parse_brokerage_csv(file_stream: StringIO) -> list[dict]:
             except Exception:
                 continue
 
+        # 7. Currency & Security Name Metadata (critical for Canadian CDR/exchange normalization)
+        currency_raw = row_lower.get("currency") or row_lower.get("currency_code") or row_lower.get("settlement_currency") or row_lower.get("account_currency") or ""
+        name_raw = row_lower.get("name") or row_lower.get("description") or row_lower.get("security") or row_lower.get("security_name") or ""
+
         parsed_transactions.append({
             "date": parsed_dt,
             "ticker": ticker,
             "type": tx_type,
             "shares": shares,
             "price": price,
-            "total": total
+            "total": total,
+            "currency": currency_raw.upper().strip() if currency_raw else "",
+            "name": name_raw.strip()
         })
 
     return parsed_transactions

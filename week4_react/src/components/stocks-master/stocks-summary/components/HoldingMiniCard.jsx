@@ -15,12 +15,20 @@ import { getPnlClass } from '../../../../utils/helpers';
 function HoldingMiniCard({ holding, onOpenModal }) {
     if (!holding) return null;
 
-    const pnl = holding.unrealized_gain !== null && holding.unrealized_gain !== undefined
+    const rawPnl = holding.unrealized_gain !== null && holding.unrealized_gain !== undefined
         ? holding.unrealized_gain
         : (holding.market_value || 0) - (holding.cost_basis || 0);
+
+    const pnl = Number(rawPnl) || 0;
     const pnlClass = getPnlClass(pnl);
     const hasPrice = holding.current_price !== null && holding.current_price !== undefined;
-    const fmt = (num, decimals = 2) => parseFloat((num || 0).toFixed(decimals)).toString();
+    const currentPriceNum = Number(holding.current_price) || 0;
+    const gainPctNum = Number(holding.gain_percent) || 0;
+
+    const fmt = (num, decimals = 2) => {
+        const val = Number(num) || 0;
+        return val.toFixed(decimals);
+    };
 
     return (
         <div className="top-holding-row">
@@ -37,24 +45,24 @@ function HoldingMiniCard({ holding, onOpenModal }) {
                         </button>
                         {hasPrice && (
                             <span className={`top-holding-price-badge ${holding.is_stale ? 'stale' : ''}`}>
-                                ${holding.current_price.toFixed(2)} / sh
+                                ${currentPriceNum.toFixed(2)} / sh
                                 {holding.is_stale && <span className="material-symbols-outlined top-holding-stale-icon">history</span>}
                             </span>
                         )}
                     </div>
                     <div className="top-holding-details-sub">
-                        {fmt(holding.shares || 0, 4)} shares &middot; Cost ${(holding.cost_basis || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {fmt(holding.shares || 0, 4)} shares &middot; Cost ${(Number(holding.cost_basis) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                 </div>
             </div>
             <div className="top-holding-right">
                 <div className="top-holding-val">
-                    ${(holding.market_value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    ${(Number(holding.market_value) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
                 <div className={`${pnlClass} top-holding-pnl-row`}>
                     <span>{pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}</span>
                     {holding.gain_percent !== null && holding.gain_percent !== undefined && (
-                        <span>({holding.gain_percent >= 0 ? '+' : ''}{holding.gain_percent.toFixed(2)}%)</span>
+                        <span>({gainPctNum >= 0 ? '+' : ''}{gainPctNum.toFixed(2)}%)</span>
                     )}
                 </div>
             </div>

@@ -389,7 +389,7 @@ def get_stock_history(
     ticker: str,
     period: str,
     interval: str,
-    db: Session
+    db: Session 
 ) -> tuple[list[dict] | None, dict, bool]:
     """
     Retrieves historical stock data and metadata with 15-minute SQLite ChartCache integration.
@@ -533,10 +533,10 @@ def get_multiple_stocks_history(
 # ============================================================================
 
 
-def _get_cad_price(raw_price: float | None, currency: str, db: Session) -> float | None:
+def _get_cad_price(raw_price: float | None, currency: str, db: Session, ticker: str | None = None) -> float | None:
     """
     Converts a stock price to CAD if needed, based on the STORED currency of the holding.
-    Uses the cache-aside live USDCAD exchange rate.
+    Uses the cache-aside live USDCAD exchange rate. Guaranteed never to double-convert CAD stocks.
     """
     if raw_price is None or raw_price is False:
         return raw_price
@@ -545,8 +545,17 @@ def _get_cad_price(raw_price: float | None, currency: str, db: Session) -> float
     if target_currency != "CAD":
         return raw_price
 
-    if currency.upper() == "CAD":
-        return raw_price
+    # 1. Immediate Canadian Exchange Suffix Check:
+    # If the ticker ends with a Canadian exchange suffix (.TO, .NE, .V, .TRT),
+    # the raw_price from Yahoo Finance or spot quote is ALREADY 100% IN CAD.
+    # We must NEVER multiply by exchange rate even if currency was marked USD in DB/CSV.
+    if ticker:
+        t_upper = ticker.upper().strip()
+        canadian_suffixes = {".TO", ".NE", ".V", ".TRT"}
+        if any(t_upper.endswith(s) for s in canadian_suffixes):
+            return float(raw_price)
+    elif currency and currency.upper() == "CAD":
+        return float(raw_price)
 
     try:
         rate, _, _ = get_stock_price("USDCAD=X", db)
@@ -557,6 +566,49 @@ def _get_cad_price(raw_price: float | None, currency: str, db: Session) -> float
 
     # Standard fallback rate (~1.37 CAD/USD) if the exchange rate fetch fails.
     return float(raw_price) * 1.37
+
+
+def calculate_exact_holding_cost(user_id: int, ticker: str, db: Session) -> Decimal:
+    """
+    Calculates the exact, unrounded cumulative out-of-pocket cost basis for a holding by
+    replaying its transaction history (buys/sells) cleanly without division rounding loss.
+    """
+    txs = db.query(models.StockTransaction).filter(
+        models.StockTransaction.user_id == user_id,
+        models.StockTransaction.ticker == ticker
+    ).order_by(models.StockTransaction.date.asc()).all()
+
+    if not txs:
+        # Fallback to Holding table if no transaction logs exist
+        holding = db.query(models.Holding).filter(
+            models.Holding.user_id == user_id,
+            models.Holding.ticker == ticker
+        ).first()
+        return Decimal(str(holding.avg_cost * holding.shares)) if holding else Decimal("0")
+
+    shares = Decimal("0")
+    cost_basis = Decimal("0")
+
+    for tx in txs:
+        tx_curr = tx.currency or "CAD"
+        converted_total = _get_cad_price(float(tx.total), tx_curr, db, ticker=tx.ticker)
+        tx_total_cad = Decimal(str(converted_total if converted_total is not None else tx.total))
+
+        if tx.type == "buy":
+            shares += tx.shares
+            cost_basis += tx_total_cad
+        elif tx.type == "sell":
+            if shares > 0:
+                avg_cost_per_share = cost_basis / shares
+                sold_cost = avg_cost_per_share * tx.shares
+                cost_basis = max(Decimal("0"), cost_basis - sold_cost)
+            shares = max(Decimal("0"), shares - tx.shares)
+        elif tx.type == "dividend":
+            if tx.shares > 0:
+                # DRIP stock dividend: adds shares without increasing out-of-pocket cash cost
+                shares += tx.shares
+
+    return cost_basis
 
 
 def calculate_portfolio_historical_curve(period: str, user_id: int, db: Session) -> dict:
@@ -622,9 +674,13 @@ def calculate_portfolio_historical_curve(period: str, user_id: int, db: Session)
         for tx in txs:
             if tx.date <= D:
                 t_sym = tx.ticker
+                tx_curr = tx.currency or "CAD"
+                converted_tx_total = _get_cad_price(float(tx.total), tx_curr, db, ticker=t_sym)
+                tx_total_cad = Decimal(str(converted_tx_total if converted_tx_total is not None else tx.total))
+
                 if tx.type == "buy":
                     shares_on_date[t_sym] += tx.shares
-                    cost_basis_on_date[t_sym] += tx.total
+                    cost_basis_on_date[t_sym] += tx_total_cad
                 elif tx.type == "sell":
                     old_shares = shares_on_date[t_sym]
                     if old_shares > 0:
@@ -634,12 +690,12 @@ def calculate_portfolio_historical_curve(period: str, user_id: int, db: Session)
                     shares_on_date[t_sym] = max(Decimal("0"), old_shares - tx.shares)
                 elif tx.type == "dividend":
                     if tx.shares > 0:
-                        # DRIP / Stock Dividend
+                        # DRIP / Stock Dividend (add shares and track cumulative dividends received, but do NOT increase out-of-pocket cost basis)
                         shares_on_date[t_sym] += tx.shares
-                        cost_basis_on_date[t_sym] += tx.total
+                        dividends_on_date[t_sym] += tx_total_cad
                     else:
                         # Pure Cash Dividend
-                        dividends_on_date[t_sym] += tx.total
+                        dividends_on_date[t_sym] += tx_total_cad
 
         daily_value = Decimal("0")
         daily_cost = Decimal("0")
@@ -667,7 +723,7 @@ def calculate_portfolio_historical_curve(period: str, user_id: int, db: Session)
                     if best_price is None and pts:
                         best_price = pts[0]["price"]
                     if best_price is not None:
-                        price_cad = _get_cad_price(best_price, currency_map.get(t_sym, "CAD"), db)
+                        price_cad = _get_cad_price(best_price, currency_map.get(t_sym, "CAD"), db, ticker=t_sym)
                         daily_value += sh * Decimal(str(price_cad if price_cad is not None else best_price))
 
         if has_active_shares or daily_dividends > 0:

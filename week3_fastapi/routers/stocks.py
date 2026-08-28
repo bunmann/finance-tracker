@@ -20,6 +20,7 @@ from common.stock_service import (
     get_multiple_stocks_history,
     _get_cad_price,
     calculate_portfolio_historical_curve,
+    calculate_exact_holding_cost,
 )
 from common.stock_csv_parser import validate_and_parse_brokerage_csv
 import io
@@ -68,7 +69,7 @@ def get_price(
 
     # Detect the native currency of the resolved ticker for correct conversion.
     currency = detect_ticker_currency(norm_ticker)
-    price_cad = _get_cad_price(price, currency, db)
+    price_cad = _get_cad_price(price, currency, db, ticker=norm_ticker)
 
     return {
         "ticker": norm_ticker,
@@ -141,7 +142,7 @@ def get_stock_chart(
     # Convert chart points to CAD if needed
     converted_chart = []
     for pt in chart_data:
-        p_cad = _get_cad_price(pt["price"], curr, db)
+        p_cad = _get_cad_price(pt["price"], curr, db, ticker=norm_ticker)
         converted_chart.append({
             "timestamp": pt["timestamp"],
             "price": round(float(p_cad if p_cad is not None else pt["price"]), 4),
@@ -234,17 +235,18 @@ def get_portfolio(
         price, last_updated, is_stale = get_stock_price(ticker, db)
         # Use the stored currency directly — no ticker-suffix guessing.
         # holding.currency was recorded at import time and is the ground truth.
-        price_cad = _get_cad_price(price, holding.currency, db)
+        price_cad = _get_cad_price(price, holding.currency, db, ticker=ticker)
 
         market_value = Decimal(str(price_cad)) * holding.shares if price_cad is not None else None
-        cost_basis = holding.avg_cost * holding.shares
+        cost_basis = calculate_exact_holding_cost(current_user.id, ticker, db)
+        exact_avg_cost = cost_basis / holding.shares if holding.shares > 0 else holding.avg_cost
         unrealized_gain = market_value - cost_basis if market_value is not None else None
         gain_percent = (unrealized_gain / cost_basis * 100) if unrealized_gain is not None and cost_basis else None
 
         portfolio.append({
             "ticker": ticker,
             "shares": float(holding.shares),
-            "avg_cost": float(holding.avg_cost),
+            "avg_cost": float(exact_avg_cost),
             "current_price": float(price_cad) if price_cad is not None else None,
             "last_updated": last_updated.isoformat() if last_updated else None,
             "is_stale": is_stale,
@@ -443,11 +445,23 @@ def upload_csv(
         raw_str = f"{current_user.id}:{ticker}:{tx_type}:{shares}:{price}:{tx_date}"
         fingerprint = hashlib.sha256(raw_str.encode("utf-8")).hexdigest()
 
-        # Check for duplicates
+        # Check for duplicates by exact fingerprint OR fuzzy match (within ±2 days for exact same share quantity and action)
         existing = db.query(models.StockTransaction).filter(
             models.StockTransaction.user_id == current_user.id,
             models.StockTransaction.fingerprint == fingerprint
         ).first()
+
+        if not existing:
+            fuzzy_existing = db.query(models.StockTransaction).filter(
+                models.StockTransaction.user_id == current_user.id,
+                models.StockTransaction.type == tx_type,
+                models.StockTransaction.shares == shares,
+                models.StockTransaction.ticker.in_([ticker, raw_ticker.upper().strip()]),
+                models.StockTransaction.date >= tx_date - timedelta(days=2),
+                models.StockTransaction.date <= tx_date + timedelta(days=2)
+            ).first()
+            if fuzzy_existing:
+                existing = fuzzy_existing
 
         if existing:
             duplicates += 1
@@ -703,7 +717,7 @@ def get_watchlist(
     for item in items:
         price, last_updated, is_stale = get_stock_price(item.ticker, db)
         currency = detect_ticker_currency(item.ticker)
-        price_cad = _get_cad_price(price, currency, db)
+        price_cad = _get_cad_price(price, currency, db, ticker=item.ticker)
         watchlist_enriched.append({
             "id": item.id,
             "ticker": item.ticker,

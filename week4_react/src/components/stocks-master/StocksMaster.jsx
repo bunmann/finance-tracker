@@ -20,6 +20,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../api';
+import { useFinance } from '../../contexts/FinanceContext';
 import StocksSummaryOverview from './stocks-summary/StocksSummaryOverview';
 import PortfolioOverview from './stocks/PortfolioOverview';
 import ScreenerOverview from './screener/ScreenerOverview';
@@ -40,30 +41,25 @@ const pageTransition = {
 
 /**
  * Component: StocksMaster
- * Description: Router and shared data owner for the Stocks & Investments domain.
- *              Fetches portfolio data once on mount and auto-refreshes every 15
- *              minutes in the background. Child routes receive data as props so
- *              tab navigation is instant with no redundant API calls.
- * Props:
- *   - showToast (Function): Toast notification callback from App.
+ * Description: The primary layout wrapper for all stocks-related sub-routes.
+ *              It provides shared caching, timestamping, and centralized 
+ *              mutation handlers (watchlist/competence) to all children.
  */
 function StocksMaster({ showToast }) {
     const location = useLocation();
 
-    // Shared portfolio state — single source of truth for all child routes
-    const [portfolio, setPortfolio] = useState(null);
-    const [portfolioLoading, setPortfolioLoading] = useState(true);
+    const {
+        portfolioData: portfolio,
+        watchlistData: watchlistItems,
+        competenceData: competenceSectors,
+        screenerData: screenerCandidates,
+        isStocksLoading: portfolioLoading,
+        fetchStocksData
+    } = useFinance();
 
-    // Shared watchlist & sector competence state
-    const [watchlistItems, setWatchlistItems] = useState([]);
-    const [competenceSectors, setCompetenceSectors] = useState([]);
-    const [extrasLoading, setExtrasLoading] = useState(true);
+    const extrasLoading = portfolioLoading;
+    const screenerLoading = portfolioLoading;
 
-    // Cached raw quantitative screener candidates (evaluated on mount, interval, and trade updates)
-    const [screenerCandidates, setScreenerCandidates] = useState([]);
-    const [screenerLoading, setScreenerLoading] = useState(true);
-
-    // Timestamp of the last successful fetch — passed to children so they
     // can display a "Prices refreshed X min ago" label without managing time state
     const [lastRefreshed, setLastRefreshed] = useState(null);
 
@@ -82,161 +78,72 @@ function StocksMaster({ showToast }) {
     // timestamp labels automatically without maintaining separate child timers.
     useTimerTick(60000);
 
-    /**
-     * Function: fetchPortfolio
-     * Description: Fetches /stocks/portfolio from the API and updates shared state.
-     */
-    const fetchPortfolio = useCallback((isBackground = false) => {
-        if (!isBackground) setPortfolioLoading(true);
-
-        api.get('/stocks/portfolio')
-            .then(response => {
-                setPortfolio(response.data);
-                setLastRefreshed(new Date());
-            })
-            .catch(error => {
-                console.error('StocksMaster: portfolio fetch error:', error);
-                if (!isBackground) showToast?.('Failed to load stock portfolio.', 'error');
-            })
-            .finally(() => {
-                if (!isBackground) setPortfolioLoading(false);
-            });
-    }, [showToast]);
-
-    /**
-     * Function: fetchExtras
-     * Description: Fetches /stocks/watchlist and /stocks/competence concurrently.
-     */
-    const fetchExtras = useCallback((isBackground = false) => {
-        if (!isBackground) setExtrasLoading(true);
-
-        Promise.all([
-            api.get('/stocks/watchlist'),
-            api.get('/stocks/competence')
-        ])
-            .then(([watchlistRes, competenceRes]) => {
-                setWatchlistItems(Array.isArray(watchlistRes.data) ? watchlistRes.data : []);
-                setCompetenceSectors(Array.isArray(competenceRes.data) ? competenceRes.data : []);
-            })
-            .catch(error => {
-                console.error('StocksMaster: extras fetch error:', error);
-                if (!isBackground) showToast?.('Failed to load watchlist and sector data.', 'error');
-            })
-            .finally(() => {
-                if (!isBackground) setExtrasLoading(false);
-            });
-    }, [showToast]);
-
-    /**
-     * Function: fetchScreenerCandidates
-     * Description: Fetches /screener/candidates to cache raw candidate calculations
-     *              (metrics + relative strength) across the entire domain.
-     */
-    const fetchScreenerCandidates = useCallback((isBackground = false) => {
-        if (!isBackground) setScreenerLoading(true);
-
-        api.get('/screener/candidates')
-            .then(res => {
-                setScreenerCandidates(Array.isArray(res.data?.candidates) ? res.data.candidates : []);
-            })
-            .catch(err => {
-                console.error('StocksMaster: screener candidates fetch error:', err);
-                if (!isBackground) showToast?.('Failed to load quantitative screener dataset.', 'error');
-            })
-            .finally(() => {
-                if (!isBackground) setScreenerLoading(false);
-            });
-    }, [showToast]);
-
-    // Initial load + 15-minute background refresh timer
+    // Centralized cache initialization
     useEffect(() => {
-        fetchPortfolio(false);
-        fetchExtras(false);
-        fetchScreenerCandidates(false);
-
-        intervalRef.current = setInterval(() => {
-            fetchPortfolio(true);          // Silent background poll
-            fetchExtras(true);             // Silent background poll
-            fetchScreenerCandidates(true); // Silent background poll for fresh relative strength
-        }, REFRESH_INTERVAL_MS);
-
-        // Clear the interval when the user navigates away from /stocks entirely
-        return () => {
-            if (intervalRef.current) clearInterval(intervalRef.current);
-        };
-    }, [fetchPortfolio, fetchExtras, fetchScreenerCandidates]);
+        fetchStocksData(false);
+    }, [fetchStocksData]);
 
     /**
      * Function: handleTradeComplete
      * Description: Called by PortfolioContent after a buy, sell, or CSV import.
      */
     const handleTradeComplete = useCallback(() => {
-        fetchPortfolio(false);
-        fetchExtras(false);
-        fetchScreenerCandidates(true);
+        fetchStocksData(true);
         setRefreshTransactionsTrigger(prev => prev + 1);
-    }, [fetchPortfolio, fetchExtras, fetchScreenerCandidates]);
+    }, [fetchStocksData]);
 
     // Centralized mutation handlers for Watchlist & Circle of Competence
     const handleAddToWatchlist = useCallback((tickerSymbol) => {
-        setExtrasLoading(true);
         api.post('/stocks/watchlist', { ticker: tickerSymbol })
             .then(() => {
                 showToast?.(`Added ${tickerSymbol} to Watchlist!`, 'success');
-                fetchExtras(false);
+                fetchStocksData(true);
             })
             .catch(err => {
                 console.error('Add ticker error:', err);
                 const detail = err.response?.data?.detail || `Could not add ${tickerSymbol} to watchlist.`;
                 showToast?.(detail, 'error');
-                setExtrasLoading(false);
             });
-    }, [fetchExtras, showToast]);
+    }, [fetchStocksData, showToast]);
 
     const handleRemoveFromWatchlist = useCallback((tickerSymbol) => {
-        setExtrasLoading(true);
         api.delete(`/stocks/watchlist/${encodeURIComponent(tickerSymbol)}`)
             .then(() => {
                 showToast?.(`Removed ${tickerSymbol} from Watchlist.`, 'info');
-                fetchExtras(false);
+                fetchStocksData(true);
             })
             .catch(err => {
                 console.error('Remove ticker error:', err);
                 const detail = err.response?.data?.detail || `Could not remove ${tickerSymbol}.`;
                 showToast?.(detail, 'error');
-                setExtrasLoading(false);
             });
-    }, [fetchExtras, showToast]);
+    }, [fetchStocksData, showToast]);
 
     const handleAddCompetenceSector = useCallback((sectorName) => {
-        setExtrasLoading(true);
         api.post('/stocks/competence', { sector: sectorName })
             .then(() => {
                 showToast?.(`Added '${sectorName}' to Circle of Competence!`, 'success');
-                fetchExtras(false);
+                fetchStocksData(true);
             })
             .catch(err => {
                 console.error('Add sector error:', err);
                 const detail = err.response?.data?.detail || `Could not add sector '${sectorName}'.`;
                 showToast?.(detail, 'error');
-                setExtrasLoading(false);
             });
-    }, [fetchExtras, showToast]);
+    }, [fetchStocksData, showToast]);
 
     const handleRemoveCompetenceSector = useCallback((sectorName) => {
-        setExtrasLoading(true);
         api.delete(`/stocks/competence/${encodeURIComponent(sectorName)}`)
             .then(() => {
                 showToast?.(`Removed '${sectorName}' from Circle of Competence.`, 'info');
-                fetchExtras(false);
+                fetchStocksData(true);
             })
             .catch(err => {
                 console.error('Remove sector error:', err);
                 const detail = err.response?.data?.detail || `Could not remove sector '${sectorName}'.`;
                 showToast?.(detail, 'error');
-                setExtrasLoading(false);
             });
-    }, [fetchExtras, showToast]);
+    }, [fetchStocksData, showToast]);
 
     return (
         <AnimatePresence mode="wait" onExitComplete={() => window.scrollTo(0, 0)}>
@@ -284,7 +191,7 @@ function StocksMaster({ showToast }) {
                             competenceSectors={competenceSectors}
                             rawCandidates={screenerCandidates}
                             screenerLoading={screenerLoading}
-                            onRefreshCandidates={() => fetchScreenerCandidates(false)}
+                            onRefreshCandidates={() => fetchStocksData(true)}
                             onOpenModal={setActiveModalSymbol}
                         />
                     </motion.div>

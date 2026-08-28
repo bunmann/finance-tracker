@@ -13,6 +13,7 @@ import { CURRENCY } from '../../../utils/config';
 import { staggerContainer } from '../../../utils/animations';
 import { getRefreshLabel, getPnlClass } from '../../../utils/helpers';
 import HoldingMiniCard from './components/HoldingMiniCard';
+import PortfolioHistoryChart from './components/portfolio-history-chart/PortfolioHistoryChart';
 import WatchlistManager from '../watchlist/components/WatchlistManager';
 import SectorCompetenceManager from '../watchlist/components/SectorCompetenceManager';
 import '../watchlist/Watchlist.css';
@@ -114,6 +115,11 @@ function StocksSummaryContent({
                             prefix={portfolio.total_realized_gain !== null && portfolio.total_realized_gain >= 0 ? '+$' : '$'}
                         />
                     </motion.div>
+
+                    {/* Aggregated Portfolio Valuation & Compounding Chart */}
+                    {/* TEMPORARILY DISABLED: Historical Capital Compounding feature is currently broken.
+                        TODO: Fix backend currency/deduplication issue before re-enabling. */}
+                    {/* <PortfolioHistoryChart /> */}
 
                     {/* Quick Overview Sections */}
                     <div className="summary-grid">

@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import api from '../../api';
+import { useFinance } from '../../contexts/FinanceContext';
 import DashboardOverview from './dashboard/DashboardOverview';
 import TransactionsOverview from './transactions/TransactionsOverview';
 import BudgetOverview from './budgets/BudgetOverview';
@@ -31,44 +31,40 @@ function TransactionsMaster({ showToast }) {
     const [month, setMonth] = useState(today.getMonth() + 1);
     const [year, setYear] = useState(today.getFullYear());
 
-    const [transactions, setTransactions] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const {
+        transactionsData: transactions,
+        isTransactionsLoading: loading,
+        fetchTransactionsData,
+        setTransactionsData,
+        fetchWealthData
+    } = useFinance();
+
     const location = useLocation();
 
-    // Fetch transactions list on mount
+    // Fetch transactions list on mount (if not cached)
     useEffect(() => {
-        setLoading(true);
-        api.get('/transactions?limit=5000')
-            .then(response => {
-                setTransactions(response.data);
-                setLoading(false);
-            })
-            .catch(error => {
-                console.error('Error fetching transactions:', error);
-                showToast?.('Failed to load transaction history.', 'error');
-                setLoading(false);
-            });
-    }, [showToast]);
+        fetchTransactionsData(false);
+    }, [fetchTransactionsData]);
 
     const handleTransactionAdded = (newTx) => {
-        setTransactions(prev => [newTx, ...prev]);
+        setTransactionsData(prev => [newTx, ...(prev || [])]);
+        // Also invalidate wealth data so the dashboard updates cash balance
+        fetchWealthData?.(0, 0, true);
     };
 
     const handleTransactionDeleted = (id) => {
-        setTransactions(prev => prev.filter(tx => tx.id !== id));
+        setTransactionsData(prev => (prev || []).filter(tx => tx.id !== id));
+        fetchWealthData?.(0, 0, true);
     };
 
     const handleTransactionUpdated = (updatedTx) => {
-        setTransactions(prev => prev.map(tx => tx.id === updatedTx.id ? updatedTx : tx));
+        setTransactionsData(prev => (prev || []).map(tx => tx.id === updatedTx.id ? updatedTx : tx));
+        fetchWealthData?.(0, 0, true);
     };
 
     const handleTransactionImportComplete = () => {
-        api.get('/transactions?limit=5000')
-            .then(response => setTransactions(response.data))
-            .catch(error => {
-                console.error('Error fetching transactions after import:', error);
-                showToast?.('Failed to sync transactions after import.', 'error');
-            });
+        fetchTransactionsData(true);
+        fetchWealthData?.(0, 0, true);
     };
 
     return (

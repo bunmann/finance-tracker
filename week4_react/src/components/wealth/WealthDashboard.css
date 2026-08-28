@@ -1,0 +1,311 @@
+/* ============================================================================
+   File: WealthDashboard.css
+   Description: Styles for the Net Worth and Wealth Health Dashboard.
+============================================================================ */
+
+.wealth-dashboard-container {
+    padding: 24px 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.wealth-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.wealth-header h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #0F172A; /* Dark Crisp Title */
+    margin: 0;
+}
+
+.wealth-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: stretch;
+}
+
+/* ============================================================================
+   Net Worth Card (Hero Dark Card)
+============================================================================ */
+.net-worth-card {
+    background-color: #0F172A;
+    border-radius: 16px;
+    padding: 32px;
+    color: #F8FAFC;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.15);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+}
+
+.net-worth-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+}
+
+.net-worth-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    margin: 0 0 24px 0;
+    color: #FFFFFF;
+}
+
+.net-worth-breakdown {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+    border-top: 1px solid #334155;
+    padding-top: 20px;
+}
+
+.breakdown-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.breakdown-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #94A3B8;
+}
+
+.breakdown-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 600;
+    color: #F8FAFC;
+}
+
+.breakdown-value.positive {
+    color: #00D166;
+}
+
+.breakdown-value.negative {
+    color: #FF3B3B;
+}
+
+.edit-liabilities-btn {
+    background: none;
+    border: none;
+    color: #94A3B8;
+    cursor: pointer;
+    margin-left: 8px;
+    font-size: 14px;
+}
+.edit-liabilities-btn:hover {
+    color: #FFFFFF;
+}
+
+.liabilities-input-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.liabilities-input {
+    background: #1E293B;
+    border: 1px solid #334155;
+    border-radius: 4px;
+    color: #FFFFFF;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 4px 8px;
+    width: 100px;
+    font-size: 14px;
+}
+
+.save-btn {
+    background: #00D166;
+    color: #0F172A;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.sparkline-container {
+    height: 90px;
+    width: 100%;
+    margin-top: 12px;
+    padding-top: 8px;
+}
+
+/* ============================================================================
+   Cash Flow Pulse Card (Crisp Light Card)
+============================================================================ */
+.pulse-card {
+    background-color: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 32px;
+    color: #0F172A;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.pulse-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.pulse-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #0F172A;
+    margin: 0 0 4px 0;
+}
+
+.pulse-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #64748B;
+    margin: 0;
+}
+
+.savings-rate-badge {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rate-excellent {
+    background-color: rgba(0, 209, 102, 0.1);
+    color: #006D32;
+    border: 1px solid rgba(0, 209, 102, 0.25);
+}
+
+.rate-warning {
+    background-color: rgba(246, 165, 0, 0.1);
+    color: #825500;
+    border: 1px solid rgba(246, 165, 0, 0.25);
+}
+
+.rate-danger {
+    background-color: rgba(226, 36, 42, 0.1);
+    color: #BB0017;
+    border: 1px solid rgba(226, 36, 42, 0.25);
+}
+
+.pulse-bar-container {
+    margin-bottom: 24px;
+}
+
+.pulse-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.label-income { color: #006D32; }
+.label-expenses { color: #BB0017; }
+
+.pulse-bar-values {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.pulse-bar {
+    height: 10px;
+    width: 100%;
+    background-color: #F1F5F9;
+    border-radius: 8px;
+    display: flex;
+    overflow: hidden;
+}
+
+.bar-segment-income {
+    height: 100%;
+    background-color: #00D166;
+    transition: width 0.5s ease-in-out;
+}
+
+.bar-segment-expenses {
+    height: 100%;
+    background-color: #FF3B3B;
+    transition: width 0.5s ease-in-out;
+}
+
+/* Light Mode Stats Grid for Cash Flow Card */
+.pulse-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+}
+
+.stat-box {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.stat-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 600;
+    color: #0F172A;
+}
+
+.stat-value.positive {
+    color: #006D32;
+}
+
+.stat-value.negative {
+    color: #BB0017;
+}
+
+.expense-category-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #0F172A;
+}

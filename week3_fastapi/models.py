@@ -27,6 +27,17 @@ class User(Base):
 # Cash Flow & Categorization Models
 # ============================================================================
 
+class UserProfile(Base):
+    """
+    User settings and profile configuration.
+    Keeps financial state separated from authentication credentials.
+    """
+    __tablename__ = "user_profiles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+    liabilities = Column(Numeric(10, 2), default=0.0)
+
 
 class Category(Base):
     """
@@ -190,3 +201,27 @@ class SectorCompetence(Base):
 
     # Ensure a user cannot add the same sector multiple times
     __table_args__ = (UniqueConstraint('user_id', 'sector', name='_user_sector_competence_uc'),)
+
+
+# ============================================================================
+# Wealth Tracking Models
+# ============================================================================
+
+
+class NetWorthSnapshot(Base):
+    """
+    Represents a periodic snapshot of a user's net worth (cash + stocks - liabilities).
+    Used to generate trend lines and historical wealth tracking.
+    """
+    __tablename__ = "net_worth_snapshots"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    date = Column(Date, nullable=False)
+    cash_balance = Column(Numeric(10, 2), nullable=False)
+    stock_value = Column(Numeric(10, 2), nullable=False)
+    liabilities = Column(Numeric(10, 2), nullable=False)
+    net_worth = Column(Numeric(10, 2), nullable=False)
+
+    # Allow only one snapshot per user per day
+    __table_args__ = (UniqueConstraint('user_id', 'date', name='_user_date_snapshot_uc'),)

@@ -7,6 +7,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import api from './api';
 import AppContent from './AppContent';
+import { FinanceProvider } from './contexts/FinanceContext';
 import ScrollToTop from './components/common/layout/ScrollToTop';
 import './App.css';
 
@@ -110,14 +111,16 @@ function App() {
     return (
         <Router>
             <ScrollToTop />
-            <AppContent
-                isLoggedIn={isLoggedIn}
-                handleLogin={handleLogin}
-                handleLogout={handleLogout}
-                showToast={showToast}
-                toast={toast}
-                setToast={setToast}
-            />
+            <FinanceProvider>
+                <AppContent
+                    isLoggedIn={isLoggedIn}
+                    handleLogin={handleLogin}
+                    handleLogout={handleLogout}
+                    showToast={showToast}
+                    toast={toast}
+                    setToast={setToast}
+                />
+            </FinanceProvider>
         </Router>
     );
 }

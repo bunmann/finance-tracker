@@ -10,32 +10,32 @@
 ## 📋 Feature 3 Tasks Checklist
 
 ### 💰 Task 1: Live Net Worth Snapshot (Backend)
-- [ ] Create `GET /net-worth` endpoint that aggregates:
+- [x] Create `GET /net-worth` endpoint that aggregates:
   - **Cash/Spending Balance**: sum of all income minus all expenses across transaction history.
   - **Live Stock Portfolio Value**: pulled from the existing portfolio holdings value (already in CAD).
   - **Manual Liabilities Input**: simple user-editable "Debts & Liabilities" total (e.g. credit card balance, student loans).
-- [ ] Formula: `Net Worth = Cash Balance + Stock Portfolio Value − Total Liabilities`
-- [ ] Store periodic net worth snapshots in a `net_worth_snapshots` table (timestamp + value) for trend tracking.
+- [x] Formula: `Net Worth = Cash Balance + Stock Portfolio Value − Total Liabilities`
+- [x] Store periodic net worth snapshots in a `net_worth_snapshots` table (timestamp + value) for trend tracking.
 
 ### 📊 Task 2: Monthly Savings Rate & Cash Flow Pulse (Backend)
-- [ ] Create `GET /wealth-health?month=X&year=Y` endpoint returning:
+- [x] Create `GET /wealth-health?month=X&year=Y` endpoint returning:
   - `total_income`: sum of income transactions in period.
   - `total_expenses`: sum of expense transactions in period.
   - `net_savings`: `income − expenses`.
   - `savings_rate`: `(net_savings / income) * 100` as a percentage.
   - `biggest_expense_category`: the top spending bucket for the period.
-- [ ] Support `month=0, year=0` for all-time view.
+- [x] Support `month=0, year=0` for all-time view.
 
 ### 🖥️ Task 3: Net Worth & Wealth Health UI (Frontend)
-- [ ] **Net Worth Card** at the top of a new "Wealth" page:
+- [x] **Net Worth Card** at the top of a new "Wealth" page:
   - Three sub-figures shown clearly: Cash Balance · Stock Value · Liabilities.
   - Large single headline **Net Worth** number in CAD.
   - Sparkline trend chart of net worth over last 12 snapshots.
-- [ ] **Monthly Cash Flow Pulse Card**:
+- [x] **Monthly Cash Flow Pulse Card**:
   - Horizontal bar visual: `Income` (green) vs `Expenses` (red/orange).
   - **Savings Rate** shown as a large percentage badge (green if >20%, orange if 10–20%, red if <10%).
   - Biggest expense category callout.
-- [ ] Period selector (Month / Year / All Time) synced with existing PeriodSelector component.
+- [x] Period selector (Month / Year / All Time) synced with existing PeriodSelector component.
 
 ### 🗑️ Explicitly Cut (Not Building)
 - ~~Corporate Balance Sheet (Assets vs. Liabilities in GAAP format)~~

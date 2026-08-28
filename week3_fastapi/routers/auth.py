@@ -56,6 +56,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
         {"name": "Shopping", "icon": "🛍️"},
         {"name": "Bills & Utilities", "icon": "💡"},
         {"name": "Health", "icon": "💊"},
+        {"name": "Investments", "icon": "📈"},
     ]
 
     for cat in default_categories:

@@ -80,3 +80,29 @@ class ScreenerAsset(BaseModel):
 from typing import List
 class ScreenerAssetResponse(BaseModel):
     candidates: List[ScreenerAsset]
+
+
+# ============================================================================
+# Wealth Tracking Schemas
+# ============================================================================
+
+class LiabilitiesUpdate(BaseModel):
+    amount: float = Field(ge=0, description="Total liabilities/debt amount must be positive or zero")
+
+class NetWorthSnapshotResponse(BaseModel):
+    date: str
+    net_worth: float
+
+class NetWorthResponse(BaseModel):
+    cash_balance: float
+    stock_value: float
+    liabilities: float
+    net_worth: float
+    history: List[NetWorthSnapshotResponse]
+
+class WealthHealthResponse(BaseModel):
+    total_income: float
+    total_expenses: float
+    net_savings: float
+    savings_rate: float
+    biggest_expense_category: Optional[str] = None

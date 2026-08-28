@@ -11,7 +11,7 @@ load_dotenv()
 
 from database import engine, Base
 from fastapi.middleware.cors import CORSMiddleware
-from routers import auth, transactions, categories, dashboard, stocks, screener
+from routers import auth, transactions, categories, dashboard, stocks, screener, wealth
 
 # Create all tables in the database (if they don't exist yet)
 Base.metadata.create_all(bind=engine)
@@ -53,6 +53,7 @@ app.include_router(categories.router)
 app.include_router(dashboard.router)
 app.include_router(stocks.router)
 app.include_router(screener.router)
+app.include_router(wealth.router)
 
 
 @app.get("/")

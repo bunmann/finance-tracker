@@ -98,7 +98,7 @@ def _get_evaluated_candidates(db: Session, current_user: models.User) -> List[di
                 price_usd = hist_price or 0.0
             
             currency = info.get("currency", "USD")
-            price_cad = _get_cad_price(price_usd, currency, db)
+            price_cad = _get_cad_price(price_usd, currency, db, ticker=symbol)
 
             pe = info.get("trailingPE")
             profit_margin = info.get("profitMargins")

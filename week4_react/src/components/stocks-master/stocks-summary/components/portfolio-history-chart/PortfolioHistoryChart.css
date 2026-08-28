@@ -1,0 +1,231 @@
+/* ============================================================================
+   File: PortfolioHistoryChart.css
+   Description: Styling for the interactive portfolio compounding historical chart.
+   ============================================================================ */
+
+.portfolio-history-card {
+    background: var(--bg-card, #111827);
+    border: 1px solid var(--border-color, rgba(226, 232, 240, 0.12));
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.portfolio-history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.portfolio-history-title-area {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.portfolio-history-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary, #F8FAFC);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.portfolio-history-sub {
+    font-size: 0.85rem;
+    color: var(--text-secondary, #94A3B8);
+    margin: 0;
+}
+
+.portfolio-history-summary-stats {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.portfolio-stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.portfolio-stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary, #94A3B8);
+    font-weight: 600;
+}
+
+.portfolio-stat-value {
+    font-size: 1.35rem;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-primary, #F8FAFC);
+}
+
+.portfolio-stat-change {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-left: 8px;
+}
+
+.portfolio-stat-change.positive {
+    background: rgba(0, 209, 102, 0.15);
+    color: #00D166;
+}
+
+.portfolio-stat-change.negative {
+    background: rgba(255, 59, 59, 0.15);
+    color: #FF3B3B;
+}
+
+.portfolio-history-timeframes {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(15, 23, 42, 0.6);
+    padding: 4px;
+    border-radius: 10px;
+    border: 1px solid rgba(226, 232, 240, 0.08);
+}
+
+.portfolio-timeframe-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary, #94A3B8);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.portfolio-timeframe-btn:hover {
+    color: var(--text-primary, #F8FAFC);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.portfolio-timeframe-btn.active {
+    background: var(--primary-color, #3B82F6);
+    color: #FFFFFF;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35);
+}
+
+.portfolio-chart-canvas-area {
+    width: 100%;
+    min-height: 340px;
+    position: relative;
+}
+
+.portfolio-chart-legend {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 20px;
+    font-size: 0.8rem;
+    color: var(--text-secondary, #94A3B8);
+    padding-top: 8px;
+    border-top: 1px dashed rgba(226, 232, 240, 0.08);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.legend-dot--val {
+    background: #00D166;
+    box-shadow: 0 0 8px rgba(0, 209, 102, 0.6);
+}
+
+.legend-dot--cost {
+    background: #6366F1;
+    border: 2px dashed #818CF8;
+}
+
+/* Custom Tooltip */
+.portfolio-chart-tooltip {
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(226, 232, 240, 0.15);
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 200px;
+}
+
+.portfolio-tooltip-date {
+    font-size: 0.75rem;
+    color: var(--text-secondary, #94A3B8);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.1);
+    padding-bottom: 6px;
+}
+
+.portfolio-tooltip-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+.portfolio-tooltip-label {
+    color: #CBD5E1;
+}
+
+.portfolio-tooltip-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+}
+
+.portfolio-tooltip-val--total {
+    color: #00D166;
+}
+
+.portfolio-tooltip-val--cost {
+    color: #818CF8;
+}
+
+.portfolio-tooltip-val--pnl {
+    font-weight: 800;
+}
+
+@media (max-width: 768px) {
+    .portfolio-history-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .portfolio-history-summary-stats {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+}

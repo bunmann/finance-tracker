@@ -3,6 +3,7 @@
 // Description: Nested high-level layout component that manages route transitions,
 //              navigation layout frames, and floating notifications toast.
 // ============================================================================
+import { useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './components/common/layout/Navbar';
@@ -10,9 +11,11 @@ import TransactionsMaster from './components/transactions-master/TransactionsMas
 import LoginPage from './components/auth/LoginPage';
 import SignupPage from './components/auth/SignupPage';
 import StocksMaster from './components/stocks-master/StocksMaster';
+import WealthDashboard from './components/wealth/WealthDashboard';
 import Toast from './components/common/feedback/Toast';
 import ErrorBoundary from './components/common/feedback/ErrorBoundary';
 import { pageTransition } from './utils/animations';
+import { useFinance } from './contexts/FinanceContext';
 
 /**
  * Component: AppContent
@@ -28,6 +31,16 @@ function AppContent({
     setToast
 }) {
     const location = useLocation();
+    const { fetchWealthData, fetchTransactionsData, fetchStocksData } = useFinance();
+
+    // Automatic background pre-fetching: Load all domain data on login/mount
+    useEffect(() => {
+        if (isLoggedIn) {
+            fetchWealthData(0, 0, false);
+            fetchTransactionsData(false);
+            fetchStocksData(false);
+        }
+    }, [isLoggedIn, fetchWealthData, fetchTransactionsData, fetchStocksData]);
 
     // Domain scoping prevents master containers from unmounting during sub-tab navigation
     const getDomainKey = (path) => {
@@ -38,6 +51,10 @@ function AppContent({
         // Cash Flow Master domain
         if (path.startsWith('/cashflow')) {
             return 'cashflow-master';
+        }
+        // Wealth Master domain
+        if (path.startsWith('/wealth')) {
+            return 'wealth-master';
         }
         // Stocks Master domain (future-proofing)
         if (path.startsWith('/stocks') || path.startsWith('/screener')) {
@@ -58,12 +75,12 @@ function AppContent({
                     <AnimatePresence mode="wait" onExitComplete={() => window.scrollTo(0, 0)}>
                         <Routes location={location} key={getDomainKey(location.pathname)}>
                             {/* Base Redirects */}
-                            <Route path="/" element={<Navigate to={isLoggedIn ? "/cashflow" : "/login"} replace />} />
+                            <Route path="/" element={<Navigate to={isLoggedIn ? "/wealth" : "/login"} replace />} />
 
                             {/* Guest Routes (Redirect to dashboard if logged in) */}
                             <Route path="/login" element={
                                 isLoggedIn ? (
-                                    <Navigate to="/cashflow" replace />
+                                    <Navigate to="/wealth" replace />
                                 ) : (
                                     <motion.div {...pageTransition} className="auth-page-wrapper">
                                         <LoginPage onLogin={handleLogin} />
@@ -72,7 +89,7 @@ function AppContent({
                             } />
                             <Route path="/signup" element={
                                 isLoggedIn ? (
-                                    <Navigate to="/cashflow" replace />
+                                    <Navigate to="/wealth" replace />
                                 ) : (
                                     <motion.div {...pageTransition} className="auth-page-wrapper">
                                         <SignupPage />
@@ -95,9 +112,19 @@ function AppContent({
                                     <Navigate to="/login" replace />
                                 )
                             } />
+                            
+                            <Route path="/wealth" element={
+                                isLoggedIn ? (
+                                    <motion.div {...pageTransition} className="master-container" style={{overflowY: 'auto'}}>
+                                        <WealthDashboard />
+                                    </motion.div>
+                                ) : (
+                                    <Navigate to="/login" replace />
+                                )
+                            } />
 
                             {/* Wildcard Fallback */}
-                            <Route path="*" element={<Navigate to={isLoggedIn ? "/cashflow" : "/login"} replace />} />
+                            <Route path="*" element={<Navigate to={isLoggedIn ? "/wealth" : "/login"} replace />} />
                         </Routes>
                     </AnimatePresence>
                 </ErrorBoundary>
