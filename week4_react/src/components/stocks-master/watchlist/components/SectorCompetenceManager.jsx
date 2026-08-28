@@ -32,7 +32,8 @@ const STANDARD_SECTORS = [
  */
 function SectorCompetenceManager({ sectors = [], onAddCompetenceSector, onRemoveCompetenceSector, loading = false }) {
     // Normalize sector items into string list for easy lookup
-    const activeSectorNames = sectors.map(item => {
+    const list = Array.isArray(sectors) ? sectors : [];
+    const activeSectorNames = list.map(item => {
         return (typeof item === 'object' ? item.sector : item)?.trim() || '';
     }).filter(Boolean);
 

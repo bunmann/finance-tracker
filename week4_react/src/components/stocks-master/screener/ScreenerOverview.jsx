@@ -41,7 +41,8 @@ function ScreenerOverview({
 
     // Normalize incoming competenceSectors prop for table row matching
     const formattedCompetenceSectors = useMemo(() => {
-        return competenceSectors
+        const list = Array.isArray(competenceSectors) ? competenceSectors : [];
+        return list
             .map(c => (typeof c === 'object' ? c.sector : c)?.toLowerCase().trim())
             .filter(Boolean);
     }, [competenceSectors]);

@@ -18,6 +18,7 @@ import { CURRENCY } from '../../../../utils/config';
  *   - loading (Boolean): Loading indicator status during network operations.
  */
 function WatchlistManager({ items = [], onAddToWatchlist, onRemoveFromWatchlist, loading = false, onOpenModal }) {
+    const list = Array.isArray(items) ? items : [];
     const [tickerInput, setTickerInput] = useState('');
 
     const handleSubmit = (e) => {
@@ -121,7 +122,7 @@ function WatchlistManager({ items = [], onAddToWatchlist, onRemoveFromWatchlist,
             </form>
 
             {/* Table or Empty State */}
-            {items.length === 0 ? (
+            {list.length === 0 ? (
                 <EmptyState
                     icon="saved_search"
                     title="No Monitored Stocks"
@@ -130,7 +131,7 @@ function WatchlistManager({ items = [], onAddToWatchlist, onRemoveFromWatchlist,
             ) : (
                 <div className="watchlist-table-wrapper">
                     <GenericTable
-                        data={items}
+                        data={list}
                         columns={columns}
                         renderRow={renderRow}
                         rowKey="ticker"

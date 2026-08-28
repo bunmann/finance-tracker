@@ -50,12 +50,16 @@ function StocksMaster({ showToast }) {
 
     const {
         portfolioData: portfolio,
-        watchlistData: watchlistItems,
-        competenceData: competenceSectors,
-        screenerData: screenerCandidates,
+        watchlistData: rawWatchlist,
+        competenceData: rawCompetence,
+        screenerData: rawScreener,
         isStocksLoading: portfolioLoading,
         fetchStocksData
     } = useFinance();
+
+    const watchlistItems = Array.isArray(rawWatchlist) ? rawWatchlist : [];
+    const competenceSectors = Array.isArray(rawCompetence) ? rawCompetence : [];
+    const screenerCandidates = Array.isArray(rawScreener) ? rawScreener : [];
 
     const extrasLoading = portfolioLoading;
     const screenerLoading = portfolioLoading;
