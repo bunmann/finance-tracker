@@ -204,12 +204,12 @@ def chat_with_ai(
     last_error_details = []
 
     for model_name in models_to_try:
-        # Support clean header auth WITHOUT ?key= in URL (Required for AQ... keys)
+        # Standard API Key targets (removes Bearer header to prevent 401 OAuth errors)
         api_targets = [
-            (f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent", {"Content-Type": "application/json", "x-goog-api-key": api_key}),
             (f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}", {"Content-Type": "application/json"}),
-            (f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent", {"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"}),
-            (f"https://generativelanguage.googleapis.com/v1/models/{model_name}:generateContent?key={api_key}", {"Content-Type": "application/json"})
+            (f"https://generativelanguage.googleapis.com/v1/models/{model_name}:generateContent?key={api_key}", {"Content-Type": "application/json"}),
+            (f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent", {"Content-Type": "application/json", "x-goog-api-key": api_key}),
+            (f"https://generativelanguage.googleapis.com/v1/models/{model_name}:generateContent", {"Content-Type": "application/json", "x-goog-api-key": api_key})
         ]
 
         for gemini_url, headers in api_targets:
