@@ -183,9 +183,11 @@ def chat_with_ai(
     # 3. Try Google Gemini API Production Models
     models_to_try = [
         "gemini-1.5-flash",
+        "gemini-1.5-flash-8b",
         "gemini-1.5-pro",
         "gemini-2.0-flash-exp",
-        "gemini-1.5-flash-latest"
+        "gemini-flash",
+        "gemini-pro"
     ]
 
     system_instruction = (
