@@ -190,16 +190,19 @@ def chat_with_ai(
         "gemini-pro"
     ]
 
-    system_instruction = (
+    system_instruction_text = (
         "You are an expert, friendly AI Personal Financial Assistant for Veridian Finance. "
         "Use the provided user financial data context to answer the user's question concisely, accurately, and encouragingly. "
         "Use bullet points or bold formatting for readability. Keep your response under 150 words."
     )
-    full_prompt = f"{system_instruction}\n\n{fin_context}\n\nUSER QUESTION: {user_prompt}"
 
     req_payload = {
+        "system_instruction": {
+            "parts": [{"text": system_instruction_text}]
+        },
         "contents": [{
-            "parts": [{"text": full_prompt}]
+            "role": "user",
+            "parts": [{"text": f"{fin_context}\n\nUSER QUESTION: {user_prompt}"}]
         }]
     }
 
