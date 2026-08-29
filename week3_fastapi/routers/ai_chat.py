@@ -180,14 +180,12 @@ def chat_with_ai(
         fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
         return {"response": fallback_reply, "rate_limit_remaining": remaining}
 
-    # 3. Try Google Gemini API Production Models
+    # 3. Try Google Gemini API Production Models (matching Google AI Studio cURL quickstart)
     models_to_try = [
+        "gemini-flash-latest",
         "gemini-1.5-flash",
-        "gemini-1.5-flash-8b",
-        "gemini-1.5-pro",
         "gemini-2.0-flash-exp",
-        "gemini-flash",
-        "gemini-pro"
+        "gemini-pro-latest"
     ]
 
     system_instruction_text = (
@@ -205,12 +203,10 @@ def chat_with_ai(
     last_error_details = []
 
     for model_name in models_to_try:
-        # Standard API Key and Vertex AI Service Account Bound Key targets
+        # Targets matching Google AI Studio quickstart specification
         api_targets = [
-            (f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}", {"Content-Type": "application/json"}),
-            (f"https://generativelanguage.googleapis.com/v1/models/{model_name}:generateContent?key={api_key}", {"Content-Type": "application/json"}),
-            (f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent", {"Content-Type": "application/json", "x-goog-api-key": api_key}),
-            (f"https://generativelanguage.googleapis.com/v1/models/{model_name}:generateContent", {"Content-Type": "application/json", "x-goog-api-key": api_key})
+            (f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent", {"Content-Type": "application/json", "X-goog-api-key": api_key}),
+            (f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}", {"Content-Type": "application/json"})
         ]
 
         for gemini_url, headers in api_targets:
