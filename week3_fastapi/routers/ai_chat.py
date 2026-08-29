@@ -129,9 +129,6 @@ USER FINANCIAL DATA CONTEXT:
 def generate_smart_db_insight(prompt: str, fin_context: str) -> str:
     prompt_lower = prompt.lower()
     
-    if "linked list" in prompt_lower or "data structure" in prompt_lower:
-        return "A **Linked List** is a linear data structure where elements (nodes) are stored in non-contiguous memory locations and linked together via pointers. Each node contains a data payload and a reference (`next`) to the subsequent node in the list."
-
     if "spend" in prompt_lower or "expense" in prompt_lower or "category" in prompt_lower or "most money" in prompt_lower:
         categories = fin_context.split("Top Expense Categories: ")[1].split("\n")[0] if "Top Expense Categories: " in fin_context else "No logged expenses"
         return f"Based on your live transaction records, your top spending breakdown is:\n\n• **{categories}**\n\n*Tip: Keep track of these categories in your Budgets tab to control discretionary spending.*"
