@@ -6,6 +6,7 @@
 import os
 import json
 import time
+import ssl
 import urllib.request
 import urllib.error
 from datetime import date, datetime, timedelta
@@ -195,6 +196,8 @@ def chat_with_ai(
         }]
     }
 
+    last_error_details = []
+
     for model_name in models_to_try:
         # Support clean header auth WITHOUT ?key= in URL (Required for AQ... keys)
         api_targets = [
@@ -206,12 +209,16 @@ def chat_with_ai(
 
         for gemini_url, headers in api_targets:
             try:
+                ctx = ssl.create_default_context()
+                ctx.check_hostname = False
+                ctx.verify_mode = ssl.CERT_NONE
+
                 req = urllib.request.Request(
                     gemini_url,
                     data=json.dumps(req_payload).encode("utf-8"),
                     headers=headers
                 )
-                with urllib.request.urlopen(req, timeout=8) as resp:
+                with urllib.request.urlopen(req, context=ctx, timeout=10) as resp:
                     data = json.loads(resp.read().decode("utf-8"))
                     candidates = data.get("candidates", [])
                     if candidates:
@@ -221,14 +228,29 @@ def chat_with_ai(
                             if ai_reply:
                                 return {"response": ai_reply, "rate_limit_remaining": remaining}
             except urllib.error.HTTPError as e:
+                err_b = e.read().decode("utf-8", errors="ignore")
+                err_msg = f"HTTP {e.code}: {err_b[:120]}"
+                print(f"Gemini API model {model_name} HTTP Error: {err_msg}")
+                last_error_details.append(err_msg)
                 if e.code == 429:
                     raise HTTPException(status_code=429, detail="Google Gemini API rate limit reached. Please wait a moment.")
-                print(f"Gemini API model {model_name} URL {gemini_url[:60]} HTTP Error {e.code}")
                 continue
             except Exception as err:
                 print(f"Gemini API model {model_name} Error:", err)
+                last_error_details.append(str(err))
                 continue
 
-    # Fallback to Smart DB Insight if API call failed
+    # Fallback: Check if user asked a general non-financial question
+    prompt_lower = user_prompt.lower()
+    financial_keywords = ["spend", "expense", "budget", "saving", "stock", "portfolio", "worth", "health", "income", "money", "holding", "category"]
+    is_financial_query = any(k in prompt_lower for k in financial_keywords)
+
+    if not is_financial_query and last_error_details:
+        err_hint = last_error_details[0] if last_error_details else "Connection Error"
+        return {
+            "response": f"⚠️ **Google Gemini Connection Issue**: Unable to connect to Google AI server ({err_hint}). Please verify your `GEMINI_API_KEY` in `week3_fastapi/.env`.",
+            "rate_limit_remaining": remaining
+        }
+
     fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
     return {"response": fallback_reply, "rate_limit_remaining": remaining}
