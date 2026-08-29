@@ -197,12 +197,8 @@ def chat_with_ai(
     )
 
     req_payload = {
-        "system_instruction": {
-            "parts": [{"text": system_instruction_text}]
-        },
         "contents": [{
-            "role": "user",
-            "parts": [{"text": f"{fin_context}\n\nUSER QUESTION: {user_prompt}"}]
+            "parts": [{"text": f"{system_instruction_text}\n\n{fin_context}\n\nUSER QUESTION: {user_prompt}"}]
         }]
     }
 
@@ -258,14 +254,9 @@ def chat_with_ai(
     is_financial_query = any(k in prompt_lower for k in financial_keywords)
 
     if not is_financial_query and last_error_details:
-        err_hint = last_error_details[0] if last_error_details else "Connection Error"
-        if "not supported for this API key" in err_hint or "not found" in err_hint:
-            return {
-                "response": "⚠️ **Google API Key Needs API Enablement**: Your key is valid, but the **Generative Language API** is not enabled on your Google Cloud Project yet.\n\n• **Option 1 (Easiest - 1 Click)**: Create a free key at [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey) (auto-enabled).\n• **Option 2**: Enable API on your GCP project at [console.cloud.google.com](https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com).",
-                "rate_limit_remaining": remaining
-            }
+        err_hint = last_error_details[-1] if last_error_details else "Connection Error"
         return {
-            "response": f"⚠️ **Google Gemini Connection Issue**: {err_hint}. Please check your key configuration in `week3_fastapi/.env`.",
+            "response": f"⚠️ **Google Gemini Connection**: {err_hint}",
             "rate_limit_remaining": remaining
         }
 
