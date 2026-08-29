@@ -148,7 +148,7 @@ def generate_smart_db_insight(prompt: str, fin_context: str) -> str:
         return f"Your current savings rate is **{sr}%**. Here are 3 actionable tips to increase it:\n\n1. **Audit Monthly Subscriptions**: Cancel recurring expenses you no longer use.\n2. **Automate Payday Savings**: Direct 15-20% of your income into savings immediately.\n3. **Enforce Category Budgets**: Set alerts in your Budgets tab when approaching monthly spending caps."
     
     nw = fin_context.split("Total Net Worth: CAD $")[1].split("\n")[0] if "Total Net Worth: CAD $" in fin_context else "0.00"
-    return f"Here is your financial snapshot:\n\n• **Net Worth**: CAD ${nw}\n\n*Note: To enable live conversational AI, obtain a free API key at [aistudio.google.com](https://aistudio.google.com) (starting with `AIzaSy...`) and add it to `week3_fastapi/.env`.*"
+    return f"Here is your financial snapshot:\n\n• **Net Worth**: CAD ${nw}\n\nAsk anything about your expenses, budgets, or investments!"
 
 # ----------------------------------------------------------------------------
 # Endpoint: POST /ai/chat
@@ -195,16 +195,16 @@ def chat_with_ai(
         }]
     }
 
-    # Support all key auth formats (x-goog-api-key, Bearer token, query param)
-    headers_options = [
-        {"Content-Type": "application/json", "x-goog-api-key": api_key},
-        {"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
-        {"Content-Type": "application/json"}
-    ]
-
     for model_name in models_to_try:
-        for headers in headers_options:
-            gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+        # Support clean header auth WITHOUT ?key= in URL (Required for AQ... keys)
+        api_targets = [
+            (f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent", {"Content-Type": "application/json", "x-goog-api-key": api_key}),
+            (f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}", {"Content-Type": "application/json"}),
+            (f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent", {"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"}),
+            (f"https://generativelanguage.googleapis.com/v1/models/{model_name}:generateContent?key={api_key}", {"Content-Type": "application/json"})
+        ]
+
+        for gemini_url, headers in api_targets:
             try:
                 req = urllib.request.Request(
                     gemini_url,
@@ -223,7 +223,7 @@ def chat_with_ai(
             except urllib.error.HTTPError as e:
                 if e.code == 429:
                     raise HTTPException(status_code=429, detail="Google Gemini API rate limit reached. Please wait a moment.")
-                print(f"Gemini API model {model_name} HTTP Error {e.code}")
+                print(f"Gemini API model {model_name} URL {gemini_url[:60]} HTTP Error {e.code}")
                 continue
             except Exception as err:
                 print(f"Gemini API model {model_name} Error:", err)
