@@ -180,51 +180,40 @@ def chat_with_ai(
         fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
         return {"response": fallback_reply, "rate_limit_remaining": remaining}
 
-    # 3. Clean Single Request to Google Gemini API (gemini-1.5-flash)
-    gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    # 3. Request Google Gemini API using Google cURL quickstart format
+    api_targets = [
+        (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent", {"Content-Type": "application/json", "X-goog-api-key": api_key}),
+        (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}", {"Content-Type": "application/json"})
+    ]
 
-    system_instruction_text = (
-        "You are an expert, friendly AI Personal Financial Assistant for Veridian Finance. "
-        "Use the provided user financial data context to answer the user's question concisely, accurately, and encouragingly. "
-        "Use bullet points or bold formatting for readability. Keep your response under 150 words."
-    )
+    for gemini_url, headers in api_targets:
+        try:
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
 
-    req_payload = {
-        "contents": [{
-            "parts": [{"text": f"{system_instruction_text}\n\n{fin_context}\n\nUSER QUESTION: {user_prompt}"}]
-        }]
-    }
+            req = urllib.request.Request(
+                gemini_url,
+                data=json.dumps(req_payload).encode("utf-8"),
+                headers=headers
+            )
+            with urllib.request.urlopen(req, context=ctx, timeout=8) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                candidates = data.get("candidates", [])
+                if candidates:
+                    parts = candidates[0].get("content", {}).get("parts", [])
+                    if parts:
+                        ai_reply = parts[0].get("text", "")
+                        if ai_reply:
+                            return {"response": ai_reply, "rate_limit_remaining": remaining}
+        except urllib.error.HTTPError as e:
+            err_b = e.read().decode("utf-8", errors="ignore")
+            print(f"Gemini API HTTP Error {e.code}: {err_b[:150]}")
+            continue
+        except Exception as err:
+            print("Gemini API Exception:", err)
+            continue
 
-    try:
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
-
-        req = urllib.request.Request(
-            gemini_url,
-            data=json.dumps(req_payload).encode("utf-8"),
-            headers={"Content-Type": "application/json"}
-        )
-        with urllib.request.urlopen(req, context=ctx, timeout=10) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            candidates = data.get("candidates", [])
-            if candidates:
-                parts = candidates[0].get("content", {}).get("parts", [])
-                if parts:
-                    ai_reply = parts[0].get("text", "")
-                    if ai_reply:
-                        return {"response": ai_reply, "rate_limit_remaining": remaining}
-    except urllib.error.HTTPError as e:
-        err_b = e.read().decode("utf-8", errors="ignore")
-        print(f"Gemini API HTTP Error {e.code}: {err_b[:150]}")
-        if e.code == 429:
-            fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
-            return {"response": f"⏱️ *Rate Limit (15 RPM Cap)*: Google Gemini API quota temporarily reached. Here is your DB insight:\n\n{fallback_reply}", "rate_limit_remaining": 0}
-        return {"response": f"⚠️ **Google Gemini Connection**: HTTP {e.code} ({err_b[:120]})", "rate_limit_remaining": remaining}
-    except Exception as err:
-        print("Gemini API Exception:", err)
-        fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
-        return {"response": fallback_reply, "rate_limit_remaining": remaining}
-
+    # Fallback to Smart Database Financial Analyst if API call didn't return text
     fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
     return {"response": fallback_reply, "rate_limit_remaining": remaining}
