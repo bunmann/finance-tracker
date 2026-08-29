@@ -180,13 +180,8 @@ def chat_with_ai(
         fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
         return {"response": fallback_reply, "rate_limit_remaining": remaining}
 
-    # 3. Try Google Gemini API Production Models (matching Google AI Studio cURL quickstart)
-    models_to_try = [
-        "gemini-flash-latest",
-        "gemini-1.5-flash",
-        "gemini-2.0-flash-exp",
-        "gemini-pro-latest"
-    ]
+    # 3. Clean Single Request to Google Gemini API (gemini-1.5-flash)
+    gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
 
     system_instruction_text = (
         "You are an expert, friendly AI Personal Financial Assistant for Veridian Finance. "
@@ -200,59 +195,36 @@ def chat_with_ai(
         }]
     }
 
-    last_error_details = []
+    try:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
 
-    for model_name in models_to_try:
-        # Targets matching Google AI Studio quickstart specification
-        api_targets = [
-            (f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent", {"Content-Type": "application/json", "X-goog-api-key": api_key}),
-            (f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}", {"Content-Type": "application/json"})
-        ]
-
-        for gemini_url, headers in api_targets:
-            try:
-                ctx = ssl.create_default_context()
-                ctx.check_hostname = False
-                ctx.verify_mode = ssl.CERT_NONE
-
-                req = urllib.request.Request(
-                    gemini_url,
-                    data=json.dumps(req_payload).encode("utf-8"),
-                    headers=headers
-                )
-                with urllib.request.urlopen(req, context=ctx, timeout=10) as resp:
-                    data = json.loads(resp.read().decode("utf-8"))
-                    candidates = data.get("candidates", [])
-                    if candidates:
-                        parts = candidates[0].get("content", {}).get("parts", [])
-                        if parts:
-                            ai_reply = parts[0].get("text", "")
-                            if ai_reply:
-                                return {"response": ai_reply, "rate_limit_remaining": remaining}
-            except urllib.error.HTTPError as e:
-                err_b = e.read().decode("utf-8", errors="ignore")
-                err_msg = f"HTTP {e.code}: {err_b[:120]}"
-                print(f"Gemini API model {model_name} HTTP Error: {err_msg}")
-                last_error_details.append(err_msg)
-                if e.code == 429:
-                    raise HTTPException(status_code=429, detail="Google Gemini API rate limit reached. Please wait a moment.")
-                continue
-            except Exception as err:
-                print(f"Gemini API model {model_name} Error:", err)
-                last_error_details.append(str(err))
-                continue
-
-    # Fallback: Check if user asked a general non-financial question
-    prompt_lower = user_prompt.lower()
-    financial_keywords = ["spend", "expense", "budget", "saving", "stock", "portfolio", "worth", "health", "income", "money", "holding", "category"]
-    is_financial_query = any(k in prompt_lower for k in financial_keywords)
-
-    if not is_financial_query and last_error_details:
-        err_hint = last_error_details[-1] if last_error_details else "Connection Error"
-        return {
-            "response": f"⚠️ **Google Gemini Connection**: {err_hint}",
-            "rate_limit_remaining": remaining
-        }
+        req = urllib.request.Request(
+            gemini_url,
+            data=json.dumps(req_payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"}
+        )
+        with urllib.request.urlopen(req, context=ctx, timeout=10) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            candidates = data.get("candidates", [])
+            if candidates:
+                parts = candidates[0].get("content", {}).get("parts", [])
+                if parts:
+                    ai_reply = parts[0].get("text", "")
+                    if ai_reply:
+                        return {"response": ai_reply, "rate_limit_remaining": remaining}
+    except urllib.error.HTTPError as e:
+        err_b = e.read().decode("utf-8", errors="ignore")
+        print(f"Gemini API HTTP Error {e.code}: {err_b[:150]}")
+        if e.code == 429:
+            fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
+            return {"response": f"⏱️ *Rate Limit (15 RPM Cap)*: Google Gemini API quota temporarily reached. Here is your DB insight:\n\n{fallback_reply}", "rate_limit_remaining": 0}
+        return {"response": f"⚠️ **Google Gemini Connection**: HTTP {e.code} ({err_b[:120]})", "rate_limit_remaining": remaining}
+    except Exception as err:
+        print("Gemini API Exception:", err)
+        fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
+        return {"response": fallback_reply, "rate_limit_remaining": remaining}
 
     fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
     return {"response": fallback_reply, "rate_limit_remaining": remaining}
