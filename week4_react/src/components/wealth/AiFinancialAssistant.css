@@ -346,6 +346,15 @@
     opacity: 0.9;
 }
 
+.chat-msg-link {
+    color: #006D32;
+    text-decoration: underline;
+    font-weight: 600;
+}
+.chat-msg-link:hover {
+    color: #00D166;
+}
+
 .bubble-timestamp {
     font-size: 11px;
     opacity: 0.7;

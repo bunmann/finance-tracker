@@ -22,7 +22,7 @@ const renderFormattedText = (text) => {
     return lines.map((line, lIdx) => {
         if (!line.trim()) return <div key={lIdx} style={{ height: '6px' }} />;
 
-        const parts = line.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+        const parts = line.split(/(\*\*.*?\*\*|\*.*?\*|\[.*?\]\(.*?\))/g);
 
         const renderedLine = parts.map((part, pIdx) => {
             if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
@@ -30,6 +30,15 @@ const renderFormattedText = (text) => {
             }
             if (part.startsWith('*') && part.endsWith('*') && part.length >= 2) {
                 return <em key={pIdx}>{part.slice(1, -1)}</em>;
+            }
+            if (part.startsWith('[') && part.includes('](') && part.endsWith(')')) {
+                const label = part.slice(1, part.indexOf(']('));
+                const url = part.slice(part.indexOf('](') + 2, -1);
+                return (
+                    <a key={pIdx} href={url} target="_blank" rel="noopener noreferrer" className="chat-msg-link">
+                        {label}
+                    </a>
+                );
             }
             return part;
         });
