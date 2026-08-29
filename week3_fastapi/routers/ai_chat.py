@@ -186,6 +186,7 @@ def chat_with_ai(
         (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}", {"Content-Type": "application/json"})
     ]
 
+    last_error = None
     for gemini_url, headers in api_targets:
         try:
             ctx = ssl.create_default_context()
@@ -208,12 +209,16 @@ def chat_with_ai(
                             return {"response": ai_reply, "rate_limit_remaining": remaining}
         except urllib.error.HTTPError as e:
             err_b = e.read().decode("utf-8", errors="ignore")
+            last_error = f"HTTP {e.code}: {err_b[:200]}"
             print(f"Gemini API HTTP Error {e.code}: {err_b[:150]}")
             continue
         except Exception as err:
+            last_error = f"Exception: {str(err)}"
             print("Gemini API Exception:", err)
             continue
 
-    # Fallback to Smart Database Financial Analyst if API call didn't return text
+    if last_error:
+        return {"response": f"🚨 **Google API Connection Error**: {last_error}", "rate_limit_remaining": remaining}
+
     fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
     return {"response": fallback_reply, "rate_limit_remaining": remaining}
