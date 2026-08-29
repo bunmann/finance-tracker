@@ -180,8 +180,13 @@ def chat_with_ai(
         fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
         return {"response": fallback_reply, "rate_limit_remaining": remaining}
 
-    # 3. Try Google Gemini API Models (Primary: gemini-2.0-flash, Fallbacks)
-    models_to_try = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-flash-latest"]
+    # 3. Try Google Gemini API Production Models
+    models_to_try = [
+        "gemini-1.5-flash",
+        "gemini-1.5-pro",
+        "gemini-2.0-flash-exp",
+        "gemini-1.5-flash-latest"
+    ]
 
     system_instruction = (
         "You are an expert, friendly AI Personal Financial Assistant for Veridian Finance. "
