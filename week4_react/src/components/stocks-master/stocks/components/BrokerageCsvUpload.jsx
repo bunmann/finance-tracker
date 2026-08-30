@@ -10,10 +10,10 @@ import { CURRENCY } from '../../../../utils/config';
 function BrokerageCsvUpload({ onBrokerageImportComplete }) {
     const description = (
         <>
-            Upload a CSV export from your brokerage (Wealthsimple or Questrade). 
+            Upload a CSV export from your Wealthsimple brokerage account. 
             Supported columns include: <strong>Date, Type/Action, Symbol, Quantity, Price, Amount/Net Amount</strong>.
             <div className="csv-upload-hint">
-                ⚠️ <strong>Currency Note:</strong> This portfolio runs in <strong>{CURRENCY}</strong>. Please ensure the CSV transaction records represent prices already converted to {CURRENCY} (which is standard for Wealthsimple and Questrade {CURRENCY} accounts).
+                ⚠️ <strong>Currency Note:</strong> This portfolio runs in <strong>{CURRENCY}</strong>. Please ensure the CSV transaction records represent prices already converted to {CURRENCY} (which is standard for Wealthsimple {CURRENCY} accounts).
             </div>
         </>
     );

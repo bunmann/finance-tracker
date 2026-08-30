@@ -27,7 +27,7 @@ def parse_brokerage_csv(file_stream: StringIO) -> list[dict]:
     is_wealthsimple = ("date" in headers_lower and ("type" in headers_lower or "symbol" in headers_lower)) or ("transaction_date" in headers_lower and "symbol" in headers_lower)
 
     if not is_questrade and not is_wealthsimple:
-        raise ValueError("Unsupported CSV structure. Ensure it is a valid Wealthsimple or Questrade activity export.")
+        raise ValueError("Unsupported CSV structure. Ensure it is a valid Wealthsimple activity export.")
 
     parsed_transactions = []
 

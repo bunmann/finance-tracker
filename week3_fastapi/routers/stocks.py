@@ -395,8 +395,8 @@ def upload_csv(
     current_user: models.User = Depends(get_current_user)
 ):
     """
-    Upload and parse a brokerage statement CSV (Questrade or Wealthsimple).
-    Auto-detects the brokerage format, filters duplicates, validates tickers,
+    Upload and parse a Wealthsimple brokerage statement CSV.
+    Auto-detects the Wealthsimple format, filters duplicates, validates tickers,
     updates holdings, and logs transactions.
     """
     try:
