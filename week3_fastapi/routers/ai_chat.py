@@ -180,6 +180,18 @@ def chat_with_ai(
         fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
         return {"response": fallback_reply, "rate_limit_remaining": remaining}
 
+    system_instruction_text = (
+        "You are an expert, friendly AI Personal Financial Assistant for Veridian Finance. "
+        "Use the provided user financial data context to answer the user's question concisely, accurately, and encouragingly. "
+        "Use bullet points or bold formatting for readability. Keep your response under 150 words."
+    )
+
+    req_payload = {
+        "contents": [{
+            "parts": [{"text": f"{system_instruction_text}\n\n{fin_context}\n\nUSER QUESTION: {user_prompt}"}]
+        }]
+    }
+
     # 3. Request Google Gemini API using Google cURL quickstart format
     api_targets = [
         (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent", {"Content-Type": "application/json", "X-goog-api-key": api_key}),
