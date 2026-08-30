@@ -229,8 +229,6 @@ def chat_with_ai(
             print("Gemini API Exception:", err)
             continue
 
-    if last_error:
-        return {"response": f"🚨 **Google API Connection Error**: {last_error}", "rate_limit_remaining": remaining}
-
+    # Fallback to Smart Database Financial Analyst engine on any API exception
     fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
     return {"response": fallback_reply, "rate_limit_remaining": remaining}
