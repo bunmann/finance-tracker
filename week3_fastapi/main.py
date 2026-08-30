@@ -57,9 +57,31 @@ app.include_router(wealth.router)
 app.include_router(ai_chat.router)
 
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello World! Welcome to your Finance API."}
+import os
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+# Mount static React bundle if built
+react_dist_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "week4_react", "dist"))
+if os.path.exists(react_dist_dir):
+    assets_dir = os.path.join(react_dist_dir, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="react_assets")
+
+    @app.get("/{full_path:path}")
+    def serve_frontend(full_path: str):
+        # Exclude API endpoints from static file catch-all
+        api_prefixes = ["auth", "transactions", "categories", "dashboard", "stocks", "screener", "wealth", "ai", "debug"]
+        if any(full_path.startswith(prefix) for prefix in api_prefixes):
+            return None
+        target_file = os.path.join(react_dist_dir, full_path)
+        if os.path.exists(target_file) and os.path.isfile(target_file):
+            return FileResponse(target_file)
+        return FileResponse(os.path.join(react_dist_dir, "index.html"))
+else:
+    @app.get("/")
+    def read_root():
+        return {"message": "Hello World! Welcome to your Finance API."}
 
 
 #  =====================RESET & SEED ENDPOINTS ====================
