@@ -16,7 +16,7 @@ import bcrypt
 
 # ====== Configuration ======
 import os
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-this-in-production")
+SECRET_KEY = os.getenv("SECRET_KEY", "g5g7fp6EDS-V&g$")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 ABSOLUTE_SESSION_EXPIRE_HOURS = 12  # 12-hour maximum daily session hard cap
