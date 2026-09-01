@@ -8,3 +8,4 @@ python-jose[cryptography]
 python-multipart
 yfinance
 requests
+psycopg2-binary
