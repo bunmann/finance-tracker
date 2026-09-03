@@ -192,38 +192,60 @@ def chat_with_ai(
         }]
     }
 
-    # 3. Request Google Gemini API using Python requests
+    # 3. Request Google Gemini API using dynamic ModelService model discovery
     import requests
 
-    api_targets = [
-        (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={api_key}", {"Content-Type": "application/json"}),
-        (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent", {"Content-Type": "application/json", "X-goog-api-key": api_key}),
-        (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}", {"Content-Type": "application/json"}),
-        (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}", {"Content-Type": "application/json"})
-    ]
+    # Query Google's ModelService to list active available models for this specific key
+    list_url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
+    available_models = []
+    
+    try:
+        list_res = requests.get(list_url, timeout=5, verify=False)
+        if list_res.status_code == 200:
+            models_data = list_res.json().get("models", [])
+            for m in models_data:
+                m_name = m.get("name", "")
+                supported_methods = m.get("supportedGenerationMethods", [])
+                if "generateContent" in supported_methods:
+                    clean_name = m_name.replace("models/", "")
+                    available_models.append(clean_name)
+            print("Discovered active Gemini models for key:", available_models)
+        else:
+            print(f"ListModels status {list_res.status_code}: {list_res.text[:150]}")
+    except Exception as e:
+        print("ListModels exception:", e)
+
+    # Fallback candidate models if list_url fails
+    if not available_models:
+        available_models = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"]
 
     last_error = None
-    for gemini_url, headers in api_targets:
-        try:
-            res = requests.post(gemini_url, json=req_payload, headers=headers, timeout=8, verify=False)
-            if res.status_code == 200:
-                data = res.json()
-                candidates = data.get("candidates", [])
-                if candidates:
-                    parts = candidates[0].get("content", {}).get("parts", [])
-                    if parts:
-                        ai_reply = parts[0].get("text", "")
-                        if ai_reply:
-                            return {"response": ai_reply, "rate_limit_remaining": remaining}
-            else:
-                last_error = f"HTTP {res.status_code}: {res.text[:200]}"
-                print(f"Gemini API HTTP Error {res.status_code}: {res.text[:150]}")
-        except Exception as err:
-            last_error = f"Exception: {str(err)}"
-            print("Gemini API Exception:", err)
+    for model_name in available_models[:4]:
+        api_targets = [
+            (f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}", {"Content-Type": "application/json"}),
+            (f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent", {"Content-Type": "application/json", "X-goog-api-key": api_key})
+        ]
+        for gemini_url, headers in api_targets:
+            try:
+                res = requests.post(gemini_url, json=req_payload, headers=headers, timeout=8, verify=False)
+                if res.status_code == 200:
+                    data = res.json()
+                    candidates = data.get("candidates", [])
+                    if candidates:
+                        parts = candidates[0].get("content", {}).get("parts", [])
+                        if parts:
+                            ai_reply = parts[0].get("text", "")
+                            if ai_reply:
+                                return {"response": ai_reply, "rate_limit_remaining": remaining}
+                else:
+                    last_error = f"Model {model_name} HTTP {res.status_code}: {res.text[:180]}"
+                    print(f"Gemini API Model {model_name} HTTP Error {res.status_code}: {res.text[:150]}")
+            except Exception as err:
+                last_error = f"Exception: {str(err)}"
+                print("Gemini API Exception:", err)
 
     if last_error:
-        return {"response": f"⚠️ **Gemini Connection Note**: {last_error}", "rate_limit_remaining": remaining}
+        return {"response": f"⚠️ **Gemini API Note**: {last_error}", "rate_limit_remaining": remaining}
 
     fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
     return {"response": fallback_reply, "rate_limit_remaining": remaining}
