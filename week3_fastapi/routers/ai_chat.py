@@ -196,9 +196,10 @@ def chat_with_ai(
     import requests
 
     api_targets = [
-        (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}", {"Content-Type": "application/json"}),
-        (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent", {"Content-Type": "application/json", "X-goog-api-key": api_key}),
-        (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}", {"Content-Type": "application/json"})
+        (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}", {"Content-Type": "application/json"}),
+        (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent", {"Content-Type": "application/json", "X-goog-api-key": api_key}),
+        (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent", {"Content-Type": "application/json", "X-goog-api-key": api_key}),
+        (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}", {"Content-Type": "application/json"})
     ]
 
     last_error = None
