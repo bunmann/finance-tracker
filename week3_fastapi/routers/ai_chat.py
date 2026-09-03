@@ -192,26 +192,21 @@ def chat_with_ai(
         }]
     }
 
-    # 3. Request Google Gemini API using Google cURL quickstart format
+    # 3. Request Google Gemini API using Python requests
+    import requests
+
     api_targets = [
+        (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}", {"Content-Type": "application/json"}),
         (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent", {"Content-Type": "application/json", "X-goog-api-key": api_key}),
-        (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}", {"Content-Type": "application/json"})
+        (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}", {"Content-Type": "application/json"})
     ]
 
     last_error = None
     for gemini_url, headers in api_targets:
         try:
-            ctx = ssl.create_default_context()
-            ctx.check_hostname = False
-            ctx.verify_mode = ssl.CERT_NONE
-
-            req = urllib.request.Request(
-                gemini_url,
-                data=json.dumps(req_payload).encode("utf-8"),
-                headers=headers
-            )
-            with urllib.request.urlopen(req, context=ctx, timeout=8) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
+            res = requests.post(gemini_url, json=req_payload, headers=headers, timeout=8, verify=False)
+            if res.status_code == 200:
+                data = res.json()
                 candidates = data.get("candidates", [])
                 if candidates:
                     parts = candidates[0].get("content", {}).get("parts", [])
@@ -219,16 +214,15 @@ def chat_with_ai(
                         ai_reply = parts[0].get("text", "")
                         if ai_reply:
                             return {"response": ai_reply, "rate_limit_remaining": remaining}
-        except urllib.error.HTTPError as e:
-            err_b = e.read().decode("utf-8", errors="ignore")
-            last_error = f"HTTP {e.code}: {err_b[:200]}"
-            print(f"Gemini API HTTP Error {e.code}: {err_b[:150]}")
-            continue
+            else:
+                last_error = f"HTTP {res.status_code}: {res.text[:200]}"
+                print(f"Gemini API HTTP Error {res.status_code}: {res.text[:150]}")
         except Exception as err:
             last_error = f"Exception: {str(err)}"
             print("Gemini API Exception:", err)
-            continue
 
-    # Fallback to Smart Database Financial Analyst engine on any API exception
+    if last_error:
+        return {"response": f"⚠️ **Gemini Connection Note**: {last_error}", "rate_limit_remaining": remaining}
+
     fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
     return {"response": fallback_reply, "rate_limit_remaining": remaining}
