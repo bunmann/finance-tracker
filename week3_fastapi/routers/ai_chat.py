@@ -209,7 +209,16 @@ def chat_with_ai(
                 if "generateContent" in supported_methods:
                     clean_name = m_name.replace("models/", "")
                     available_models.append(clean_name)
-            print("Discovered active Gemini models for key:", available_models)
+            
+            # Prioritize standard Flash/Pro models and exclude specialized TTS/preview models
+            flash_models = [m for m in available_models if "flash" in m and "tts" not in m and "preview" not in m]
+            pro_models = [m for m in available_models if "pro" in m and "tts" not in m and "preview" not in m]
+            other_models = [m for m in available_models if "tts" not in m and "preview" not in m]
+            
+            prioritized = flash_models + pro_models + other_models
+            if prioritized:
+                available_models = prioritized
+            print("Prioritized Gemini models for key:", available_models)
         else:
             print(f"ListModels status {list_res.status_code}: {list_res.text[:150]}")
     except Exception as e:
@@ -237,15 +246,18 @@ def chat_with_ai(
                             ai_reply = parts[0].get("text", "")
                             if ai_reply:
                                 return {"response": ai_reply, "rate_limit_remaining": remaining}
+                elif res.status_code == 429:
+                    fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
+                    return {
+                        "response": f"⏱️ **Google Gemini Quota Limit**: Free tier limit (15 RPM) temporarily reached. Here is your database insight:\n\n{fallback_reply}",
+                        "rate_limit_remaining": 0
+                    }
                 else:
                     last_error = f"Model {model_name} HTTP {res.status_code}: {res.text[:180]}"
                     print(f"Gemini API Model {model_name} HTTP Error {res.status_code}: {res.text[:150]}")
             except Exception as err:
                 last_error = f"Exception: {str(err)}"
                 print("Gemini API Exception:", err)
-
-    if last_error:
-        return {"response": f"⚠️ **Gemini API Note**: {last_error}", "rate_limit_remaining": remaining}
 
     fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
     return {"response": fallback_reply, "rate_limit_remaining": remaining}
