@@ -1,8 +1,8 @@
-# 💰 Personal Finance Tracker
+# 💰 Personal Finance & Wealth Tracker
 
-A full-stack personal finance application for tracking transactions, managing budgets, importing bank statements, and visualizing spending — built with **FastAPI**, **PostgreSQL**, **React**, and **Recharts**.
+> 🚀 **Live Demo**: [https://finance-tracker-26i1.onrender.com](https://finance-tracker-26i1.onrender.com)
 
-> 🚧 **Active Development** — Stock portfolio tracking, AI-powered categorization, financial statements, and Docker deployment are coming next.
+A full-stack personal finance application for tracking transactions, managing budgets, importing bank statements, tracking stock portfolios, and AI financial insights — built with **FastAPI**, **React**, **SQLAlchemy**, and **Recharts**.
 
 ---
 
