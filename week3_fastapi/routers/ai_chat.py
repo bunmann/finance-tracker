@@ -210,11 +210,11 @@ def chat_with_ai(
                     clean_name = m_name.replace("models/", "")
                     available_models.append(clean_name)
             
-            # Filter out specialized models (TTS, audio, embedding, image generation)
+            # Filter out specialized models and deprecated 2.5 models
             text_models = []
             for m in available_models:
                 m_lower = m.lower()
-                if any(x in m_lower for x in ["tts", "audio", "embed", "imagen", "vision-preview"]):
+                if any(x in m_lower for x in ["tts", "audio", "embed", "imagen", "vision-preview", "2.5"]):
                     continue
                 text_models.append(m)
             
@@ -231,16 +231,19 @@ def chat_with_ai(
     except Exception as e:
         print("ListModels exception:", e)
 
-    # Fallback candidate models if list_url fails
-    if not available_models:
-        available_models = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"]
+    # Fallback candidate models if list_url fails or returns unexpected models
+    hardcoded_candidates = ["gemini-3.6-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"]
+    for hc in hardcoded_candidates:
+        if hc not in available_models:
+            available_models.append(hc)
 
     last_error = None
-    for model_name in available_models[:4]:
+    for model_name in available_models[:6]:
         api_targets = [
             (f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}", {"Content-Type": "application/json"}),
             (f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent", {"Content-Type": "application/json", "X-goog-api-key": api_key})
         ]
+        model_succeeded = False
         for gemini_url, headers in api_targets:
             try:
                 res = requests.post(gemini_url, json=req_payload, headers=headers, timeout=8, verify=False)
@@ -253,16 +256,25 @@ def chat_with_ai(
                             ai_reply = parts[0].get("text", "")
                             if ai_reply:
                                 return {"response": ai_reply, "rate_limit_remaining": remaining}
-                elif res.status_code != 200:
-                    raw_error_msg = res.text
-                    print(f"Gemini API Model {model_name} HTTP {res.status_code}: {raw_error_msg}")
-                    return {
-                        "response": f"⚠️ **Gemini API Raw Output** (HTTP {res.status_code}):\n\n```json\n{raw_error_msg}\n```",
-                        "rate_limit_remaining": 0
-                    }
+                elif res.status_code == 404:
+                    print(f"Model {model_name} is deprecated (404). Trying next model...")
+                    last_error = res.text
+                    break  # Break inner loop to try next model in outer loop
+                elif res.status_code == 429:
+                    print(f"Model {model_name} rate limit (429).")
+                    last_error = res.text
+                    break
+                else:
+                    last_error = f"Model {model_name} HTTP {res.status_code}: {res.text}"
+                    print(f"Gemini API Model {model_name} HTTP {res.status_code}: {res.text}")
             except Exception as err:
                 last_error = f"Exception: {str(err)}"
                 print("Gemini API Exception:", err)
 
     fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
+    if last_error and "429" in str(last_error):
+        return {
+            "response": f"⏱️ **Google Gemini Quota Limit**: Free tier limit (15 RPM) reached. Here is your database insight:\n\n{fallback_reply}",
+            "rate_limit_remaining": 0
+        }
     return {"response": fallback_reply, "rate_limit_remaining": remaining}
