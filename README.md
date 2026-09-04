@@ -173,18 +173,18 @@ The app will be running at **http://localhost:5173**.
 ## 🗺️ Roadmap
 
 - [x] Python fundamentals & data structures
-- [x] SQL + PostgreSQL (schema design, queries, joins)
+- [x] SQL + PostgreSQL (schema design, queries, joins, Neon serverless DB)
 - [x] FastAPI REST API (CRUD, validation, filtering, pagination)
-- [x] React frontend (dashboard, forms, charts)
-- [x] JWT authentication (signup, login, protected routes)
-- [x] CSV import with duplicate detection
-- [x] Budget tracking with progress visualization
-- [x] UI polish (spinners, toasts, error boundaries)
-- [ ] Stock portfolio backend (Alpha Vantage API integration)
-- [ ] Stock portfolio frontend (charts, P&L tracking)
-- [ ] AI-powered transaction categorization (Google Gemini API)
-- [ ] Financial statements (balance sheet, income statement, cash flow)
-- [ ] Docker containerization & deployment
+- [x] React frontend (dashboard, forms, interactive charts, glassmorphism UI)
+- [x] JWT authentication (signup, login, sliding token refresh, protected routes)
+- [x] CSV import with SHA256 duplicate detection
+- [x] Budget tracking with progress visualization & spending caps
+- [x] UI polish (animations, spinners, toast alerts, error boundaries)
+- [x] Stock portfolio backend (Alpha Vantage API integration, price caching, currency conversion)
+- [x] Stock portfolio & screener frontend (interactive stock lookup, P&L, holdings tracker)
+- [x] AI-powered Financial Assistant (Google Gemini API with dynamic model discovery & live database context)
+- [x] Financial statements & Net Worth tracking (cash, stock portfolio, debt, liabilities)
+- [x] Live cloud deployment (Unified web service on Render & Neon PostgreSQL)
 
 ---
 
