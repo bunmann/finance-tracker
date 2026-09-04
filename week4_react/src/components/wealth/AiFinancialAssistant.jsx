@@ -22,9 +22,20 @@ const renderFormattedText = (text) => {
     return lines.map((line, lIdx) => {
         if (!line.trim()) return <div key={lIdx} style={{ height: '6px' }} />;
 
-        const parts = line.split(/(\*\*.*?\*\*|\*.*?\*|\[.*?\]\(.*?\))/g);
+        let isBullet = false;
+        let cleanLine = line;
+        if (cleanLine.trim().startsWith('* ') || cleanLine.trim().startsWith('- ')) {
+            isBullet = true;
+            cleanLine = cleanLine.trim().replace(/^[\*\-]\s+/, '');
+        }
+
+        // Remove trailing unmatched asterisks from LLM outputs like *Definition:*
+        cleanLine = cleanLine.replace(/\*([^\*]+):\*/g, '**$1:**');
+
+        const parts = cleanLine.split(/(\*\*.*?\*\*|\*.*?\*|\[.*?\]\(.*?\))/g);
 
         const renderedLine = parts.map((part, pIdx) => {
+            if (!part) return null;
             if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
                 return <strong key={pIdx}>{part.slice(2, -2)}</strong>;
             }
@@ -44,7 +55,8 @@ const renderFormattedText = (text) => {
         });
 
         return (
-            <p key={lIdx} className="chat-msg-line">
+            <p key={lIdx} className={`chat-msg-line ${isBullet ? 'bullet-line' : ''}`}>
+                {isBullet && <span className="bullet-dot">• </span>}
                 {renderedLine}
             </p>
         );
