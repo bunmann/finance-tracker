@@ -210,17 +210,24 @@ def chat_with_ai(
                     clean_name = m_name.replace("models/", "")
                     available_models.append(clean_name)
             
-            # Prioritize standard Flash/Pro models and exclude specialized TTS/preview models
-            flash_models = [m for m in available_models if "flash" in m and "tts" not in m and "preview" not in m]
-            pro_models = [m for m in available_models if "pro" in m and "tts" not in m and "preview" not in m]
-            other_models = [m for m in available_models if "tts" not in m and "preview" not in m]
+            # Filter out specialized models (TTS, audio, embedding, image generation)
+            text_models = []
+            for m in available_models:
+                m_lower = m.lower()
+                if any(x in m_lower for x in ["tts", "audio", "embed", "imagen", "vision-preview"]):
+                    continue
+                text_models.append(m)
+            
+            flash_models = [m for m in text_models if "flash" in m]
+            pro_models = [m for m in text_models if "pro" in m]
+            other_models = [m for m in text_models if m not in flash_models and m not in pro_models]
             
             prioritized = flash_models + pro_models + other_models
             if prioritized:
                 available_models = prioritized
-            print("Prioritized Gemini models for key:", available_models)
+            print("Prioritized Gemini text models for key:", available_models)
         else:
-            print(f"ListModels status {list_res.status_code}: {list_res.text[:150]}")
+            print(f"ListModels status {list_res.status_code}: {list_res.text[:300]}")
     except Exception as e:
         print("ListModels exception:", e)
 
@@ -249,12 +256,12 @@ def chat_with_ai(
                 elif res.status_code == 429:
                     fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
                     return {
-                        "response": f"⏱️ **Google Gemini Quota Limit**: Free tier limit (15 RPM) temporarily reached. Here is your database insight:\n\n{fallback_reply}",
+                        "response": f"⏱️ **Google Gemini Quota Limit**: Free tier limit (15 RPM) temporarily reached. Learn more at https://ai.google.dev/gemini-api/docs/rate-limits.\n\nHere is your database insight:\n\n{fallback_reply}",
                         "rate_limit_remaining": 0
                     }
                 else:
-                    last_error = f"Model {model_name} HTTP {res.status_code}: {res.text[:180]}"
-                    print(f"Gemini API Model {model_name} HTTP Error {res.status_code}: {res.text[:150]}")
+                    last_error = f"Model {model_name} HTTP {res.status_code}: {res.text}"
+                    print(f"Gemini API Model {model_name} HTTP Error {res.status_code}: {res.text}")
             except Exception as err:
                 last_error = f"Exception: {str(err)}"
                 print("Gemini API Exception:", err)
