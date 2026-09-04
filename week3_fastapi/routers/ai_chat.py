@@ -253,15 +253,13 @@ def chat_with_ai(
                             ai_reply = parts[0].get("text", "")
                             if ai_reply:
                                 return {"response": ai_reply, "rate_limit_remaining": remaining}
-                elif res.status_code == 429:
-                    fallback_reply = generate_smart_db_insight(user_prompt, fin_context)
+                elif res.status_code != 200:
+                    raw_error_msg = res.text
+                    print(f"Gemini API Model {model_name} HTTP {res.status_code}: {raw_error_msg}")
                     return {
-                        "response": f"⏱️ **Google Gemini Quota Limit**: Free tier limit (15 RPM) temporarily reached. Learn more at https://ai.google.dev/gemini-api/docs/rate-limits.\n\nHere is your database insight:\n\n{fallback_reply}",
+                        "response": f"⚠️ **Gemini API Raw Output** (HTTP {res.status_code}):\n\n```json\n{raw_error_msg}\n```",
                         "rate_limit_remaining": 0
                     }
-                else:
-                    last_error = f"Model {model_name} HTTP {res.status_code}: {res.text}"
-                    print(f"Gemini API Model {model_name} HTTP Error {res.status_code}: {res.text}")
             except Exception as err:
                 last_error = f"Exception: {str(err)}"
                 print("Gemini API Exception:", err)
