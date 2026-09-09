@@ -52,6 +52,29 @@ A full-stack personal finance and wealth management platform built with **React*
 
 ---
 
+## 📁 Project Structure
+
+```text
+Finance Project/
+├── week3_fastapi/            # Production Backend REST API (Python / FastAPI)
+│   ├── main.py               # FastAPI entry point, CORS middleware, static mount
+│   ├── database.py           # SQLAlchemy engine & Neon PostgreSQL connection
+│   ├── models.py             # Database models (User, Transaction, Holding, Category)
+│   ├── auth.py               # JWT token creation, sliding renewal & bcrypt hashing
+│   └── routers/              # Modular API endpoints (Auth, AI Chat, Stocks, Wealth)
+│
+├── week4_react/              # Production Frontend SPA (React 18 / Vite)
+│   └── src/
+│       ├── api.js            # Axios client with JWT request/response interceptors
+│       └── components/       # Dashboard, AI Assistant, Stock Screener, Budgets
+│
+├── learning_archives/        # Practice modules & exercises (Python, SQL, UI Specs)
+├── build.sh                  # Render unified build & deployment script
+└── README.md                 # Project documentation & API specifications
+```
+
+---
+
 ## 🏗️ System Architecture & Data Flow
 
 ```mermaid
