@@ -8,7 +8,21 @@ A full-stack personal finance and wealth management platform built with **React*
 
 ## 📸 Interface Screenshots & Feature Showcase
 
-### 1. **Cash Flow Dashboard & Interactive Analytics**
+### 1. **Wealth & Health Balance Sheet Dashboard**
+> *Central net worth engine calculating overall financial health ($49,311.43), liquid cash ($45,574.09), stock equity ($3,737.34), monthly savings rate (90.8%), and asset-to-liability ratios.*
+
+![Wealth & Health Dashboard](./docs/wealth_health_dashboard.png)
+
+---
+
+### 2. **AI Financial Coach & Analyst (Google Gemini Integration)**
+> *Interactive AI assistant analyzing real-time user database context (Net Worth, cash flow, top spending categories) to provide tailored financial advice, meal-planning tips, and spending reduction strategies.*
+
+![AI Financial Assistant](./docs/ai_assistant.png)
+
+---
+
+### 3. **Cash Flow Dashboard & Interactive Analytics**
 > *Aggregated monthly financial overview featuring real-time income ($5,700.00), expenses ($523.12), net savings ($5,176.88), active over-budget warning alerts, and an interactive Recharts category distribution pie chart.*
 
 ![Cash Flow Dashboard](./docs/dashboard_overview.png)
