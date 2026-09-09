@@ -1,22 +1,42 @@
-# 💰 Personal Finance & Wealth Tracker
+# 💰 Veridian Finance — AI-Powered Wealth & Stock Platform
 
-> 🚀 **Live Demo**: [https://finance-tracker-26i1.onrender.com](https://finance-tracker-26i1.onrender.com)
+> 🚀 **Live Production Deployment**: [https://finance-tracker-26i1.onrender.com](https://finance-tracker-26i1.onrender.com)
 
-A full-stack personal finance application for tracking transactions, managing budgets, importing bank statements, tracking stock portfolios, and AI financial insights — built with **FastAPI**, **React**, **SQLAlchemy**, and **Recharts**.
+A full-stack personal finance and wealth management platform built with **React**, **Python (FastAPI)**, **PostgreSQL (Neon.tech)**, and **Google Gemini AI**. Features real-time stock portfolio valuation, category budget tracking, CSV statement deduplication, and an AI Financial Coach with live database context analysis.
 
 ---
 
-## ✨ Features
+## 📸 Interface Screenshots
 
-| Feature | Description |
+> *Add screenshots here by placing images in a `docs/` folder.*
+
+| Financial Dashboard | AI Financial Assistant |
 |---|---|
-| **Transaction Management** | Create, view, search, filter, and delete income/expense transactions with pagination |
-| **Category System** | Default + custom categories with emoji icons for organizing transactions |
-| **Budget Tracking** | Set monthly budgets per category with real-time progress bars and overspend alerts |
-| **CSV Import** | Upload bank statement CSVs with SHA256 fingerprint-based duplicate detection |
-| **Interactive Dashboard** | Monthly spending breakdown (pie chart), income vs. expense trends (bar chart), and summary cards |
-| **User Authentication** | Secure signup/login with bcrypt password hashing and JWT access tokens |
-| **Polished UI** | Loading spinners, empty states, toast notifications, error boundaries, and responsive layout |
+| ![Dashboard](./docs/dashboard_preview.png) | ![AI Coach](./docs/ai_preview.png) |
+
+---
+
+## ✨ Key Features
+
+### 🤖 **AI Financial Coach (Google Gemini API)**
+* **Dynamic Context Injection**: Generates targeted financial advice by analyzing live user net worth, income, expenses, category spending, and stock holdings.
+* **Resilient Model Failover**: Automatically queries Google's `ListModels` API, excludes deprecated (`2.5`) or specialized (TTS/Audio) models, and iterates candidate models (`gemini-2.0-flash`, `gemini-1.5-pro`) to ensure high availability.
+* **Rate Limit Protection**: In-memory sliding-window rate limiter (5 req/min) with a rule-based database fallback engine when Gemini API quotas (15 RPM) are reached.
+
+### 📈 **Stock Portfolio & Equity Screener**
+* **Live Market Data**: Integrates Alpha Vantage API for real-time stock lookup, P/E ratios, market cap, and valuation metrics.
+* **Database Price Cache**: Implements a `PriceCache` table to reduce external API requests and respect rate limits.
+* **Multi-Currency Support**: Automatic CAD/USD exchange rate conversion for international stocks to calculate overall Net Worth in Canadian dollars.
+
+### 📊 **Transaction Management & CSV Deduplication**
+* **SHA-256 Deduplication**: Generates cryptographic fingerprints for incoming CSV bank transactions to prevent duplicate imports.
+* **Budget Tracking**: Category budgets with visual progress indicators and overspend alerts.
+* **Filtering & Pagination**: Search, filter by category/type, and paginate transactions.
+
+### 🔐 **Authentication & Security**
+* **Sliding JWT Tokens**: Custom FastAPI middleware issues renewed access tokens (`X-Token-Refresh`) upon activity, keeping active users signed in safely.
+* **Password Hashing**: Secure user registration and login using `bcrypt`.
+* **Data Isolation**: Strict user-level database scoping across all endpoints.
 
 ---
 
@@ -24,129 +44,33 @@ A full-stack personal finance application for tracking transactions, managing bu
 
 | Layer | Technology |
 |---|---|
-| **Frontend** | React 18, React Router, Axios, Recharts |
-| **Backend** | Python 3, FastAPI, Pydantic, SQLAlchemy ORM |
-| **Database** | PostgreSQL |
-| **Auth** | JWT (PyJWT) + bcrypt |
-| **Dev Tools** | Vite, Uvicorn, Git |
+| **Frontend** | React 18, Vite, React Router, Axios, Recharts, Framer Motion |
+| **Backend** | Python 3.11, FastAPI, Pydantic, SQLAlchemy ORM, PyJWT, Passlib (bcrypt) |
+| **Database** | PostgreSQL (Serverless via Neon.tech) / SQLite fallback |
+| **External APIs** | Google Gemini API (Generative Language), Alpha Vantage API |
+| **Deployment** | Render (Unified SPA + REST API), Git |
 
 ---
 
-## 📁 Project Structure
+## 🏗️ System Architecture & Data Flow
 
+```mermaid
+graph TD
+    User([User Browser / React SPA]) <-->|HTTPS / REST API| FastAPI[FastAPI Backend - Render]
+    FastAPI <-->|SQLAlchemy ORM| NeonDB[(Neon.tech PostgreSQL)]
+    FastAPI <-->|Generative AI Prompts| Gemini[Google Gemini API]
+    FastAPI <-->|Stock Quotes| AlphaVantage[Alpha Vantage API]
+    
+    subgraph Security & Middleware
+        JWT[Sliding JWT Auth Middleware]
+        RateLimiter[In-Memory Sliding Window Rate Limiter]
+        Cache[PriceCache Database Layer]
+    end
+    
+    FastAPI --- JWT
+    FastAPI --- RateLimiter
+    FastAPI --- Cache
 ```
-Finance Project/
-├── week3_fastapi/              # Backend API
-│   ├── main.py                 # FastAPI app entry point, CORS, router registration
-│   ├── database.py             # SQLAlchemy engine & session config
-│   ├── models.py               # Database tables (User, Category, Transaction)
-│   ├── schemas.py              # Pydantic request/response models
-│   ├── auth.py                 # JWT token creation & verification, password hashing
-│   └── routers/
-│       ├── auth.py             # POST /signup, POST /login
-│       ├── transactions.py     # CRUD + search/filter/pagination + CSV import
-│       ├── categories.py       # CRUD + budget updates + deletion protection
-│       └── dashboard.py        # GET /dashboard (aggregated spending analytics)
-│
-├── week4_react/                # Frontend SPA
-│   └── src/
-│       ├── App.jsx             # Root component, routing, global state
-│       ├── api.js              # Axios instance with JWT interceptor
-│       ├── App.css             # Global styles
-│       └── components/
-│           ├── Dashboard.jsx       # Charts + summary cards
-│           ├── TransactionList.jsx  # Paginated transaction table
-│           ├── TransactionForm.jsx  # Add transaction form
-│           ├── CsvUpload.jsx       # Bank statement CSV importer
-│           ├── BudgetOverview.jsx  # Budget cards with progress bars
-│           ├── LoginPage.jsx       # Login form
-│           ├── SignupPage.jsx      # Registration form
-│           ├── Navbar.jsx          # Navigation bar
-│           ├── Toast.jsx           # Auto-dismissing notifications
-│           └── ErrorBoundary.jsx   # React error boundary fallback
-│
-└── sample_transactions.csv     # Example CSV for testing imports
-```
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- **Python 3.10+** and `pip`
-- **Node.js 18+** and `npm`
-- **PostgreSQL** (running locally)
-
-### 1. Database Setup
-
-```bash
-# Create the PostgreSQL database
-createdb finance_tracker
-```
-
-### 2. Backend Setup
-
-```bash
-cd week3_fastapi
-
-# Create and activate a virtual environment
-python3 -m venv ../venv
-source ../venv/bin/activate
-
-# Install dependencies
-pip install fastapi uvicorn sqlalchemy psycopg2-binary pyjwt bcrypt python-multipart
-
-# Start the API server (auto-reloads on file changes)
-uvicorn main:app --reload
-```
-
-The API will be running at **http://localhost:8000**. Interactive docs at **http://localhost:8000/docs**.
-
-### 3. Frontend Setup
-
-```bash
-cd week4_react
-
-# Install dependencies
-npm install
-
-# Start the dev server
-npm run dev
-```
-
-The app will be running at **http://localhost:5173**.
-
----
-
-## 📡 API Endpoints
-
-### Authentication
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/signup` | Create a new user account |
-| `POST` | `/login` | Authenticate and receive a JWT token |
-
-### Transactions
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/transactions` | List all transactions (supports `?search=`, `?type=`, `?category=`, `?skip=`, `?limit=`) |
-| `POST` | `/transactions` | Create a new transaction |
-| `DELETE` | `/transactions/{id}` | Delete a transaction |
-| `POST` | `/transactions/import-csv` | Import transactions from a CSV file |
-
-### Categories
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/categories` | List all categories for the current user |
-| `POST` | `/categories` | Create a new category |
-| `PUT` | `/categories/{id}` | Update category name, icon, or monthly budget |
-| `DELETE` | `/categories/{id}` | Delete a category (blocked if transactions are linked) |
-
-### Dashboard
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/dashboard` | Aggregated analytics: totals, category breakdown, monthly trends |
 
 ---
 
@@ -159,35 +83,81 @@ The app will be running at **http://localhost:5173**.
 │ id (PK)      │──┐    │ id (PK)          │    ┌──│ id (PK)      │
 │ email (UQ)   │  │    │ amount           │    │  │ name         │
 │ password_hash│  ├───>│ description      │    │  │ icon         │
-│              │  │    │ date             │    │  │ monthly_budget│
-│              │  │    │ type             │    │  │ user_id (FK) │──┐
-│              │  │    │ user_id (FK)  ───┘    │  └──────────────┘  │
-│              │  │    │ category_id (FK)──────┘                    │
-│              │  │    │ fingerprint      │                         │
-└──────────────┘  │    └──────────────────┘                         │
-                  └────────────────────────────────────────────────┘
+└──────────────┘  │    │ date             │    │  │ monthly_budget│
+                  │    │ type             │    │  │ user_id (FK) │
+                  │    │ user_id (FK)     │    │  └──────────────┘
+                  │    │ category_id (FK)─┘
+                  │    │ fingerprint (UQ) │
+                  │    └──────────────────┘
+                  │
+                  │    ┌──────────────────┐       ┌──────────────┐
+                  │    │     holdings     │       │ price_caches │
+                  │    ├──────────────────┤       ├──────────────┤
+                  ├───>│ id (PK)          │       │ id (PK)      │
+                  │    │ ticker           │       │ ticker (UQ)  │
+                  │    │ shares           │       │ price        │
+                  │    │ currency         │       │ last_updated │
+                  │    │ user_id (FK)     │       └──────────────┘
+                  │    └──────────────────┘
+                  │
+                  │    ┌──────────────────┐
+                  │    │  user_profiles   │
+                  │    ├──────────────────┤
+                  └───>│ user_id (FK)     │
+                       │ liabilities      │
+                       └──────────────────┘
 ```
 
 ---
 
-## 🗺️ Roadmap
+## 💡 System Design Highlights
 
-- [x] Python fundamentals & data structures
-- [x] SQL + PostgreSQL (schema design, queries, joins, Neon serverless DB)
-- [x] FastAPI REST API (CRUD, validation, filtering, pagination)
-- [x] React frontend (dashboard, forms, interactive charts, glassmorphism UI)
-- [x] JWT authentication (signup, login, sliding token refresh, protected routes)
-- [x] CSV import with SHA256 duplicate detection
-- [x] Budget tracking with progress visualization & spending caps
-- [x] UI polish (animations, spinners, toast alerts, error boundaries)
-- [x] Stock portfolio backend (Alpha Vantage API integration, price caching, currency conversion)
-- [x] Stock portfolio & screener frontend (interactive stock lookup, P&L, holdings tracker)
-- [x] AI-powered Financial Assistant (Google Gemini API with dynamic model discovery & live database context)
-- [x] Financial statements & Net Worth tracking (cash, stock portfolio, debt, liabilities)
-- [x] Live cloud deployment (Unified web service on Render & Neon PostgreSQL)
+1. **Why Neon PostgreSQL for Production?**
+   * Render free tier PostgreSQL instances expire after 90 days. Neon provides a permanent 100% free serverless PostgreSQL database that never pauses or deletes data.
+2. **Why Sliding JWT Tokens?**
+   * Traditional refresh tokens stored in cookies or local storage introduce CSRF vulnerabilities or complex DB state. Sliding token renewal via response headers (`X-Token-Refresh`) continuously refreshes active sessions securely.
+3. **Why In-Memory Database Price Caching?**
+   * Free stock market APIs enforce strict rate limits (e.g. 5 requests/min). `PriceCache` caches stock valuations in PostgreSQL, dramatically speeding up dashboard loads and protecting API thresholds.
+
+---
+
+## 💻 Local Development Setup
+
+### 1. Prerequisites
+* Python 3.9+
+* Node.js 18+
+
+### 2. Backend Setup
+```bash
+cd week3_fastapi
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+Create a `.env` file in `week3_fastapi/.env`:
+```env
+SECRET_KEY=your_secret_key
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+GEMINI_API_KEY=your_gemini_api_key
+DATABASE_URL=sqlite:///./finance_app.db
+```
+
+Run backend server:
+```bash
+uvicorn main:app --reload
+```
+
+### 3. Frontend Setup
+```bash
+cd week4_react
+npm install
+npm run dev
+```
+Open **http://localhost:5173** in your browser.
 
 ---
 
 ## 📄 License
-
-This project is for educational purposes as part of a summer learning program.
+This project is open-source and built for educational purposes.
