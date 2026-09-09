@@ -6,13 +6,33 @@ A full-stack personal finance and wealth management platform built with **React*
 
 ---
 
-## 📸 Interface Screenshots
+## 📸 Interface Screenshots & Feature Showcase
 
-> *Add screenshots here by placing images in a `docs/` folder.*
+### 1. **Cash Flow Dashboard & Interactive Analytics**
+> *Aggregated monthly financial overview featuring real-time income ($5,700.00), expenses ($523.12), net savings ($5,176.88), active over-budget warning alerts, and an interactive Recharts category distribution pie chart.*
 
-| Financial Dashboard | AI Financial Assistant |
-|---|---|
-| ![Dashboard](./docs/dashboard_preview.png) | ![AI Coach](./docs/ai_preview.png) |
+![Cash Flow Dashboard](./docs/dashboard_overview.png)
+
+---
+
+### 2. **Category Budget Management & Progress Caps**
+> *Visual budget tracking engine with dynamic color-coded progress indicators (Green < 75%, Orange 75–99%, Red ≥ 100% over-budget threshold) and customizable category management.*
+
+![Category Budget Overview](./docs/budget_overview.png)
+
+---
+
+### 3. **Paginated Transactions Log & Dynamic Sorting**
+> *Full-featured transaction ledger supporting instant category assignment, type tagging (income vs. expense), server-side pagination (10/25/50 rows per page), and item deletion.*
+
+![Transactions Log](./docs/transactions_log.png)
+
+---
+
+### 4. **Bank Statement CSV Import & SHA-256 Deduplication**
+> *Batch CSV transaction ingestion pipeline featuring SHA-256 fingerprint deduplication to automatically detect, report, and skip duplicate bank statement entries.*
+
+![CSV Importer Results](./docs/csv_import.png)
 
 ---
 
