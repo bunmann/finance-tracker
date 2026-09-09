@@ -36,6 +36,41 @@ A full-stack personal finance and wealth management platform built with **React*
 
 ---
 
+### 5. **Stocks & Investments Portfolio Summary**
+> *Capital compounding dashboard displaying total portfolio value (CAD $3,737.34), cost basis ($3,554.28), unrealized P&L (+$183.06 / +5.15%), top position allocation weights, and Quantitative Strategy Scanner launcher.*
+
+![Stocks Summary](./docs/stocks_summary.png)
+
+---
+
+### 6. **Active Equity Holdings & Real-Time Valuation Table**
+> *Live holdings table tracking individual stock positions (`XEQT.TO`, `VFV.TO`, `QQQX.TO`, `TECK-B.TO`, `GOOG.NE`), purchase cost basis, live CAD prices, and per-asset gain/loss metrics.*
+
+![Active Holdings](./docs/active_holdings.png)
+
+---
+
+### 7. **Interactive Stock Price Chart & Time-Series Analytics**
+> *Interactive stock detail modal with dark-mode price charts (1D, 1W, 1M, 3M, 1Y, ALL timeframes), real-time pricing data, and fundamental valuation metrics.*
+
+![Stock Chart Modal](./docs/stock_chart_modal.png)
+
+---
+
+### 8. **Active Watchlist & Circle of Competence (Sector Filtering)**
+> *Real-time ticker watchlist with live pricing badges (`AAPL`, `SHOP.TO`, `VCN.TO`) and custom domain-expertise sector filters (Technology, Energy, Healthcare).*
+
+![Watchlist & Sectors](./docs/watchlist_sectors.png)
+
+---
+
+### 9. **Quantitative Screener & Value Gap Anomaly Detection**
+> *Multi-strategy quantitative screening engine detecting market anomalies — such as fundamental Value Gap alerts when revenue growth diverges from short-term share price drops (`SHOP.TO`, `ATD.TO`).*
+
+![Quantitative Screener](./docs/quantitative_screener.png)
+
+---
+
 ## ✨ Key Features
 
 ### 🤖 **AI Financial Coach (Google Gemini API)**
