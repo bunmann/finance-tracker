@@ -25,7 +25,15 @@ function Navbar({ isLoggedIn, onLogout }) {
                 <p>Pro Edition</p>
             </div>
             <nav className="sidebar-links">
-                {/* Part 1: Personal Transactions */}
+                {/* Part 1: Wealth & Health (Top Default View) */}
+                <div className="sidebar-section">
+                    <NavLink to="/wealth" end className={({ isActive }) => `sidebar-link-primary ${isActive ? 'active' : ''}`}>
+                        <span className="material-symbols-outlined">account_balance</span>
+                        <span>Wealth & Health</span>
+                    </NavLink>
+                </div>
+
+                {/* Part 2: Personal Transactions & Cash Flow */}
                 <div className="sidebar-section">
                     <NavLink to="/cashflow" end className={({ isActive }) => `sidebar-link-primary ${isActive ? 'active' : ''}`}>
                         <span className="material-symbols-outlined">dashboard</span>
@@ -43,7 +51,7 @@ function Navbar({ isLoggedIn, onLogout }) {
                     </div>
                 </div>
 
-                {/* Part 2: Stocks & Capital */}
+                {/* Part 3: Stocks & Capital */}
                 <div className="sidebar-section">
                     <NavLink to="/stocks" end className={({ isActive }) => `sidebar-link-primary ${isActive ? 'active' : ''}`}>
                         <span className="material-symbols-outlined">pie_chart</span>
@@ -63,14 +71,6 @@ function Navbar({ isLoggedIn, onLogout }) {
                             <span>Watchlist & Sectors</span>
                         </NavLink>
                     </div>
-                </div>
-
-                {/* Part 3: Wealth & Health */}
-                <div className="sidebar-section">
-                    <NavLink to="/wealth" end className={({ isActive }) => `sidebar-link-primary ${isActive ? 'active' : ''}`}>
-                        <span className="material-symbols-outlined">account_balance</span>
-                        <span>Wealth & Health</span>
-                    </NavLink>
                 </div>
             </nav>
             <div className="sidebar-footer">
