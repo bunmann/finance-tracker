@@ -11,77 +11,77 @@ A full-stack personal finance and wealth management platform built with **React*
 ### 1. **Wealth & Health Balance Sheet Dashboard**
 > *Central net worth engine calculating overall financial health ($49,311.43), liquid cash ($45,574.09), stock equity ($3,737.34), monthly savings rate (90.8%), and asset-to-liability ratios.*
 
-![Wealth & Health Dashboard](./docs/wealth_health_dashboard.png)
+![Wealth & Health Dashboard](./docs/wealth_health_dashboard.webp)
 
 ---
 
 ### 2. **AI Financial Coach & Analyst (Google Gemini Integration)**
 > *Interactive AI assistant analyzing real-time user database context (Net Worth, cash flow, top spending categories) to provide tailored financial advice, meal-planning tips, and spending reduction strategies.*
 
-![AI Financial Assistant](./docs/ai_assistant.png)
+![AI Financial Assistant](./docs/ai_assistant.webp)
 
 ---
 
 ### 3. **Cash Flow Dashboard & Interactive Analytics**
 > *Aggregated monthly financial overview featuring real-time income ($5,700.00), expenses ($523.12), net savings ($5,176.88), active over-budget warning alerts, and an interactive Recharts category distribution pie chart.*
 
-![Cash Flow Dashboard](./docs/dashboard_overview.png)
+![Cash Flow Dashboard](./docs/dashboard_overview.webp)
 
 ---
 
-### 2. **Category Budget Management & Progress Caps**
+### 4. **Category Budget Management & Progress Caps**
 > *Visual budget tracking engine with dynamic color-coded progress indicators (Green < 75%, Orange 75–99%, Red ≥ 100% over-budget threshold) and customizable category management.*
 
-![Category Budget Overview](./docs/budget_overview.png)
+![Category Budget Overview](./docs/budget_overview.webp)
 
 ---
 
-### 3. **Paginated Transactions Log & Dynamic Sorting**
+### 5. **Paginated Transactions Log & Dynamic Sorting**
 > *Full-featured transaction ledger supporting instant category assignment, type tagging (income vs. expense), server-side pagination (10/25/50 rows per page), and item deletion.*
 
-![Transactions Log](./docs/transactions_log.png)
+![Transactions Log](./docs/transactions_log.webp)
 
 ---
 
-### 4. **Bank Statement CSV Import & SHA-256 Deduplication**
+### 6. **Bank Statement CSV Import & SHA-256 Deduplication**
 > *Batch CSV transaction ingestion pipeline featuring SHA-256 fingerprint deduplication to automatically detect, report, and skip duplicate bank statement entries.*
 
-![CSV Importer Results](./docs/csv_import.png)
+![CSV Importer Results](./docs/csv_import.webp)
 
 ---
 
-### 5. **Stocks & Investments Portfolio Summary**
+### 7. **Stocks & Investments Portfolio Summary**
 > *Capital compounding dashboard displaying total portfolio value (CAD $3,737.34), cost basis ($3,554.28), unrealized P&L (+$183.06 / +5.15%), top position allocation weights, and Quantitative Strategy Scanner launcher.*
 
-![Stocks Summary](./docs/stocks_summary.png)
+![Stocks Summary](./docs/stocks_summary.webp)
 
 ---
 
-### 6. **Active Equity Holdings & Real-Time Valuation Table**
+### 8. **Active Equity Holdings & Real-Time Valuation Table**
 > *Live holdings table tracking individual stock positions (`XEQT.TO`, `VFV.TO`, `QQQX.TO`, `TECK-B.TO`, `GOOG.NE`), purchase cost basis, live CAD prices, and per-asset gain/loss metrics.*
 
-![Active Holdings](./docs/active_holdings.png)
+![Active Holdings](./docs/active_holdings.webp)
 
 ---
 
-### 7. **Interactive Stock Price Chart & Time-Series Analytics**
+### 9. **Interactive Stock Price Chart & Time-Series Analytics**
 > *Interactive stock detail modal with dark-mode price charts (1D, 1W, 1M, 3M, 1Y, ALL timeframes), real-time pricing data, and fundamental valuation metrics.*
 
-![Stock Chart Modal](./docs/stock_chart_modal.png)
+![Stock Chart Modal](./docs/stock_chart_modal.webp)
 
 ---
 
-### 8. **Active Watchlist & Circle of Competence (Sector Filtering)**
+### 10. **Active Watchlist & Circle of Competence (Sector Filtering)**
 > *Real-time ticker watchlist with live pricing badges (`AAPL`, `SHOP.TO`, `VCN.TO`) and custom domain-expertise sector filters (Technology, Energy, Healthcare).*
 
-![Watchlist & Sectors](./docs/watchlist_sectors.png)
+![Watchlist & Sectors](./docs/watchlist_sectors.webp)
 
 ---
 
-### 9. **Quantitative Screener & Value Gap Anomaly Detection**
+### 11. **Quantitative Screener & Value Gap Anomaly Detection**
 > *Multi-strategy quantitative screening engine detecting market anomalies — such as fundamental Value Gap alerts when revenue growth diverges from short-term share price drops (`SHOP.TO`, `ATD.TO`).*
 
-![Quantitative Screener](./docs/quantitative_screener.png)
+![Quantitative Screener](./docs/quantitative_screener.webp)
 
 ---
 
