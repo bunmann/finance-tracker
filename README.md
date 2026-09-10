@@ -1,12 +1,12 @@
-# 💰 Veridian Finance — AI-Powered Wealth & Stock Platform
+# Veridian Finance — AI-Powered Wealth & Stock Platform
 
-> 🚀 **Live Production Deployment**: [https://finance-tracker-26i1.onrender.com](https://finance-tracker-26i1.onrender.com)
+> **Live Production Deployment**: [https://finance-tracker-26i1.onrender.com](https://finance-tracker-26i1.onrender.com)
 
 A full-stack personal finance and wealth management platform built with **React**, **Python (FastAPI)**, **PostgreSQL (Neon.tech)**, and **Google Gemini AI**. Features real-time stock portfolio valuation, category budget tracking, CSV statement deduplication, and an AI Financial Coach with live database context analysis.
 
 ---
 
-## 📸 Interface Screenshots & Feature Showcase
+## Interface Screenshots & Feature Showcase
 
 ### 1. **Wealth & Health Balance Sheet Dashboard**
 > *Central net worth engine calculating overall financial health ($49,311.43), liquid cash ($45,574.09), stock equity ($3,737.34), monthly savings rate (90.8%), and asset-to-liability ratios.*
@@ -82,6 +82,15 @@ A full-stack personal finance and wealth management platform built with **React*
 > *Multi-strategy quantitative screening engine detecting market anomalies — such as fundamental Value Gap alerts when revenue growth diverges from short-term share price drops (`SHOP.TO`, `ATD.TO`).*
 
 ![Quantitative Screener](./docs/quantitative_screener.webp)
+
+---
+
+### 12. **Authentication & User Onboarding (Glassmorphism Split UI)**
+> *Secure user onboarding featuring split-screen Glassmorphism forms, bcrypt password hashing, and stateless JWT access token authentication.*
+
+| Login Interface | User Registration |
+|---|---|
+| ![Login Page](./docs/login.webp) | ![Registration Page](./docs/sign_up.webp) |
 
 ---
 
